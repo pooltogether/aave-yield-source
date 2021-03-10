@@ -494,6 +494,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nomiclabs/hardhat-waffle@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@nomiclabs/hardhat-waffle@npm:2.0.1"
+  dependencies:
+    "@types/sinon-chai": ^3.2.3
+    "@types/web3": 1.0.19
+  peerDependencies:
+    "@nomiclabs/hardhat-ethers": ^2.0.0
+    ethereum-waffle: ^3.2.0
+    ethers: ^5.0.0
+    hardhat: ^2.0.0
+  checksum: 2876a0cbcfdb9d23a21dc83acbdc3bd1b8e24a3c4cb71c76283c1beca0ba60c8485fd74e1b1e5df72d088167c1797ccb5c39845a63d69cb0fee65413807efb9b
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts-upgradeable@npm:3.4.1":
   version: 3.4.1
   resolution: "@openzeppelin/contracts-upgradeable@npm:3.4.1"
@@ -540,6 +555,7 @@ __metadata:
     "@aave/protocol-v2": 1.0.1
     "@nomiclabs/hardhat-ethers": 2.0.2
     "@nomiclabs/hardhat-etherscan": 2.1.1
+    "@nomiclabs/hardhat-waffle": 2.0.1
     "@openzeppelin/contracts-upgradeable": 3.4.1
     "@openzeppelin/hardhat-upgrades": 1.6.0
     "@typechain/ethers-v5": 6.0.2
@@ -682,6 +698,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bn.js@npm:*, @types/bn.js@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@types/bn.js@npm:5.1.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: e33009f99b19bfbef4591704c2deb18f3c55dc433435091895d462846b97bc22ec0440ff0a05439bc7e3a25b07f8bfd2c43215ee50523e4238a9e2865f98578e
+  languageName: node
+  linkType: hard
+
 "@types/bn.js@npm:^4.11.3, @types/bn.js@npm:^4.11.5":
   version: 4.11.6
   resolution: "@types/bn.js@npm:4.11.6"
@@ -691,16 +716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bn.js@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "@types/bn.js@npm:5.1.0"
-  dependencies:
-    "@types/node": "*"
-  checksum: e33009f99b19bfbef4591704c2deb18f3c55dc433435091895d462846b97bc22ec0440ff0a05439bc7e3a25b07f8bfd2c43215ee50523e4238a9e2865f98578e
-  languageName: node
-  linkType: hard
-
-"@types/chai@npm:4.2.15":
+"@types/chai@npm:*, @types/chai@npm:4.2.15":
   version: 4.2.15
   resolution: "@types/chai@npm:4.2.15"
   checksum: 671073ece087a7e336f8f32a09713deecc298fab50b51778c5496781f6ee7075c0fe1e6566407fa8da19e231f292353582eab4fc88ec439e83ace90781ae5991
@@ -807,6 +823,49 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 4e356a4df5fa9aa2f15979144e9ebf4bad1eb57870dcdf2176446c6619af692e1e68452905814c9279ac0ef6ae160503cf64f995fde5d638358feed9b434dd16
+  languageName: node
+  linkType: hard
+
+"@types/sinon-chai@npm:^3.2.3":
+  version: 3.2.5
+  resolution: "@types/sinon-chai@npm:3.2.5"
+  dependencies:
+    "@types/chai": "*"
+    "@types/sinon": "*"
+  checksum: 0e482de52bc6a390921b940dd30786b9ddbc78d2c32a5590f094606ecf20523a5ea2fadc1f702e5e45479e1f7dc19be1061fdf9fe01ad26f466511cea418899e
+  languageName: node
+  linkType: hard
+
+"@types/sinon@npm:*":
+  version: 9.0.11
+  resolution: "@types/sinon@npm:9.0.11"
+  dependencies:
+    "@types/sinonjs__fake-timers": "*"
+  checksum: c84ccbd5ac05d8eb45151a9c0790cf9b9fc78bdfc2f3feecb8866dab530bed82301ba0340cfb73de7148f08a40c9c1b1b7a920e4c9efd79195b60a52ab3e577d
+  languageName: node
+  linkType: hard
+
+"@types/sinonjs__fake-timers@npm:*":
+  version: 6.0.2
+  resolution: "@types/sinonjs__fake-timers@npm:6.0.2"
+  checksum: 1dd1b391904c2a2972318b753026f615784c14a827c12ba21f67707ca6565f3cea195790a1c64178f2208e330eec4ab9c78823c99019384b9a01b02cc6987071
+  languageName: node
+  linkType: hard
+
+"@types/underscore@npm:*":
+  version: 1.11.0
+  resolution: "@types/underscore@npm:1.11.0"
+  checksum: ebe300dbf0293db58a5c05000481d6ed9d4cadba215b68b50481c35b6794ccc74c86394a0d9774e05fdfdc14e7d4459bfde7db7c130790d7fb31868cea554cda
+  languageName: node
+  linkType: hard
+
+"@types/web3@npm:1.0.19":
+  version: 1.0.19
+  resolution: "@types/web3@npm:1.0.19"
+  dependencies:
+    "@types/bn.js": "*"
+    "@types/underscore": "*"
+  checksum: bb6e5ac79de0f2423ff1b6bb276f5011827b572a59de109719a5d6b3d633c9f60bb9aa7bb993614aca1b7edeb2196cbbd8bdb0daf063bb91355c6c2292fb9ad7
   languageName: node
   linkType: hard
 
