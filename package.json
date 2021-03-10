@@ -5,6 +5,8 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "scripts": {
+    "format": "prettier --config .prettierrc --write **/*.ts",
+    "format:file": "prettier --config .prettierrc --write",
     "hint": "solhint \"contracts/**/*.sol\"",
     "verify": "yarn hint && yarn test"
   },
@@ -24,6 +26,7 @@
     "ethers": "5.0.32",
     "hardhat": "2.1.1",
     "hardhat-abi-exporter": "2.1.2",
+    "prettier": "2.2.1",
     "solhint": "3.3.3",
     "ts-node": "9.1.1",
     "typescript": "4.2.3"

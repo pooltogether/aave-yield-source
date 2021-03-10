@@ -1,36 +1,36 @@
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import "hardhat-abi-exporter"
+import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-waffle';
+import 'hardhat-abi-exporter';
 
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig } from 'hardhat/config';
 
-import networks from "./hardhat.network";
+import networks from './hardhat.network';
 
 const optimizerEnabled = !process.env.OPTIMIZER_DISABLED;
 
 const config: HardhatUserConfig = {
   networks,
   solidity: {
-    version: "0.7.6",
+    version: '0.7.6',
     settings: {
       optimizer: {
         enabled: optimizerEnabled,
-        runs: 200
+        runs: 200,
       },
-      evmVersion: "berlin"
+      evmVersion: 'berlin',
     },
   },
   mocha: {
-    timeout: 30000
+    timeout: 30000,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   abiExporter: {
     path: './abis',
     clear: true,
-    flat: true
-  }
-}
+    flat: true,
+  },
+};
 
 export default config;
