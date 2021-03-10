@@ -10,3 +10,10 @@ export ETHERSCAN_API_KEY=''
 # Required for forking
 export ALCHEMY_URL=''
 export FORK_ENABLED=''
+
+# Used to hide deploy logs
+export HIDE_DEPLOY_LOG=''
+
+# Used to generate a gas usage report
+export REPORT_GAS=''
+export COINMARKETCAP_API_KEY=''
