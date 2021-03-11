@@ -6,6 +6,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "deploy": "hardhat deploy --write true --network",
+    "etherscan-verify": "hardhat verify --network",
     "format": "prettier --config .prettierrc --write **/*.ts",
     "format:file": "prettier --config .prettierrc --write",
     "hint": "solhint \"contracts/**/*.sol\"",
