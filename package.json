@@ -5,11 +5,13 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "scripts": {
+    "coverage": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat coverage --network coverage --temp build",
     "deploy": "hardhat deploy --write true --network",
     "etherscan-verify": "hardhat verify --network",
     "format": "prettier --config .prettierrc --write **/*.ts",
     "format:file": "prettier --config .prettierrc --write",
     "hint": "solhint \"contracts/**/*.sol\"",
+    "test": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
     "verify": "yarn hint && yarn test"
   },
   "dependencies": {
@@ -27,6 +29,7 @@
     "@types/chai": "4.2.15",
     "@types/mocha": "8.2.1",
     "@types/node": "14.14.32",
+    "chai": "4.3.3",
     "chalk": "4.1.0",
     "ethers": "5.0.32",
     "hardhat": "2.1.1",
@@ -36,6 +39,7 @@
     "hardhat-gas-reporter": "1.0.4",
     "prettier": "2.2.1",
     "solhint": "3.3.3",
+    "solidity-coverage": "0.7.16",
     "ts-generator": "0.1.1",
     "ts-node": "9.1.1",
     "typechain": "4.0.3",
