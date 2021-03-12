@@ -605,10 +605,12 @@ __metadata:
     "@typechain/ethers-v5": 6.0.2
     "@typechain/hardhat": 1.0.1
     "@types/chai": 4.2.15
+    "@types/debug": 4.1.5
     "@types/mocha": 8.2.1
     "@types/node": 14.14.32
     chai: 4.3.3
     chalk: 4.1.0
+    debug: 4.3.1
     deploy-eip-1820: 1.0.0
     ethers: 5.0.32
     hardhat: 2.1.1
@@ -821,6 +823,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 135011e4e8e9a7a5c6e39fd5ce81ecdb18b6dcd9f4491093b0547c249a030383d552442f22b797a112d649fc514e832f3a2d884bfe6c91d913ec4650d5937550
+  languageName: node
+  linkType: hard
+
+"@types/debug@npm:4.1.5":
+  version: 4.1.5
+  resolution: "@types/debug@npm:4.1.5"
+  checksum: 416ad24bc589be0fb8c78bea972aa7d4ffdf6b136239701b1792674463b2dbf8c6707f6055ec484f79ec1f2b528ffef90c87e55df7e4a0f458184cad5bf0cfc8
   languageName: node
   linkType: hard
 
@@ -2360,6 +2369,18 @@ __metadata:
     supports-color:
       optional: true
   checksum: 5543570879e2274f6725d4285a034d6e0822d35faefc6f55965933fb440e8c21eb3a0bef934e66f4b6b491f898ee2de37cab980e9d4fd61372136c19d3ce4527
+  languageName: node
+  linkType: hard
+
+"debug@npm:4.3.1":
+  version: 4.3.1
+  resolution: "debug@npm:4.3.1"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 0d41ba5177510e8b388dfd7df143ab0f9312e4abdaba312595461511dac88e9ef8101939d33b4e6d37e10341af6a5301082e4d7d6f3deb4d57bc05fc7d296fad
   languageName: node
   linkType: hard
 
