@@ -4,4 +4,5 @@ pragma solidity >=0.6.0 <0.7.0;
 
 interface IReserve {
   function reserveRateMantissa(address yieldSource) external view returns (uint256);
+  function withdrawReserve(address yieldSource, address to) external returns (uint256);
 }

@@ -2,10 +2,10 @@
 
 pragma solidity >=0.6.0 <0.7.0;
 
-import "@aave/protocol-v2/contracts/interfaces/IAToken.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegistry.sol";
 
 import "./ATokenYieldSource.sol";
+import "../external/aave/ATokenInterface.sol";
 import "../external/openzeppelin/ProxyFactory.sol";
 
 /// @title aToken Yield Source Proxy Factory
@@ -23,18 +23,18 @@ contract ATokenYieldSourceProxyFactory is ProxyFactory {
   /// @notice Creates a new aToken Yield Sources as a proxy of the template instance
   /// @param _aToken Aave aToken address
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry
-  /// @param _reserveRate Yield source reserveRate
-  /// @param _owner Yield source owner
+  /// @param _reserve Yield Source Reserve
+  /// @param _owner Yield Source owner
   /// @return A reference to the new proxied aToken Yield Sources
   function create(
-    IAToken _aToken,
+    ATokenInterface _aToken,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
-    uint256 _reserveRate,
+    IReserve _reserve,
     address _owner
   ) public returns (ATokenYieldSource) {
     ATokenYieldSource aTokenYieldSource = ATokenYieldSource(deployMinimal(address(instance), ""));
 
-    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserveRate, _owner);
+    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserve, _owner);
     aTokenYieldSource.transferOwnership(_owner);
 
     return aTokenYieldSource;
