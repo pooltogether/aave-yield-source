@@ -98,7 +98,7 @@ contract ATokenYieldSource is IProtocolYieldSource, Initializable, AssetManager 
     _depositToAave(mintAmount, to);
   }
 
-  /// Track user balance / share calculation
+  /// todo: Track user balance / share calculation
   /// @notice Redeems asset tokens from the yield source
   /// @param redeemAmount The amount of yield-bearing tokens to be redeemed
   /// @return The actual amount of tokens that were redeemed
@@ -107,16 +107,16 @@ contract ATokenYieldSource is IProtocolYieldSource, Initializable, AssetManager 
     return redeemAmount;
   }
 
-  /// @dev Retrieve LendingPoolAddressesProvider address
+  /// @dev Retrieve Aave LendingPoolAddressesProvider address
   /// @return A reference to LendingPoolAddressesProvider interface
-  function _provider() internal view returns (ILendingPoolAddressesProvider) {
+  function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
     return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[0]);
   }
 
-  /// @dev Retrieve LendingPool address
+  /// @dev Retrieve Aave LendingPool address
   /// @return A reference to LendingPool interface
   function _lendingPool() internal view returns (ILendingPool) {
-    return ILendingPool(_provider().getLendingPool());
+    return ILendingPool(_lendingPoolProvider().getLendingPool());
   }
 
   /// @notice Sets the Reserve strategy on this contract
@@ -129,17 +129,16 @@ contract ATokenYieldSource is IProtocolYieldSource, Initializable, AssetManager 
   /// @notice Transfers tokens from the reserve to the given address.  The tokens should be the same tokens as the token() function
   /// @dev This function is callable by the owner or asset manager.
   /// @param to The address to transfer reserve tokens to.
-  function transferReserve(address to) external override onlyOwner onlyAssetManager {
+  function transferReserve(address to) external override OwnerOrAssetManager {
     reserve.withdrawReserve(address(this), to);
   }
 
-  /// @notice Allows the owner to transfer ERC20 tokens held by this contract to the target address.
+  /// @notice Allows the owner to transfer ERC20 tokens other than the aAtokens held by this contract to the target address.
   /// @dev This function is callable by the owner or asset manager.
-  /// This function should not be able to transfer any tokens that represent user deposits.
   /// @param erc20Token The ERC20 token to transfer
   /// @param to The recipient of the tokens
   /// @param amount The amount of tokens to transfer
-  function transferERC20(address erc20Token, address to, uint256 amount) external override onlyOwner onlyAssetManager {
+  function transferERC20(address erc20Token, address to, uint256 amount) external override OwnerOrAssetManager {
     require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
     IERC20Upgradeable(erc20Token).transferFrom(address(this), to, amount);
   }
