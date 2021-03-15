@@ -35,7 +35,7 @@ contract ATokenYieldSourceProxyFactoryHarness is ProxyFactory {
   ) public returns (ATokenYieldSourceHarness) {
     ATokenYieldSourceHarness aTokenYieldSourceHarness = ATokenYieldSourceHarness(deployMinimal(address(instance), ""));
 
-    aTokenYieldSourceHarness.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserve, _owner);
+    aTokenYieldSourceHarness.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserve);
     aTokenYieldSourceHarness.transferOwnership(_owner);
 
     return aTokenYieldSourceHarness;

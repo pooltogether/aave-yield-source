@@ -23,13 +23,11 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IYieldSourceInterface extends ethers.utils.Interface {
   functions: {
-    "balanceOf(address)": FunctionFragment;
     "redeem(uint256)": FunctionFragment;
     "supplyTo(uint256,address)": FunctionFragment;
     "token()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "redeem",
     values: [BigNumberish]
@@ -40,7 +38,6 @@ interface IYieldSourceInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "supplyTo", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
@@ -92,16 +89,6 @@ export class IYieldSource extends Contract {
   interface: IYieldSourceInterface;
 
   functions: {
-    balanceOf(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: Overrides
@@ -128,13 +115,6 @@ export class IYieldSource extends Contract {
 
     "token()"(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  balanceOf(addr: string, overrides?: Overrides): Promise<ContractTransaction>;
-
-  "balanceOf(address)"(
-    addr: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
 
   redeem(
     redeemAmount: BigNumberish,
@@ -163,13 +143,6 @@ export class IYieldSource extends Contract {
   "token()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    balanceOf(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: CallOverrides
@@ -200,13 +173,6 @@ export class IYieldSource extends Contract {
   filters: {};
 
   estimateGas: {
-    balanceOf(addr: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: Overrides
@@ -235,16 +201,6 @@ export class IYieldSource extends Contract {
   };
 
   populateTransaction: {
-    balanceOf(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: Overrides

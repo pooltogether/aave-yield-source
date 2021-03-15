@@ -23,7 +23,6 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
   functions: {
-    "balanceOf(address)": FunctionFragment;
     "redeem(uint256)": FunctionFragment;
     "reserve()": FunctionFragment;
     "setReserve(address)": FunctionFragment;
@@ -34,7 +33,6 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     "transferReserve(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "redeem",
     values: [BigNumberish]
@@ -59,7 +57,6 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "reserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setReserve", data: BytesLike): Result;
@@ -122,16 +119,6 @@ export class IProtocolYieldSource extends Contract {
   interface: IProtocolYieldSourceInterface;
 
   functions: {
-    balanceOf(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: Overrides
@@ -206,13 +193,6 @@ export class IProtocolYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
   };
-
-  balanceOf(addr: string, overrides?: Overrides): Promise<ContractTransaction>;
-
-  "balanceOf(address)"(
-    addr: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
 
   redeem(
     redeemAmount: BigNumberish,
@@ -289,13 +269,6 @@ export class IProtocolYieldSource extends Contract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    balanceOf(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: CallOverrides
@@ -365,13 +338,6 @@ export class IProtocolYieldSource extends Contract {
   filters: {};
 
   estimateGas: {
-    balanceOf(addr: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: Overrides
@@ -439,16 +405,6 @@ export class IProtocolYieldSource extends Contract {
   };
 
   populateTransaction: {
-    balanceOf(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
     redeem(
       redeemAmount: BigNumberish,
       overrides?: Overrides

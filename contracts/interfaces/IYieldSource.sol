@@ -11,11 +11,6 @@ interface IYieldSource {
   /// @return The ERC20 asset token
   function token() external view returns (IERC20Upgradeable);
 
-  /// @notice Returns the total balance (in asset tokens). This includes the deposits and interest.
-  /// @param addr Address to get balance from
-  /// @return The underlying balance of asset tokens
-  function balanceOf(address addr) external returns (uint256);
-
   /// @notice Supplies asset tokens to the yield source.  Allows assets to be supplied on other user's behalf using the `to` param.
   /// @param mintAmount The amount of asset tokens to be supplied
   /// @param to The user whose balance will receive the tokens

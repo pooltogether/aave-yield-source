@@ -17,6 +17,7 @@
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
     "@openzeppelin/contracts-upgradeable": "3.4.1",
+    "@pooltogether/fixed-point": "0.1.0",
     "deploy-eip-1820": "1.0.0"
   },
   "devDependencies": {

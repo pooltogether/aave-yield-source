@@ -9,6 +9,7 @@ export type { ILendingPoolAddressesProviderRegistry } from "./ILendingPoolAddres
 export type { IScaledBalanceToken } from "./IScaledBalanceToken";
 export type { ITokenConfiguration } from "./ITokenConfiguration";
 export type { OwnableUpgradeable } from "./OwnableUpgradeable";
+export type { ERC20Upgradeable } from "./ERC20Upgradeable";
 export type { IERC20Upgradeable } from "./IERC20Upgradeable";
 export type { AssetManager } from "./AssetManager";
 export type { ATokenInterface } from "./ATokenInterface";
@@ -29,6 +30,7 @@ export { ILendingPoolAddressesProviderRegistry__factory } from "./factories/ILen
 export { IScaledBalanceToken__factory } from "./factories/IScaledBalanceToken__factory";
 export { ITokenConfiguration__factory } from "./factories/ITokenConfiguration__factory";
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
+export { ERC20Upgradeable__factory } from "./factories/ERC20Upgradeable__factory";
 export { IERC20Upgradeable__factory } from "./factories/IERC20Upgradeable__factory";
 export { AssetManager__factory } from "./factories/AssetManager__factory";
 export { ATokenInterface__factory } from "./factories/ATokenInterface__factory";

@@ -13,7 +13,6 @@ import {
 import {
   Contract,
   ContractTransaction,
-  Overrides,
   CallOverrides,
 } from "@ethersproject/contracts";
 import { BytesLike } from "@ethersproject/bytes";
@@ -21,29 +20,25 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ProxyFactoryInterface extends ethers.utils.Interface {
+interface FixedPointInterface extends ethers.utils.Interface {
   functions: {
-    "deployMinimal(address,bytes)": FunctionFragment;
+    "c_0x548be08f(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "deployMinimal",
-    values: [string, BytesLike]
+    functionFragment: "c_0x548be08f",
+    values: [BytesLike]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "deployMinimal",
+    functionFragment: "c_0x548be08f",
     data: BytesLike
   ): Result;
 
-  events: {
-    "ProxyCreated(address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "ProxyCreated"): EventFragment;
+  events: {};
 }
 
-export class ProxyFactory extends Contract {
+export class FixedPoint extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -84,77 +79,65 @@ export class ProxyFactory extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ProxyFactoryInterface;
+  interface: FixedPointInterface;
 
   functions: {
-    deployMinimal(
-      _logic: string,
-      _data: BytesLike,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
+    c_0x548be08f(
+      c__0x548be08f: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
 
-    "deployMinimal(address,bytes)"(
-      _logic: string,
-      _data: BytesLike,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
+    "c_0x548be08f(bytes32)"(
+      c__0x548be08f: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
   };
 
-  deployMinimal(
-    _logic: string,
-    _data: BytesLike,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
+  c_0x548be08f(
+    c__0x548be08f: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
-  "deployMinimal(address,bytes)"(
-    _logic: string,
-    _data: BytesLike,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
+  "c_0x548be08f(bytes32)"(
+    c__0x548be08f: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   callStatic: {
-    deployMinimal(
-      _logic: string,
-      _data: BytesLike,
+    c_0x548be08f(
+      c__0x548be08f: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
 
-    "deployMinimal(address,bytes)"(
-      _logic: string,
-      _data: BytesLike,
+    "c_0x548be08f(bytes32)"(
+      c__0x548be08f: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
   };
 
-  filters: {
-    ProxyCreated(proxy: null): TypedEventFilter<[string], { proxy: string }>;
-  };
+  filters: {};
 
   estimateGas: {
-    deployMinimal(
-      _logic: string,
-      _data: BytesLike,
-      overrides?: Overrides
+    c_0x548be08f(
+      c__0x548be08f: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "deployMinimal(address,bytes)"(
-      _logic: string,
-      _data: BytesLike,
-      overrides?: Overrides
+    "c_0x548be08f(bytes32)"(
+      c__0x548be08f: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    deployMinimal(
-      _logic: string,
-      _data: BytesLike,
-      overrides?: Overrides
+    c_0x548be08f(
+      c__0x548be08f: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "deployMinimal(address,bytes)"(
-      _logic: string,
-      _data: BytesLike,
-      overrides?: Overrides
+    "c_0x548be08f(bytes32)"(
+      c__0x548be08f: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

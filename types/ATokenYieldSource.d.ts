@@ -24,13 +24,16 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   functions: {
     "aToken()": FunctionFragment;
+    "allowance(address,address)": FunctionFragment;
+    "approve(address,uint256)": FunctionFragment;
     "assetManager()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "balances(address)": FunctionFragment;
-    "c_0x5196d961(bytes32)": FunctionFragment;
-    "c_0xd6b259d6(bytes32)": FunctionFragment;
-    "initialize(address,address,address,address)": FunctionFragment;
+    "decimals()": FunctionFragment;
+    "decreaseAllowance(address,uint256)": FunctionFragment;
+    "increaseAllowance(address,uint256)": FunctionFragment;
+    "initialize(address,address,address)": FunctionFragment;
     "lendingPoolAddressesProviderRegistry()": FunctionFragment;
+    "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "redeem(uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -39,35 +42,48 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     "setReserve(address)": FunctionFragment;
     "sponsor(uint256)": FunctionFragment;
     "supplyTo(uint256,address)": FunctionFragment;
+    "symbol()": FunctionFragment;
     "token()": FunctionFragment;
+    "totalSupply()": FunctionFragment;
+    "transfer(address,uint256)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
+    "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "transferReserve(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "aToken", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "allowance",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "approve",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "assetManager",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(functionFragment: "balances", values: [string]): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "c_0x5196d961",
-    values: [BytesLike]
+    functionFragment: "decreaseAllowance",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "c_0xd6b259d6",
-    values: [BytesLike]
+    functionFragment: "increaseAllowance",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [string, string, string, string]
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "lendingPoolAddressesProviderRegistry",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "redeem",
@@ -91,9 +107,22 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "supplyTo",
     values: [BigNumberish, string]
   ): string;
+  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "totalSupply",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transfer",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferERC20",
+    values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -106,18 +135,20 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "aToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "assetManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "c_0x5196d961",
+    functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "c_0xd6b259d6",
+    functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -125,6 +156,7 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "lendingPoolAddressesProviderRegistry",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(
@@ -139,9 +171,19 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "setReserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sponsor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "supplyTo", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "transferERC20",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -154,16 +196,26 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "ATokenYieldSourceInitialized(address,address,address,address)": EventFragment;
+    "ATokenYieldSourceInitialized(address,address,address)": EventFragment;
+    "Approval(address,address,uint256)": EventFragment;
     "AssetManagerTransferred(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "ReserveChanged(address)": EventFragment;
+    "ReserveTransferred(address,uint256)": EventFragment;
+    "Sponsored(address,uint256)": EventFragment;
+    "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(
     nameOrSignatureOrTopic: "ATokenYieldSourceInitialized"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetManagerTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ReserveChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ReserveTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Sponsored"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
 export class ATokenYieldSource extends Contract {
@@ -214,60 +266,80 @@ export class ATokenYieldSource extends Contract {
 
     "aToken()"(overrides?: CallOverrides): Promise<[string]>;
 
+    allowance(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "allowance(address,address)"(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    approve(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "approve(address,uint256)"(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     assetManager(overrides?: CallOverrides): Promise<[string]>;
 
     "assetManager()"(overrides?: CallOverrides): Promise<[string]>;
 
-    balanceOf(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "balanceOf(address)"(
-      addr: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    balances(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "balances(address)"(
-      arg0: string,
+      account: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
+    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
 
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
+    decreaseAllowance(
+      spender: string,
+      subtractedValue: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
+    "decreaseAllowance(address,uint256)"(
+      spender: string,
+      subtractedValue: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    increaseAllowance(
+      spender: string,
+      addedValue: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "increaseAllowance(address,uint256)"(
+      spender: string,
+      addedValue: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,address,address,address)"(
+    "initialize(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -278,6 +350,10 @@ export class ATokenYieldSource extends Contract {
     "lendingPoolAddressesProviderRegistry()"(
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    name(overrides?: CallOverrides): Promise<[string]>;
+
+    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -343,9 +419,29 @@ export class ATokenYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    symbol(overrides?: CallOverrides): Promise<[string]>;
+
+    "symbol()"(overrides?: CallOverrides): Promise<[string]>;
+
     token(overrides?: CallOverrides): Promise<[string]>;
 
     "token()"(overrides?: CallOverrides): Promise<[string]>;
+
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "totalSupply()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    transfer(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "transfer(address,uint256)"(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     transferERC20(
       erc20Token: string,
@@ -357,6 +453,20 @@ export class ATokenYieldSource extends Contract {
     "transferERC20(address,address,uint256)"(
       erc20Token: string,
       to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    transferFrom(
+      sender: string,
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "transferFrom(address,address,uint256)"(
+      sender: string,
+      recipient: string,
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -386,57 +496,80 @@ export class ATokenYieldSource extends Contract {
 
   "aToken()"(overrides?: CallOverrides): Promise<string>;
 
+  allowance(
+    owner: string,
+    spender: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "allowance(address,address)"(
+    owner: string,
+    spender: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  approve(
+    spender: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "approve(address,uint256)"(
+    spender: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   assetManager(overrides?: CallOverrides): Promise<string>;
 
   "assetManager()"(overrides?: CallOverrides): Promise<string>;
 
-  balanceOf(addr: string, overrides?: Overrides): Promise<ContractTransaction>;
+  balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   "balanceOf(address)"(
-    addr: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "balances(address)"(
-    arg0: string,
+    account: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  c_0x5196d961(
-    c__0x5196d961: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
+  decimals(overrides?: CallOverrides): Promise<number>;
 
-  "c_0x5196d961(bytes32)"(
-    c__0x5196d961: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
+  "decimals()"(overrides?: CallOverrides): Promise<number>;
 
-  c_0xd6b259d6(
-    c__0xd6b259d6: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
+  decreaseAllowance(
+    spender: string,
+    subtractedValue: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
-  "c_0xd6b259d6(bytes32)"(
-    c__0xd6b259d6: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
+  "decreaseAllowance(address,uint256)"(
+    spender: string,
+    subtractedValue: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  increaseAllowance(
+    spender: string,
+    addedValue: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "increaseAllowance(address,uint256)"(
+    spender: string,
+    addedValue: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   initialize(
     _aToken: string,
     _lendingPoolAddressesProviderRegistry: string,
     _reserve: string,
-    _owner: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,address,address,address)"(
+  "initialize(address,address,address)"(
     _aToken: string,
     _lendingPoolAddressesProviderRegistry: string,
     _reserve: string,
-    _owner: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -447,6 +580,10 @@ export class ATokenYieldSource extends Contract {
   "lendingPoolAddressesProviderRegistry()"(
     overrides?: CallOverrides
   ): Promise<string>;
+
+  name(overrides?: CallOverrides): Promise<string>;
+
+  "name()"(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -512,9 +649,29 @@ export class ATokenYieldSource extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  symbol(overrides?: CallOverrides): Promise<string>;
+
+  "symbol()"(overrides?: CallOverrides): Promise<string>;
+
   token(overrides?: CallOverrides): Promise<string>;
 
   "token()"(overrides?: CallOverrides): Promise<string>;
+
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  transfer(
+    recipient: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "transfer(address,uint256)"(
+    recipient: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   transferERC20(
     erc20Token: string,
@@ -526,6 +683,20 @@ export class ATokenYieldSource extends Contract {
   "transferERC20(address,address,uint256)"(
     erc20Token: string,
     to: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  transferFrom(
+    sender: string,
+    recipient: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "transferFrom(address,address,uint256)"(
+    sender: string,
+    recipient: string,
     amount: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -555,57 +726,80 @@ export class ATokenYieldSource extends Contract {
 
     "aToken()"(overrides?: CallOverrides): Promise<string>;
 
+    allowance(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "allowance(address,address)"(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    approve(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "approve(address,uint256)"(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     assetManager(overrides?: CallOverrides): Promise<string>;
 
     "assetManager()"(overrides?: CallOverrides): Promise<string>;
 
-    balanceOf(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "balanceOf(address)"(
-      addr: string,
+      account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+    decimals(overrides?: CallOverrides): Promise<number>;
 
-    "balances(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    "decimals()"(overrides?: CallOverrides): Promise<number>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
+    decreaseAllowance(
+      spender: string,
+      subtractedValue: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
+    "decreaseAllowance(address,uint256)"(
+      spender: string,
+      subtractedValue: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
+    increaseAllowance(
+      spender: string,
+      addedValue: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
+    "increaseAllowance(address,uint256)"(
+      spender: string,
+      addedValue: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,address,address,address)"(
+    "initialize(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -616,6 +810,10 @@ export class ATokenYieldSource extends Contract {
     "lendingPoolAddressesProviderRegistry()"(
       overrides?: CallOverrides
     ): Promise<string>;
+
+    name(overrides?: CallOverrides): Promise<string>;
+
+    "name()"(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -675,9 +873,29 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    symbol(overrides?: CallOverrides): Promise<string>;
+
+    "symbol()"(overrides?: CallOverrides): Promise<string>;
+
     token(overrides?: CallOverrides): Promise<string>;
 
     "token()"(overrides?: CallOverrides): Promise<string>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transfer(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "transfer(address,uint256)"(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     transferERC20(
       erc20Token: string,
@@ -692,6 +910,20 @@ export class ATokenYieldSource extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    transferFrom(
+      sender: string,
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "transferFrom(address,address,uint256)"(
+      sender: string,
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     transferOwnership(
       newOwner: string,
@@ -715,16 +947,23 @@ export class ATokenYieldSource extends Contract {
     ATokenYieldSourceInitialized(
       aToken: string | null,
       lendingPoolAddressesProviderRegistry: null,
-      reserve: string | null,
-      owner: string | null
+      reserve: string | null
     ): TypedEventFilter<
-      [string, string, string, string],
+      [string, string, string],
       {
         aToken: string;
         lendingPoolAddressesProviderRegistry: string;
         reserve: string;
-        owner: string;
       }
+    >;
+
+    Approval(
+      owner: string | null,
+      spender: string | null,
+      value: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { owner: string; spender: string; value: BigNumber }
     >;
 
     AssetManagerTransferred(
@@ -742,6 +981,32 @@ export class ATokenYieldSource extends Contract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
+
+    ReserveChanged(
+      reserve: string | null
+    ): TypedEventFilter<[string], { reserve: string }>;
+
+    ReserveTransferred(
+      to: string | null,
+      amount: null
+    ): TypedEventFilter<[string, BigNumber], { to: string; amount: BigNumber }>;
+
+    Sponsored(
+      user: string | null,
+      amount: null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { user: string; amount: BigNumber }
+    >;
+
+    Transfer(
+      from: string | null,
+      to: string | null,
+      value: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { from: string; to: string; value: BigNumber }
+    >;
   };
 
   estimateGas: {
@@ -749,57 +1014,80 @@ export class ATokenYieldSource extends Contract {
 
     "aToken()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    allowance(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "allowance(address,address)"(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    approve(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "approve(address,uint256)"(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     assetManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     "assetManager()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    balanceOf(addr: string, overrides?: Overrides): Promise<BigNumber>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "balanceOf(address)"(
-      addr: string,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    decreaseAllowance(
+      spender: string,
+      subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balances(address)"(
-      arg0: string,
-      overrides?: CallOverrides
+    "decreaseAllowance(address,uint256)"(
+      spender: string,
+      subtractedValue: BigNumberish,
+      overrides?: Overrides
     ): Promise<BigNumber>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
+    increaseAllowance(
+      spender: string,
+      addedValue: BigNumberish,
+      overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
+    "increaseAllowance(address,uint256)"(
+      spender: string,
+      addedValue: BigNumberish,
+      overrides?: Overrides
     ): Promise<BigNumber>;
 
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,address,address,address)"(
+    "initialize(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -810,6 +1098,10 @@ export class ATokenYieldSource extends Contract {
     "lendingPoolAddressesProviderRegistry()"(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    name(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -869,9 +1161,29 @@ export class ATokenYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    symbol(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     token(overrides?: CallOverrides): Promise<BigNumber>;
 
     "token()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transfer(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "transfer(address,uint256)"(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
     transferERC20(
       erc20Token: string,
@@ -883,6 +1195,20 @@ export class ATokenYieldSource extends Contract {
     "transferERC20(address,address,uint256)"(
       erc20Token: string,
       to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    transferFrom(
+      sender: string,
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "transferFrom(address,address,uint256)"(
+      sender: string,
+      recipient: string,
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -910,63 +1236,83 @@ export class ATokenYieldSource extends Contract {
 
     "aToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    allowance(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "allowance(address,address)"(
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    approve(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "approve(address,uint256)"(
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     assetManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "assetManager()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     balanceOf(
-      addr: string,
-      overrides?: Overrides
+      account: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "balanceOf(address)"(
-      addr: string,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    decreaseAllowance(
+      spender: string,
+      subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    balances(
-      arg0: string,
-      overrides?: CallOverrides
+    "decreaseAllowance(address,uint256)"(
+      spender: string,
+      subtractedValue: BigNumberish,
+      overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "balances(address)"(
-      arg0: string,
-      overrides?: CallOverrides
+    increaseAllowance(
+      spender: string,
+      addedValue: BigNumberish,
+      overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
+    "increaseAllowance(address,uint256)"(
+      spender: string,
+      addedValue: BigNumberish,
+      overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,address,address,address)"(
+    "initialize(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
       _reserve: string,
-      _owner: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -977,6 +1323,10 @@ export class ATokenYieldSource extends Contract {
     "lendingPoolAddressesProviderRegistry()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1042,9 +1392,29 @@ export class ATokenYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "totalSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transfer(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "transfer(address,uint256)"(
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
 
     transferERC20(
       erc20Token: string,
@@ -1056,6 +1426,20 @@ export class ATokenYieldSource extends Contract {
     "transferERC20(address,address,uint256)"(
       erc20Token: string,
       to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    transferFrom(
+      sender: string,
+      recipient: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "transferFrom(address,address,uint256)"(
+      sender: string,
+      recipient: string,
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;

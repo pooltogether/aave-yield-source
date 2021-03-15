@@ -34,7 +34,7 @@ contract ATokenYieldSourceProxyFactory is ProxyFactory {
   ) public returns (ATokenYieldSource) {
     ATokenYieldSource aTokenYieldSource = ATokenYieldSource(deployMinimal(address(instance), ""));
 
-    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserve, _owner);
+    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserve);
     aTokenYieldSource.transferOwnership(_owner);
 
     return aTokenYieldSource;
