@@ -9,6 +9,7 @@ import 'solidity-coverage';
 
 import { HardhatUserConfig } from 'hardhat/config';
 
+import * as verifyTask from './scripts/verify';
 import networks from './hardhat.network';
 
 const optimizerEnabled = !process.env.OPTIMIZER_DISABLED;
@@ -39,19 +40,25 @@ const config: HardhatUserConfig = {
   },
   networks,
   solidity: {
-    version: '0.6.12',
-    settings: {
-      optimizer: {
-        enabled: optimizerEnabled,
-        runs: 200,
+    compilers: [
+      {
+        version: '0.6.12',
+        settings: {
+          optimizer: {
+            enabled: optimizerEnabled,
+            runs: 200,
+          },
+          evmVersion: 'berlin',
+        },
       },
-      evmVersion: 'berlin',
-    },
+    ],
   },
   typechain: {
     outDir: 'types',
     target: 'ethers-v5',
   },
 };
+
+verifyTask;
 
 export default config;
