@@ -94,22 +94,19 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     _lendingPool().deposit(address(_tokenAddress()), mintAmount, to, uint16(188));
   }
 
-  /// @dev Gets the amount of shares a pool should get minted when depositing underlying tokens
-  /// @param amount Amount of tokens supplied to the yield source
-  /// @param to Pool address
-  /// @return Number of shares that will get minted
-  function _tokenToShares(uint256 amount, address to) internal view returns (uint256) {
-    // shares = prizePoolShares * (amountSupplied / yielSourceTotalSupply)
-    return token().balanceOf(to).mul(amount).div(aToken.balanceOf(address(this)));
+  /// @param tokens Amount of tokens
+  /// @return Number of shares
+  function _tokenToShares(uint256 tokens) internal view returns (uint256) {
+    // rate = tokens / shares
+    // shares = tokens * (totalShares / yielSourceTotalSupply)
+    return tokens.mul(totalSupply()).div(aToken.balanceOf(address(this)));
   }
 
-  /// @dev Gets the amount of tokens a pool should receive when withdrawing underlying tokens
-  /// @param amount Amount of shares withdrawn from the yield source
-  /// @param to Pool address
-  /// @return Number of shares that will get minted
-  function _sharesToToken(uint256 amount, address to) internal view returns (uint256) {
-    // tokens = yielSourceTotalSupply * (sharesWithdrawn / prizePoolShares)
-    return aToken.balanceOf(address(this)).mul(amount).div(token().balanceOf(to));
+  /// @param shares Amount of shares
+  /// @return Number of tokens
+  function _sharesToToken(uint256 shares) internal view returns (uint256) {
+    // tokens = yielSourceTotalSupply * (shares / totalShares)
+    return aToken.balanceOf(address(this)).mul(shares).div(totalSupply());
   }
 
   /// todo: create a token share and figure out the current price per share, exclude amount that is accrued in the reserve reserveAmount
@@ -122,7 +119,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     if (totalSupply() == 0) {
       shares = mintAmount;
     } else {
-      shares = _tokenToShares(mintAmount, to);
+      shares = _tokenToShares(mintAmount);
     }
     _mint(to, shares);
   }
@@ -138,7 +135,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     uint256 afterBalance = aToken.balanceOf(address(this));
     uint256 balanceDiff = afterBalance.sub(beforeBalance);
 
-    uint256 shares = _tokenToShares(redeemAmount, msg.sender);
+    uint256 shares = _tokenToShares(redeemAmount);
     _burn(msg.sender, shares);
 
     return balanceDiff;

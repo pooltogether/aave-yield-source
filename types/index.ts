@@ -14,6 +14,7 @@ export type { IERC20Upgradeable } from "./IERC20Upgradeable";
 export type { AssetManager } from "./AssetManager";
 export type { ATokenInterface } from "./ATokenInterface";
 export type { ProxyFactory } from "./ProxyFactory";
+export type { FixedPoint } from "./FixedPoint";
 export type { IProtocolYieldSource } from "./IProtocolYieldSource";
 export type { IReserve } from "./IReserve";
 export type { IYieldSource } from "./IYieldSource";
@@ -35,6 +36,7 @@ export { IERC20Upgradeable__factory } from "./factories/IERC20Upgradeable__facto
 export { AssetManager__factory } from "./factories/AssetManager__factory";
 export { ATokenInterface__factory } from "./factories/ATokenInterface__factory";
 export { ProxyFactory__factory } from "./factories/ProxyFactory__factory";
+export { FixedPoint__factory } from "./factories/FixedPoint__factory";
 export { IProtocolYieldSource__factory } from "./factories/IProtocolYieldSource__factory";
 export { IReserve__factory } from "./factories/IReserve__factory";
 export { IYieldSource__factory } from "./factories/IYieldSource__factory";

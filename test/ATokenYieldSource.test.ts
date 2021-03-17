@@ -148,49 +148,29 @@ describe('ATokenYieldSource', () => {
     });
   });
 
-  describe('balanceOf()', () => {
-    it('should return prize pool balance', async () => {
-      const yieldSourceOwnerBalance = toWei('100');
-      const wallet2Balance = toWei('200');
-
-      await supplyTo(yieldSourceOwner.address, yieldSourceOwnerBalance);
-      await supplyTo(wallet2.address, wallet2Balance);
-
-      expect(await aTokenYieldSource.callStatic.balanceOf(yieldSourceOwner.address)).to.equal(
-        yieldSourceOwnerBalance,
-      );
-
-      expect(await aTokenYieldSource.callStatic.balanceOf(wallet2.address)).to.equal(
-        wallet2Balance,
-      );
-
-      expect(await aTokenYieldSource.totalSupply()).to.equal(
-        yieldSourceOwnerBalance.add(wallet2Balance),
-      );
-    });
-  });
-
   describe('_tokenToShares()', () => {
-    it('should return prize pool shares', async () => {
-      await underlyingToken.mock.balanceOf.withArgs(wallet2.address).returns(toWei('100'));
+    it('should return shares amount', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
+      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
       await aToken.mock.balanceOf
         .withArgs(aTokenYieldSource.address)
-        .returns(toWei('200'));
+        .returns(toWei('1000'));
 
-      expect(await aTokenYieldSource.tokenToShares(toWei('10'), wallet2.address)).to.equal(
-        toWei('5'),
+      expect(await aTokenYieldSource.tokenToShares(toWei('10'))).to.equal(
+        toWei('2'),
       );
     });
   });
 
   describe('_sharesToToken()', () => {
-    it('should return prize pool tokens amount', async () => {
-      await underlyingToken.mock.balanceOf.withArgs(wallet2.address).returns(toWei('100'));
+    it('should return tokens amount', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
+      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
       await aToken.mock.balanceOf
         .withArgs(aTokenYieldSource.address)
-        .returns(toWei('200'));
+        .returns(toWei('1000'));
 
-      expect(await aTokenYieldSource.sharesToToken(toWei('5'), wallet2.address)).to.equal(
+      expect(await aTokenYieldSource.sharesToToken(toWei('2'))).to.equal(
         toWei('10'),
       );
     });

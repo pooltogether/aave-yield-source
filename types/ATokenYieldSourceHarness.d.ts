@@ -28,6 +28,9 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "assetManager()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "c_0x5196d961(bytes32)": FunctionFragment;
+    "c_0xa46a446e(bytes32)": FunctionFragment;
+    "c_0xd6b259d6(bytes32)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
@@ -35,6 +38,7 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     "lendingPool()": FunctionFragment;
     "lendingPoolAddressesProviderRegistry()": FunctionFragment;
     "lendingPoolProvider()": FunctionFragment;
+    "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "redeem(uint256)": FunctionFragment;
@@ -42,13 +46,13 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     "reserve()": FunctionFragment;
     "setAssetManager(address)": FunctionFragment;
     "setReserve(address)": FunctionFragment;
-    "sharesToToken(uint256,address)": FunctionFragment;
+    "sharesToToken(uint256)": FunctionFragment;
     "sponsor(uint256)": FunctionFragment;
     "supplyTo(uint256,address)": FunctionFragment;
     "symbol()": FunctionFragment;
     "token()": FunctionFragment;
     "tokenAddress()": FunctionFragment;
-    "tokenToShares(uint256,address)": FunctionFragment;
+    "tokenToShares(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
@@ -71,6 +75,18 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "c_0x5196d961",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0xa46a446e",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0xd6b259d6",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
@@ -96,6 +112,10 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     functionFragment: "lendingPoolProvider",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "mint",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -114,7 +134,7 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "setReserve", values: [string]): string;
   encodeFunctionData(
     functionFragment: "sharesToToken",
-    values: [BigNumberish, string]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "sponsor",
@@ -132,7 +152,7 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "tokenToShares",
-    values: [BigNumberish, string]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -167,6 +187,18 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x5196d961",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xa46a446e",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xd6b259d6",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
@@ -189,6 +221,7 @@ interface ATokenYieldSourceHarnessInterface extends ethers.utils.Interface {
     functionFragment: "lendingPoolProvider",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
@@ -346,6 +379,36 @@ export class ATokenYieldSourceHarness extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    c_0x5196d961(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    "c_0x5196d961(bytes32)"(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    c_0xa46a446e(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    "c_0xa46a446e(bytes32)"(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    c_0xd6b259d6(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    "c_0xd6b259d6(bytes32)"(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     "decimals()"(overrides?: CallOverrides): Promise<[number]>;
@@ -404,6 +467,18 @@ export class ATokenYieldSourceHarness extends Contract {
 
     "lendingPoolProvider()"(overrides?: CallOverrides): Promise<[string]>;
 
+    mint(
+      account: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "mint(address,uint256)"(
+      account: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     "name()"(overrides?: CallOverrides): Promise<[string]>;
@@ -451,14 +526,12 @@ export class ATokenYieldSourceHarness extends Contract {
     ): Promise<ContractTransaction>;
 
     sharesToToken(
-      amount: BigNumberish,
-      to: string,
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "sharesToToken(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "sharesToToken(uint256)"(
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -497,14 +570,12 @@ export class ATokenYieldSourceHarness extends Contract {
     "tokenAddress()"(overrides?: CallOverrides): Promise<[string]>;
 
     tokenToShares(
-      amount: BigNumberish,
-      to: string,
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "tokenToShares(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "tokenToShares(uint256)"(
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -612,6 +683,36 @@ export class ATokenYieldSourceHarness extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  c_0x5196d961(
+    c__0x5196d961: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  "c_0x5196d961(bytes32)"(
+    c__0x5196d961: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  c_0xa46a446e(
+    c__0xa46a446e: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  "c_0xa46a446e(bytes32)"(
+    c__0xa46a446e: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  c_0xd6b259d6(
+    c__0xd6b259d6: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  "c_0xd6b259d6(bytes32)"(
+    c__0xd6b259d6: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   decimals(overrides?: CallOverrides): Promise<number>;
 
   "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -670,6 +771,18 @@ export class ATokenYieldSourceHarness extends Contract {
 
   "lendingPoolProvider()"(overrides?: CallOverrides): Promise<string>;
 
+  mint(
+    account: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "mint(address,uint256)"(
+    account: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   "name()"(overrides?: CallOverrides): Promise<string>;
@@ -717,14 +830,12 @@ export class ATokenYieldSourceHarness extends Contract {
   ): Promise<ContractTransaction>;
 
   sharesToToken(
-    amount: BigNumberish,
-    to: string,
+    shares: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "sharesToToken(uint256,address)"(
-    amount: BigNumberish,
-    to: string,
+  "sharesToToken(uint256)"(
+    shares: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -763,14 +874,12 @@ export class ATokenYieldSourceHarness extends Contract {
   "tokenAddress()"(overrides?: CallOverrides): Promise<string>;
 
   tokenToShares(
-    amount: BigNumberish,
-    to: string,
+    tokens: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "tokenToShares(uint256,address)"(
-    amount: BigNumberish,
-    to: string,
+  "tokenToShares(uint256)"(
+    tokens: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -878,6 +987,36 @@ export class ATokenYieldSourceHarness extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    c_0x5196d961(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "c_0x5196d961(bytes32)"(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    c_0xa46a446e(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "c_0xa46a446e(bytes32)"(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    c_0xd6b259d6(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "c_0xd6b259d6(bytes32)"(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     decimals(overrides?: CallOverrides): Promise<number>;
 
     "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -936,6 +1075,18 @@ export class ATokenYieldSourceHarness extends Contract {
 
     "lendingPoolProvider()"(overrides?: CallOverrides): Promise<string>;
 
+    mint(
+      account: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "mint(address,uint256)"(
+      account: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     name(overrides?: CallOverrides): Promise<string>;
 
     "name()"(overrides?: CallOverrides): Promise<string>;
@@ -980,14 +1131,12 @@ export class ATokenYieldSourceHarness extends Contract {
     ): Promise<void>;
 
     sharesToToken(
-      amount: BigNumberish,
-      to: string,
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sharesToToken(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "sharesToToken(uint256)"(
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1023,14 +1172,12 @@ export class ATokenYieldSourceHarness extends Contract {
     "tokenAddress()"(overrides?: CallOverrides): Promise<string>;
 
     tokenToShares(
-      amount: BigNumberish,
-      to: string,
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "tokenToShares(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "tokenToShares(uint256)"(
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1202,6 +1349,36 @@ export class ATokenYieldSourceHarness extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    c_0x5196d961(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "c_0x5196d961(bytes32)"(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0xa46a446e(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "c_0xa46a446e(bytes32)"(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0xd6b259d6(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "c_0xd6b259d6(bytes32)"(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1260,6 +1437,18 @@ export class ATokenYieldSourceHarness extends Contract {
 
     "lendingPoolProvider()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    mint(
+      account: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "mint(address,uint256)"(
+      account: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     "name()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1304,14 +1493,12 @@ export class ATokenYieldSourceHarness extends Contract {
     ): Promise<BigNumber>;
 
     sharesToToken(
-      amount: BigNumberish,
-      to: string,
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sharesToToken(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "sharesToToken(uint256)"(
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1347,14 +1534,12 @@ export class ATokenYieldSourceHarness extends Contract {
     "tokenAddress()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenToShares(
-      amount: BigNumberish,
-      to: string,
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "tokenToShares(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "tokenToShares(uint256)"(
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1463,6 +1648,36 @@ export class ATokenYieldSourceHarness extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    c_0x5196d961(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "c_0x5196d961(bytes32)"(
+      c__0x5196d961: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0xa46a446e(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "c_0xa46a446e(bytes32)"(
+      c__0xa46a446e: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0xd6b259d6(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "c_0xd6b259d6(bytes32)"(
+      c__0xd6b259d6: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1525,6 +1740,18 @@ export class ATokenYieldSourceHarness extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    mint(
+      account: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "mint(address,uint256)"(
+      account: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1572,14 +1799,12 @@ export class ATokenYieldSourceHarness extends Contract {
     ): Promise<PopulatedTransaction>;
 
     sharesToToken(
-      amount: BigNumberish,
-      to: string,
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "sharesToToken(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "sharesToToken(uint256)"(
+      shares: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1618,14 +1843,12 @@ export class ATokenYieldSourceHarness extends Contract {
     "tokenAddress()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenToShares(
-      amount: BigNumberish,
-      to: string,
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "tokenToShares(uint256,address)"(
-      amount: BigNumberish,
-      to: string,
+    "tokenToShares(uint256)"(
+      tokens: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

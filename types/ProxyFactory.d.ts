@@ -23,14 +23,23 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ProxyFactoryInterface extends ethers.utils.Interface {
   functions: {
+    "c_0x2b4df744(bytes32)": FunctionFragment;
     "deployMinimal(address,bytes)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "c_0x2b4df744",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "deployMinimal",
     values: [string, BytesLike]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "c_0x2b4df744",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "deployMinimal",
     data: BytesLike
@@ -87,6 +96,16 @@ export class ProxyFactory extends Contract {
   interface: ProxyFactoryInterface;
 
   functions: {
+    c_0x2b4df744(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    "c_0x2b4df744(bytes32)"(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     deployMinimal(
       _logic: string,
       _data: BytesLike,
@@ -99,6 +118,16 @@ export class ProxyFactory extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
   };
+
+  c_0x2b4df744(
+    c__0x2b4df744: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  "c_0x2b4df744(bytes32)"(
+    c__0x2b4df744: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   deployMinimal(
     _logic: string,
@@ -113,6 +142,16 @@ export class ProxyFactory extends Contract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    c_0x2b4df744(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "c_0x2b4df744(bytes32)"(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     deployMinimal(
       _logic: string,
       _data: BytesLike,
@@ -131,6 +170,16 @@ export class ProxyFactory extends Contract {
   };
 
   estimateGas: {
+    c_0x2b4df744(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "c_0x2b4df744(bytes32)"(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     deployMinimal(
       _logic: string,
       _data: BytesLike,
@@ -145,6 +194,16 @@ export class ProxyFactory extends Contract {
   };
 
   populateTransaction: {
+    c_0x2b4df744(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "c_0x2b4df744(bytes32)"(
+      c__0x2b4df744: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     deployMinimal(
       _logic: string,
       _data: BytesLike,
