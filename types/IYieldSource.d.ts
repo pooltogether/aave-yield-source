@@ -23,24 +23,45 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IYieldSourceInterface extends ethers.utils.Interface {
   functions: {
-    "redeem(uint256)": FunctionFragment;
-    "supplyTo(uint256,address)": FunctionFragment;
-    "token()": FunctionFragment;
+    "balanceOfToken(address)": FunctionFragment;
+    "depositToken()": FunctionFragment;
+    "redeemToken(uint256)": FunctionFragment;
+    "supplyTokenTo(uint256,address)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "redeem",
+    functionFragment: "balanceOfToken",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositToken",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "redeemToken",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "supplyTo",
+    functionFragment: "supplyTokenTo",
     values: [BigNumberish, string]
   ): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supplyTo", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "balanceOfToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "redeemToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supplyTokenTo",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -89,142 +110,186 @@ export class IYieldSource extends Contract {
   interface: IYieldSourceInterface;
 
   functions: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(
+      addr: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    "balanceOfToken(address)"(
+      addr: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    depositToken(overrides?: CallOverrides): Promise<[string]>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<[string]>;
+
+    redeemToken(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
-
-    token(overrides?: CallOverrides): Promise<[string]>;
-
-    "token()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  redeem(
-    redeemAmount: BigNumberish,
+  balanceOfToken(
+    addr: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "redeem(uint256)"(
-    redeemAmount: BigNumberish,
+  "balanceOfToken(address)"(
+    addr: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  supplyTo(
-    mintAmount: BigNumberish,
+  depositToken(overrides?: CallOverrides): Promise<string>;
+
+  "depositToken()"(overrides?: CallOverrides): Promise<string>;
+
+  redeemToken(
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "redeemToken(uint256)"(
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  supplyTokenTo(
+    amount: BigNumberish,
     to: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "supplyTo(uint256,address)"(
-    mintAmount: BigNumberish,
+  "supplyTokenTo(uint256,address)"(
+    amount: BigNumberish,
     to: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
-
-  token(overrides?: CallOverrides): Promise<string>;
-
-  "token()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "balanceOfToken(address)"(
+      addr: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    depositToken(overrides?: CallOverrides): Promise<string>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<string>;
+
+    redeemToken(
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    token(overrides?: CallOverrides): Promise<string>;
-
-    "token()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(addr: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "balanceOfToken(address)"(
+      addr: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    depositToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    redeemToken(
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "token()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(
+      addr: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    "balanceOfToken(address)"(
+      addr: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    depositToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    redeemToken(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
-
-    token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

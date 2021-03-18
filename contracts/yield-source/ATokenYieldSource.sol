@@ -89,16 +89,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Returns the total balance (in asset tokens).  This includes the deposits and interest.
   /// @param addr User address
   /// @return The underlying balance of asset tokens
-  function balanceOfToken(address addr) public view returns (uint256) {
+  function balanceOfToken(address addr) external override returns (uint256) {
     return _sharesToToken(balanceOf(addr));
-  }
-
-  /// @notice Supplies asset tokens to Aave
-  /// @param mintAmount The amount of asset tokens to be supplied
-  /// @param to The user whose balance will receive the tokens
-  function _depositToAave(uint256 mintAmount, address to) internal {
-    IERC20Upgradeable(depositToken()).approve(address(_lendingPool()), mintAmount);
-    _lendingPool().deposit(address(_tokenAddress()), mintAmount, to, uint16(188));
   }
 
   /// @param tokens Amount of tokens
@@ -112,11 +104,18 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param shares Amount of shares
   /// @return Number of tokens
   function _sharesToToken(uint256 shares) internal view returns (uint256) {
-    // tokens = yielSourceTotalSupply * (shares / totalShares)
-    return aToken.balanceOf(address(this)).mul(shares).div(totalSupply());
+    // tokens = shares * (yielSourceTotalSupply / totalShares)
+    return shares.mul(aToken.balanceOf(address(this))).div(totalSupply());
   }
 
-  /// todo: create a token share and figure out the current price per share, exclude amount that is accrued in the reserve reserveAmount
+  /// @notice Supplies asset tokens to Aave
+  /// @param mintAmount The amount of asset tokens to be supplied
+  /// @param to The user whose balance will receive the tokens
+  function _depositToAave(uint256 mintAmount, address to) internal {
+    IERC20Upgradeable(depositToken()).approve(address(_lendingPool()), mintAmount);
+    _lendingPool().deposit(address(_tokenAddress()), mintAmount, to, uint16(188));
+  }
+
   /// @notice Supplies asset tokens to the yield source
   /// @param mintAmount The amount of asset tokens to be supplied
   /// @param to The user whose balance will receive the tokens
@@ -148,22 +147,21 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     return balanceDiff;
   }
 
-  /// @return Returns ID of the Aave genesis market LendingPoolAddressesProvider
-  function _getAddressesProviderId() internal pure returns (uint256) {
-    return uint256(0);
+  /// @notice Allows the owner to transfer ERC20 tokens other than the aAtokens held by this contract to the target address.
+  /// @dev This function is callable by the owner or asset manager.
+  /// @param erc20Token The ERC20 token to transfer
+  /// @param to The recipient of the tokens
+  /// @param amount The amount of tokens to transfer
+  function transferERC20(address erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
+    require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
+    IERC20Upgradeable(erc20Token).transferFrom(address(this), to, amount);
   }
 
-  /// @dev Retrieve Aave LendingPoolAddressesProvider address
-  /// @return A reference to LendingPoolAddressesProvider interface
-  function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
-    uint256 addressesProviderId = _getAddressesProviderId();
-    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[addressesProviderId]);
-  }
-
-  /// @dev Retrieve Aave LendingPool address
-  /// @return A reference to LendingPool interface
-  function _lendingPool() internal view returns (ILendingPool) {
-    return ILendingPool(_lendingPoolProvider().getLendingPool());
+  /// @notice Allows someone to deposit into the yield source without receiving any shares.  The deposited token will be the same as depositToken()
+  /// This allows anyone to distribute tokens among the share holders.
+  function sponsor(uint256 amount) external override {
+    _depositToAave(amount, address(this));
+    emit Sponsored(msg.sender, amount);
   }
 
   /// @notice Sets the Reserve strategy on this contract
@@ -185,20 +183,21 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     emit ReserveTransferred(to, amount);
   }
 
-  /// @notice Allows the owner to transfer ERC20 tokens other than the aAtokens held by this contract to the target address.
-  /// @dev This function is callable by the owner or asset manager.
-  /// @param erc20Token The ERC20 token to transfer
-  /// @param to The recipient of the tokens
-  /// @param amount The amount of tokens to transfer
-  function transferERC20(address erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
-    require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
-    IERC20Upgradeable(erc20Token).transferFrom(address(this), to, amount);
+  /// @return Returns ID of the Aave genesis market LendingPoolAddressesProvider
+  function _getAddressesProviderId() internal pure returns (uint256) {
+    return uint256(0);
   }
 
-  /// @notice Allows someone to deposit into the yield source without receiving any shares.  The deposited token will be the same as depositToken()
-  /// This allows anyone to distribute tokens among the share holders.
-  function sponsor(uint256 amount) external override {
-    _depositToAave(amount, address(this));
-    emit Sponsored(msg.sender, amount);
+  /// @dev Retrieve Aave LendingPoolAddressesProvider address
+  /// @return A reference to LendingPoolAddressesProvider interface
+  function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
+    uint256 addressesProviderId = _getAddressesProviderId();
+    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[addressesProviderId]);
+  }
+
+  /// @dev Retrieve Aave LendingPool address
+  /// @return A reference to LendingPool interface
+  function _lendingPool() internal view returns (ILendingPool) {
+    return ILendingPool(_lendingPoolProvider().getLendingPool());
   }
 }

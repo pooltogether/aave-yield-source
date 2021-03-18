@@ -28,22 +28,23 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "assetManager()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "balanceOfToken(address)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
+    "depositToken()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize(address,address,address)": FunctionFragment;
     "lendingPoolAddressesProviderRegistry()": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
-    "redeem(uint256)": FunctionFragment;
+    "redeemToken(uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "reserve()": FunctionFragment;
     "setAssetManager(address)": FunctionFragment;
     "setReserve(address)": FunctionFragment;
     "sponsor(uint256)": FunctionFragment;
-    "supplyTo(uint256,address)": FunctionFragment;
+    "supplyTokenTo(uint256,address)": FunctionFragment;
     "symbol()": FunctionFragment;
-    "token()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
@@ -66,10 +67,18 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "balanceOfToken",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositToken",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -86,7 +95,7 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "redeem",
+    functionFragment: "redeemToken",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -104,11 +113,10 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "supplyTo",
+    functionFragment: "supplyTokenTo",
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -142,9 +150,17 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "balanceOfToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -158,7 +174,10 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "redeemToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -170,9 +189,11 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setReserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sponsor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supplyTo", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supplyTokenTo",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -301,6 +322,16 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    balanceOfToken(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "balanceOfToken(address)"(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     "decimals()"(overrides?: CallOverrides): Promise<[number]>;
@@ -316,6 +347,10 @@ export class ATokenYieldSource extends Contract {
       subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
+
+    depositToken(overrides?: CallOverrides): Promise<[string]>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<[string]>;
 
     increaseAllowance(
       spender: string,
@@ -359,12 +394,12 @@ export class ATokenYieldSource extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
 
-    redeem(
+    redeemToken(
       redeemAmount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "redeem(uint256)"(
+    "redeemToken(uint256)"(
       redeemAmount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -407,13 +442,13 @@ export class ATokenYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    supplyTo(
+    supplyTokenTo(
       mintAmount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "supplyTo(uint256,address)"(
+    "supplyTokenTo(uint256,address)"(
       mintAmount: BigNumberish,
       to: string,
       overrides?: Overrides
@@ -422,10 +457,6 @@ export class ATokenYieldSource extends Contract {
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     "symbol()"(overrides?: CallOverrides): Promise<[string]>;
-
-    token(overrides?: CallOverrides): Promise<[string]>;
-
-    "token()"(overrides?: CallOverrides): Promise<[string]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -531,6 +562,16 @@ export class ATokenYieldSource extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  balanceOfToken(
+    addr: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "balanceOfToken(address)"(
+    addr: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   decimals(overrides?: CallOverrides): Promise<number>;
 
   "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -546,6 +587,10 @@ export class ATokenYieldSource extends Contract {
     subtractedValue: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
+
+  depositToken(overrides?: CallOverrides): Promise<string>;
+
+  "depositToken()"(overrides?: CallOverrides): Promise<string>;
 
   increaseAllowance(
     spender: string,
@@ -589,12 +634,12 @@ export class ATokenYieldSource extends Contract {
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
 
-  redeem(
+  redeemToken(
     redeemAmount: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "redeem(uint256)"(
+  "redeemToken(uint256)"(
     redeemAmount: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -637,13 +682,13 @@ export class ATokenYieldSource extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  supplyTo(
+  supplyTokenTo(
     mintAmount: BigNumberish,
     to: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "supplyTo(uint256,address)"(
+  "supplyTokenTo(uint256,address)"(
     mintAmount: BigNumberish,
     to: string,
     overrides?: Overrides
@@ -652,10 +697,6 @@ export class ATokenYieldSource extends Contract {
   symbol(overrides?: CallOverrides): Promise<string>;
 
   "symbol()"(overrides?: CallOverrides): Promise<string>;
-
-  token(overrides?: CallOverrides): Promise<string>;
-
-  "token()"(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -761,6 +802,13 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    balanceOfToken(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "balanceOfToken(address)"(
+      addr: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     decimals(overrides?: CallOverrides): Promise<number>;
 
     "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -776,6 +824,10 @@ export class ATokenYieldSource extends Contract {
       subtractedValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    depositToken(overrides?: CallOverrides): Promise<string>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<string>;
 
     increaseAllowance(
       spender: string,
@@ -819,12 +871,12 @@ export class ATokenYieldSource extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<string>;
 
-    redeem(
+    redeemToken(
       redeemAmount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "redeem(uint256)"(
+    "redeemToken(uint256)"(
       redeemAmount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -861,13 +913,13 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    supplyTo(
+    supplyTokenTo(
       mintAmount: BigNumberish,
       to: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "supplyTo(uint256,address)"(
+    "supplyTokenTo(uint256,address)"(
       mintAmount: BigNumberish,
       to: string,
       overrides?: CallOverrides
@@ -876,10 +928,6 @@ export class ATokenYieldSource extends Contract {
     symbol(overrides?: CallOverrides): Promise<string>;
 
     "symbol()"(overrides?: CallOverrides): Promise<string>;
-
-    token(overrides?: CallOverrides): Promise<string>;
-
-    "token()"(overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1049,6 +1097,13 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    balanceOfToken(addr: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "balanceOfToken(address)"(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1064,6 +1119,10 @@ export class ATokenYieldSource extends Contract {
       subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
+
+    depositToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     increaseAllowance(
       spender: string,
@@ -1107,12 +1166,12 @@ export class ATokenYieldSource extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    redeem(
+    redeemToken(
       redeemAmount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "redeem(uint256)"(
+    "redeemToken(uint256)"(
       redeemAmount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -1149,13 +1208,13 @@ export class ATokenYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    supplyTo(
+    supplyTokenTo(
       mintAmount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "supplyTo(uint256,address)"(
+    "supplyTokenTo(uint256,address)"(
       mintAmount: BigNumberish,
       to: string,
       overrides?: Overrides
@@ -1164,10 +1223,6 @@ export class ATokenYieldSource extends Contract {
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "token()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1274,6 +1329,16 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    balanceOfToken(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "balanceOfToken(address)"(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1289,6 +1354,10 @@ export class ATokenYieldSource extends Contract {
       subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
+
+    depositToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: string,
@@ -1332,12 +1401,12 @@ export class ATokenYieldSource extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    redeem(
+    redeemToken(
       redeemAmount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "redeem(uint256)"(
+    "redeemToken(uint256)"(
       redeemAmount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
@@ -1380,13 +1449,13 @@ export class ATokenYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    supplyTo(
+    supplyTokenTo(
       mintAmount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "supplyTo(uint256,address)"(
+    "supplyTokenTo(uint256,address)"(
       mintAmount: BigNumberish,
       to: string,
       overrides?: Overrides
@@ -1395,10 +1464,6 @@ export class ATokenYieldSource extends Contract {
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

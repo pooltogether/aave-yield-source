@@ -23,18 +23,27 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
   functions: {
-    "redeem(uint256)": FunctionFragment;
+    "balanceOfToken(address)": FunctionFragment;
+    "depositToken()": FunctionFragment;
+    "redeemToken(uint256)": FunctionFragment;
     "reserve()": FunctionFragment;
     "setReserve(address)": FunctionFragment;
     "sponsor(uint256)": FunctionFragment;
-    "supplyTo(uint256,address)": FunctionFragment;
-    "token()": FunctionFragment;
+    "supplyTokenTo(uint256,address)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
     "transferReserve(address)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "redeem",
+    functionFragment: "balanceOfToken",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositToken",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "redeemToken",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "reserve", values?: undefined): string;
@@ -44,10 +53,9 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "supplyTo",
+    functionFragment: "supplyTokenTo",
     values: [BigNumberish, string]
   ): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferERC20",
     values: [string, string, BigNumberish]
@@ -57,12 +65,25 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "balanceOfToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "redeemToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "reserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setReserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sponsor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supplyTo", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supplyTokenTo",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferERC20",
     data: BytesLike
@@ -119,13 +140,27 @@ export class IProtocolYieldSource extends Contract {
   interface: IProtocolYieldSourceInterface;
 
   functions: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(
+      addr: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    "balanceOfToken(address)"(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    depositToken(overrides?: CallOverrides): Promise<[string]>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<[string]>;
+
+    redeemToken(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -153,21 +188,17 @@ export class IProtocolYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
-
-    token(overrides?: CallOverrides): Promise<[string]>;
-
-    "token()"(overrides?: CallOverrides): Promise<[string]>;
 
     transferERC20(
       token: string,
@@ -194,13 +225,27 @@ export class IProtocolYieldSource extends Contract {
     ): Promise<ContractTransaction>;
   };
 
-  redeem(
-    redeemAmount: BigNumberish,
+  balanceOfToken(
+    addr: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "redeem(uint256)"(
-    redeemAmount: BigNumberish,
+  "balanceOfToken(address)"(
+    addr: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  depositToken(overrides?: CallOverrides): Promise<string>;
+
+  "depositToken()"(overrides?: CallOverrides): Promise<string>;
+
+  redeemToken(
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "redeemToken(uint256)"(
+    amount: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -228,21 +273,17 @@ export class IProtocolYieldSource extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  supplyTo(
-    mintAmount: BigNumberish,
+  supplyTokenTo(
+    amount: BigNumberish,
     to: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "supplyTo(uint256,address)"(
-    mintAmount: BigNumberish,
+  "supplyTokenTo(uint256,address)"(
+    amount: BigNumberish,
     to: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
-
-  token(overrides?: CallOverrides): Promise<string>;
-
-  "token()"(overrides?: CallOverrides): Promise<string>;
 
   transferERC20(
     token: string,
@@ -269,13 +310,24 @@ export class IProtocolYieldSource extends Contract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "balanceOfToken(address)"(
+      addr: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    depositToken(overrides?: CallOverrides): Promise<string>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<string>;
+
+    redeemToken(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -297,21 +349,17 @@ export class IProtocolYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    token(overrides?: CallOverrides): Promise<string>;
-
-    "token()"(overrides?: CallOverrides): Promise<string>;
 
     transferERC20(
       token: string,
@@ -338,13 +386,24 @@ export class IProtocolYieldSource extends Contract {
   filters: {};
 
   estimateGas: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(addr: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "balanceOfToken(address)"(
+      addr: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    depositToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    redeemToken(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -366,21 +425,17 @@ export class IProtocolYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "token()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferERC20(
       token: string,
@@ -405,13 +460,27 @@ export class IProtocolYieldSource extends Contract {
   };
 
   populateTransaction: {
-    redeem(
-      redeemAmount: BigNumberish,
+    balanceOfToken(
+      addr: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "redeem(uint256)"(
-      redeemAmount: BigNumberish,
+    "balanceOfToken(address)"(
+      addr: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    depositToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "depositToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    redeemToken(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "redeemToken(uint256)"(
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -439,21 +508,17 @@ export class IProtocolYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    supplyTo(
-      mintAmount: BigNumberish,
+    supplyTokenTo(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "supplyTo(uint256,address)"(
-      mintAmount: BigNumberish,
+    "supplyTokenTo(uint256,address)"(
+      amount: BigNumberish,
       to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
-
-    token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferERC20(
       token: string,

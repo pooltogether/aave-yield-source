@@ -139,7 +139,7 @@ describe('ATokenYieldSource', () => {
       await aTokenYieldSource.mint(wallet2.address, toWei('100'));
       await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('1000'));
 
-      expect(await aTokenYieldSource.balanceOfToken(wallet2.address)).to.equal(toWei('500'));
+      expect(await aTokenYieldSource.callStatic.balanceOfToken(wallet2.address)).to.equal(toWei('500'));
     });
   });
 

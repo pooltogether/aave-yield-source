@@ -20,12 +20,44 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
+    ],
+    name: "balanceOfToken",
+    outputs: [
+      {
         internalType: "uint256",
-        name: "redeemAmount",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "redeem",
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "depositToken",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "redeemToken",
     outputs: [
       {
         internalType: "uint256",
@@ -40,7 +72,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "mintAmount",
+        name: "amount",
         type: "uint256",
       },
       {
@@ -49,22 +81,9 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "supplyTo",
+    name: "supplyTokenTo",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "token",
-    outputs: [
-      {
-        internalType: "contract IERC20Upgradeable",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
 ];
