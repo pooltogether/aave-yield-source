@@ -24,7 +24,6 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface AssetManagerInterface extends ethers.utils.Interface {
   functions: {
     "assetManager()": FunctionFragment;
-    "c_0x5196d961(bytes32)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAssetManager(address)": FunctionFragment;
@@ -34,10 +33,6 @@ interface AssetManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "assetManager",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "c_0x5196d961",
-    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -55,10 +50,6 @@ interface AssetManagerInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "assetManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0x5196d961",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -132,16 +123,6 @@ export class AssetManager extends Contract {
 
     "assetManager()"(overrides?: CallOverrides): Promise<[string]>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
@@ -175,16 +156,6 @@ export class AssetManager extends Contract {
 
   "assetManager()"(overrides?: CallOverrides): Promise<string>;
 
-  c_0x5196d961(
-    c__0x5196d961: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  "c_0x5196d961(bytes32)"(
-    c__0x5196d961: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
@@ -217,16 +188,6 @@ export class AssetManager extends Contract {
     assetManager(overrides?: CallOverrides): Promise<string>;
 
     "assetManager()"(overrides?: CallOverrides): Promise<string>;
-
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -280,16 +241,6 @@ export class AssetManager extends Contract {
 
     "assetManager()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -323,16 +274,6 @@ export class AssetManager extends Contract {
     assetManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "assetManager()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -28,8 +28,6 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "assetManager()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "c_0x5196d961(bytes32)": FunctionFragment;
-    "c_0xd6b259d6(bytes32)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
@@ -68,14 +66,6 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "c_0x5196d961",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "c_0xd6b259d6",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
@@ -152,14 +142,6 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0x5196d961",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0xd6b259d6",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
@@ -318,26 +300,6 @@ export class ATokenYieldSource extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
@@ -569,26 +531,6 @@ export class ATokenYieldSource extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  c_0x5196d961(
-    c__0x5196d961: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  "c_0x5196d961(bytes32)"(
-    c__0x5196d961: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  c_0xd6b259d6(
-    c__0xd6b259d6: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  "c_0xd6b259d6(bytes32)"(
-    c__0xd6b259d6: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   decimals(overrides?: CallOverrides): Promise<number>;
 
   "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -818,26 +760,6 @@ export class ATokenYieldSource extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -1127,26 +1049,6 @@ export class ATokenYieldSource extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1369,26 +1271,6 @@ export class ATokenYieldSource extends Contract {
 
     "balanceOf(address)"(
       account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    c_0x5196d961(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0x5196d961(bytes32)"(
-      c__0x5196d961: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    c_0xd6b259d6(
-      c__0xd6b259d6: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0xd6b259d6(bytes32)"(
-      c__0xd6b259d6: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

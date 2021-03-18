@@ -128,7 +128,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param redeemAmount The amount of yield-bearing tokens to be redeemed
   /// @return The actual amount of tokens that were redeemed
   function redeem(uint256 redeemAmount) external override returns (uint256) {
-    require(balanceOf(msg.sender) == 0, "ATokenYieldSource/shares-not-zero");
+    require(balanceOf(msg.sender) != 0, "ATokenYieldSource/shares-not-zero");
 
     uint256 beforeBalance = aToken.balanceOf(address(this));
     _lendingPool().withdraw(address(_tokenAddress()), redeemAmount, address(this));

@@ -24,21 +24,11 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ATokenYieldSourceProxyFactoryHarnessInterface
   extends ethers.utils.Interface {
   functions: {
-    "c_0x2b4df744(bytes32)": FunctionFragment;
-    "c_0x5cb6b1f4(bytes32)": FunctionFragment;
     "create(address,address,address,address)": FunctionFragment;
     "deployMinimal(address,bytes)": FunctionFragment;
     "instance()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "c_0x2b4df744",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "c_0x5cb6b1f4",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "create",
     values: [string, string, string, string]
@@ -49,14 +39,6 @@ interface ATokenYieldSourceProxyFactoryHarnessInterface
   ): string;
   encodeFunctionData(functionFragment: "instance", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "c_0x2b4df744",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0x5cb6b1f4",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "create", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "deployMinimal",
@@ -115,26 +97,6 @@ export class ATokenYieldSourceProxyFactoryHarness extends Contract {
   interface: ATokenYieldSourceProxyFactoryHarnessInterface;
 
   functions: {
-    c_0x2b4df744(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    "c_0x2b4df744(bytes32)"(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    c_0x5cb6b1f4(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    "c_0x5cb6b1f4(bytes32)"(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
@@ -167,26 +129,6 @@ export class ATokenYieldSourceProxyFactoryHarness extends Contract {
 
     "instance()"(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  c_0x2b4df744(
-    c__0x2b4df744: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  "c_0x2b4df744(bytes32)"(
-    c__0x2b4df744: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  c_0x5cb6b1f4(
-    c__0x5cb6b1f4: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  "c_0x5cb6b1f4(bytes32)"(
-    c__0x5cb6b1f4: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
 
   create(
     _aToken: string,
@@ -221,26 +163,6 @@ export class ATokenYieldSourceProxyFactoryHarness extends Contract {
   "instance()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    c_0x2b4df744(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "c_0x2b4df744(bytes32)"(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    c_0x5cb6b1f4(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "c_0x5cb6b1f4(bytes32)"(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
@@ -279,26 +201,6 @@ export class ATokenYieldSourceProxyFactoryHarness extends Contract {
   };
 
   estimateGas: {
-    c_0x2b4df744(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "c_0x2b4df744(bytes32)"(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    c_0x5cb6b1f4(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "c_0x5cb6b1f4(bytes32)"(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
@@ -333,26 +235,6 @@ export class ATokenYieldSourceProxyFactoryHarness extends Contract {
   };
 
   populateTransaction: {
-    c_0x2b4df744(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0x2b4df744(bytes32)"(
-      c__0x2b4df744: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    c_0x5cb6b1f4(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "c_0x5cb6b1f4(bytes32)"(
-      c__0x5cb6b1f4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
