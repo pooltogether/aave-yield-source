@@ -76,8 +76,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   /// @notice Returns the ERC20 asset token used for deposits
   /// @return The ERC20 asset token
-  function token() public override view returns (IERC20Upgradeable) {
-    return IERC20Upgradeable(_tokenAddress());
+  function depositToken() public view override returns (address) {
+    return _tokenAddress();
   }
 
   /// @dev Gets the underlying asset token address
@@ -86,11 +86,18 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     return aToken.UNDERLYING_ASSET_ADDRESS();
   }
 
+  /// @notice Returns the total balance (in asset tokens).  This includes the deposits and interest.
+  /// @param addr User address
+  /// @return The underlying balance of asset tokens
+  function balanceOfToken(address addr) public view returns (uint256) {
+    return _sharesToToken(balanceOf(addr));
+  }
+
   /// @notice Supplies asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be supplied
   /// @param to The user whose balance will receive the tokens
   function _depositToAave(uint256 mintAmount, address to) internal {
-    token().approve(address(_lendingPool()), mintAmount);
+    IERC20Upgradeable(depositToken()).approve(address(_lendingPool()), mintAmount);
     _lendingPool().deposit(address(_tokenAddress()), mintAmount, to, uint16(188));
   }
 
@@ -113,7 +120,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Supplies asset tokens to the yield source
   /// @param mintAmount The amount of asset tokens to be supplied
   /// @param to The user whose balance will receive the tokens
-  function supplyTo(uint256 mintAmount, address to) external override {
+  function supplyTokenTo(uint256 mintAmount, address to) external override {
     _depositToAave(mintAmount, address(this));
     uint256 shares = 0;
     if (totalSupply() == 0) {
@@ -127,7 +134,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Redeems asset tokens from the yield source
   /// @param redeemAmount The amount of yield-bearing tokens to be redeemed
   /// @return The actual amount of tokens that were redeemed
-  function redeem(uint256 redeemAmount) external override returns (uint256) {
+  function redeemToken(uint256 redeemAmount) external override returns (uint256) {
     require(balanceOf(msg.sender) != 0, "ATokenYieldSource/shares-not-zero");
 
     uint256 beforeBalance = aToken.balanceOf(address(this));
@@ -167,14 +174,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     emit ReserveChanged(address(reserve));
   }
 
-  /// @notice Transfers tokens from the reserve to the given address.  The tokens should be the same tokens as the token() function
+  /// @notice Transfers tokens from the reserve to the given address.  The tokens should be the same tokens as the depositToken() function
   /// @dev This function is callable by the owner or asset manager.
   /// @param to The address to transfer reserve tokens to.
   function transferReserve(address to) external override onlyOwnerOrAssetManager {
     uint256 reserveRateMantissa = reserve.reserveRateMantissa(address(this));
     require(reserveRateMantissa != 0, "ATokenYieldSource/reserveRateMantissa-not-zero");
     uint256 amount = FixedPoint.multiplyUintByMantissa(totalSupply(), reserveRateMantissa);
-    token().transferFrom(address(this), to, amount);
+    IERC20Upgradeable(depositToken()).transferFrom(address(this), to, amount);
     emit ReserveTransferred(to, amount);
   }
 
@@ -188,7 +195,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     IERC20Upgradeable(erc20Token).transferFrom(address(this), to, amount);
   }
 
-  /// @notice Allows someone to deposit into the yield source without receiving any shares.  The deposited token will be the same as token()
+  /// @notice Allows someone to deposit into the yield source without receiving any shares.  The deposited token will be the same as depositToken()
   /// This allows anyone to distribute tokens among the share holders.
   function sponsor(uint256 amount) external override {
     _depositToAave(amount, address(this));

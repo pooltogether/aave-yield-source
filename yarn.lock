@@ -693,6 +693,7 @@ __metadata:
     "@openzeppelin/contracts-upgradeable": 3.4.1
     "@openzeppelin/hardhat-upgrades": 1.6.0
     "@pooltogether/fixed-point": 0.1.0
+    "@pooltogether/yield-source-interface": 1.0.1
     "@typechain/ethers-v5": 6.0.2
     "@typechain/hardhat": 1.0.1
     "@types/chai": 4.2.15
@@ -726,6 +727,13 @@ __metadata:
   dependencies:
     "@openzeppelin/contracts": ^3.0.0-rc.0
   checksum: 82f58303fc4b86088dcc429337a2b0603ba7486ff7179fcc1e288aedbe037124d02a74b01159d6000c9d670cc092f29f4a026ce1639523ec671d5e0af0a1cc2d
+  languageName: node
+  linkType: hard
+
+"@pooltogether/yield-source-interface@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@pooltogether/yield-source-interface@npm:1.0.1"
+  checksum: 9b4c965d38722f60d4d10cf682ea326a17a797fbdb069fdfb33ed32c8298b2dfcda32bb69eb438d2ae700a6ec56ac86257b8dff09ebe0c6d538a9877c880f25a
   languageName: node
   linkType: hard
 

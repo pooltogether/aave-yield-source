@@ -127,9 +127,19 @@ describe('ATokenYieldSource', () => {
     });
   });
 
-  describe('token()', () => {
+  describe('depositToken()', () => {
     it('should return the underlying token', async () => {
-      expect(await aTokenYieldSource.token()).to.equal(underlyingToken.address);
+      expect(await aTokenYieldSource.depositToken()).to.equal(underlyingToken.address);
+    });
+  });
+
+  describe('balanceOfToken()', () => {
+    it('should return user balance', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
+      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('1000'));
+
+      expect(await aTokenYieldSource.balanceOfToken(wallet2.address)).to.equal(toWei('500'));
     });
   });
 
@@ -153,13 +163,13 @@ describe('ATokenYieldSource', () => {
     });
   });
 
-  describe('supplyTo()', () => {
+  describe('supplyTokenTo()', () => {
     let amount: BigNumber;
     let yieldSourceBalance: BigNumber;
     let lendingPoolAddress: any;
     let tokenAddress: any;
 
-    const supplyTo = async (userAddress: SignerWithAddress['address'], userBalance: BigNumber) => {
+    const supplyTokenTo = async (userAddress: SignerWithAddress['address'], userBalance: BigNumber) => {
       const lendingPoolAddress = await lendingPoolAddressesProvider.getLendingPool();
       const tokenAddress = await aTokenYieldSource.tokenAddress();
 
@@ -169,7 +179,7 @@ describe('ATokenYieldSource', () => {
       await lendingPool.mock.deposit
         .withArgs(tokenAddress, userBalance, aTokenYieldSource.address, 188)
         .returns();
-      await aTokenYieldSource.supplyTo(userBalance, userAddress);
+      await aTokenYieldSource.supplyTokenTo(userBalance, userAddress);
     };
 
     beforeEach(async () => {
@@ -180,14 +190,14 @@ describe('ATokenYieldSource', () => {
     });
 
     it('should supply assets if totalSupply is 0', async () => {
-      await supplyTo(yieldSourceOwner.address, amount);
+      await supplyTokenTo(yieldSourceOwner.address, amount);
       expect(await aTokenYieldSource.totalSupply()).to.equal(amount);
     });
 
     it('should supply assets if totalSupply is not 0', async () => {
       await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
       await aTokenYieldSource.mint(wallet2.address, toWei('100'));
-      await supplyTo(yieldSourceOwner.address, amount);
+      await supplyTokenTo(yieldSourceOwner.address, amount);
     });
 
     it('should revert on error', async () => {
@@ -197,12 +207,12 @@ describe('ATokenYieldSource', () => {
         .reverts();
 
       await expect(
-        aTokenYieldSource.supplyTo(amount, aTokenYieldSource.address),
+        aTokenYieldSource.supplyTokenTo(amount, aTokenYieldSource.address),
       ).to.be.revertedWith('');
     });
   });
 
-  describe('redeem()', () => {
+  describe('redeemToken()', () => {
     let yieldSourceOwnerBalance: BigNumber;
     let redeemAmount: BigNumber;
 
@@ -220,7 +230,7 @@ describe('ATokenYieldSource', () => {
         .withArgs(underlyingToken.address, redeemAmount, aTokenYieldSource.address)
         .returns(redeemAmount);
 
-      await aTokenYieldSource.connect(yieldSourceOwner).redeem(redeemAmount);
+      await aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount);
 
       expect(await aTokenYieldSource.callStatic.balanceOf(yieldSourceOwner.address)).to.equal(
         yieldSourceOwnerBalance.sub(redeemAmount),
@@ -229,7 +239,7 @@ describe('ATokenYieldSource', () => {
 
     it('should not be able to redeem assets if balance is 0', async () => {
       await expect(
-        aTokenYieldSource.connect(yieldSourceOwner).redeem(redeemAmount),
+        aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount),
       ).to.be.revertedWith('ATokenYieldSource/shares-not-zero');
     });
 
@@ -245,7 +255,7 @@ describe('ATokenYieldSource', () => {
         .returns(redeemAmount);
 
       await expect(
-        aTokenYieldSource.connect(yieldSourceOwner).redeem(redeemAmount),
+        aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount),
       ).to.be.revertedWith('ERC20: burn amount exceeds balance');
     });
   });

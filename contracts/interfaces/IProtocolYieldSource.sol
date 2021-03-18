@@ -2,7 +2,8 @@
 
 pragma solidity >=0.6.0 <0.7.0;
 
-import "./IYieldSource.sol";
+import "@pooltogether/yield-source-interface/contracts/IYieldSource.sol";
+
 import "./IReserve.sol";
 
 /// @title The interface used for all Yield Sources for the PoolTogether protocol
