@@ -73,32 +73,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "reserve",
-    outputs: [
-      {
-        internalType: "contract IReserve",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IReserve",
-        name: "_reserve",
-        type: "address",
-      },
-    ],
-    name: "setReserve",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint256",
@@ -148,19 +122,6 @@ const _abi = [
       },
     ],
     name: "transferERC20",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "transferReserve",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

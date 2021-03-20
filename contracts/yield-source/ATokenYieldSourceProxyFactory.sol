@@ -23,18 +23,16 @@ contract ATokenYieldSourceProxyFactory is ProxyFactory {
   /// @notice Creates a new aToken Yield Sources as a proxy of the template instance
   /// @param _aToken Aave aToken address
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry
-  /// @param _reserve Yield Source Reserve
   /// @param _owner Yield Source owner
   /// @return A reference to the new proxied aToken Yield Sources
   function create(
     ATokenInterface _aToken,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
-    IReserve _reserve,
     address _owner
   ) public returns (ATokenYieldSource) {
     ATokenYieldSource aTokenYieldSource = ATokenYieldSource(deployMinimal(address(instance), ""));
 
-    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _reserve);
+    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry);
     aTokenYieldSource.transferOwnership(_owner);
 
     return aTokenYieldSource;

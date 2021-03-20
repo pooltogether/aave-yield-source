@@ -4,25 +4,9 @@ pragma solidity >=0.6.0 <0.7.0;
 
 import "@pooltogether/yield-source-interface/contracts/IYieldSource.sol";
 
-import "./IReserve.sol";
-
 /// @title The interface used for all Yield Sources for the PoolTogether protocol
 /// @dev There are two privileged roles: the owner and the asset manager.  The owner can configure the asset managers.
 interface IProtocolYieldSource is IYieldSource {
-  /// @notice Sets the Reserve strategy on this contract
-  /// @dev This function is callable by the owner
-  /// @param _reserve The new reserve strategy that this yield source should use
-  function setReserve(IReserve _reserve) external;
-
-  /// @notice Returns the reserve strategy
-  /// @return The current reserve strategy for this contract
-  function reserve() external view returns (IReserve);
-
-  /// @notice Transfers tokens from the reserve to the given address.  The tokens should be the same tokens as the token() function
-  /// @dev This function is callable by the owner or asset manager.
-  /// @param to The address to transfer reserve tokens to.
-  function transferReserve(address to) external;
-
   /// @notice Allows the owner to transfer ERC20 tokens held by this contract to the target address.
   /// @dev This function is callable by the owner or asset manager.
   /// This function should not be able to transfer any tokens that represent user deposits.

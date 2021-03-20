@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "compile": "hardhat --show-stack-traces --max-memory 8192 compile",
-    "coverage": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat coverage --network coverage --temp build",
+    "coverage": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat coverage",
     "deploy": "hardhat deploy --write true --network",
     "etherscan-verify": "hardhat etherscan:verify --network",
     "format": "prettier --config .prettierrc --write **/*.ts",
@@ -18,7 +18,6 @@
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
     "@openzeppelin/contracts-upgradeable": "3.4.1",
-    "@pooltogether/fixed-point": "0.1.0",
     "@pooltogether/yield-source-interface": "1.0.1",
     "deploy-eip-1820": "1.0.0"
   },

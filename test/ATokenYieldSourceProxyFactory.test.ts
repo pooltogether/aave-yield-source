@@ -4,7 +4,6 @@ import { ethers } from 'hardhat';
 import {
   ADAI_ADDRESS_KOVAN,
   LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN,
-  RESERVE_ADDRESS_KOVAN,
 } from './Constant';
 
 import { ATokenYieldSourceProxyFactory } from '../types';
@@ -23,7 +22,6 @@ describe('ATokenYieldSourceProxyFactory', () => {
       const tx = await hardhatATokenYieldSourceProxyFactory.create(
         ADAI_ADDRESS_KOVAN,
         LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN,
-        RESERVE_ADDRESS_KOVAN,
         '0x3A791e828fDd420fbE16416efDF509E4b9088Dd4',
       );
       const receipt = await provider.getTransactionReceipt(tx.hash);

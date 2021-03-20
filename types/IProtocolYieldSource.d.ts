@@ -26,12 +26,9 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     "balanceOfToken(address)": FunctionFragment;
     "depositToken()": FunctionFragment;
     "redeemToken(uint256)": FunctionFragment;
-    "reserve()": FunctionFragment;
-    "setReserve(address)": FunctionFragment;
     "sponsor(uint256)": FunctionFragment;
     "supplyTokenTo(uint256,address)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
-    "transferReserve(address)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -46,8 +43,6 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "redeemToken",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "reserve", values?: undefined): string;
-  encodeFunctionData(functionFragment: "setReserve", values: [string]): string;
   encodeFunctionData(
     functionFragment: "sponsor",
     values: [BigNumberish]
@@ -59,10 +54,6 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "transferERC20",
     values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferReserve",
-    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -77,8 +68,6 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "redeemToken",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "reserve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setReserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sponsor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supplyTokenTo",
@@ -86,10 +75,6 @@ interface IProtocolYieldSourceInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferReserve",
     data: BytesLike
   ): Result;
 
@@ -164,20 +149,6 @@ export class IProtocolYieldSource extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    reserve(overrides?: CallOverrides): Promise<[string]>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<[string]>;
-
-    setReserve(
-      _reserve: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "setReserve(address)"(
-      _reserve: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
     sponsor(
       amount: BigNumberish,
       overrides?: Overrides
@@ -213,16 +184,6 @@ export class IProtocolYieldSource extends Contract {
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
-
-    transferReserve(
-      to: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "transferReserve(address)"(
-      to: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
   };
 
   balanceOfToken(
@@ -246,20 +207,6 @@ export class IProtocolYieldSource extends Contract {
 
   "redeemToken(uint256)"(
     amount: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  reserve(overrides?: CallOverrides): Promise<string>;
-
-  "reserve()"(overrides?: CallOverrides): Promise<string>;
-
-  setReserve(
-    _reserve: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "setReserve(address)"(
-    _reserve: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -299,16 +246,6 @@ export class IProtocolYieldSource extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  transferReserve(
-    to: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "transferReserve(address)"(
-    to: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     balanceOfToken(addr: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -330,17 +267,6 @@ export class IProtocolYieldSource extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    reserve(overrides?: CallOverrides): Promise<string>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<string>;
-
-    setReserve(_reserve: string, overrides?: CallOverrides): Promise<void>;
-
-    "setReserve(address)"(
-      _reserve: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     sponsor(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
@@ -374,13 +300,6 @@ export class IProtocolYieldSource extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    transferReserve(to: string, overrides?: CallOverrides): Promise<void>;
-
-    "transferReserve(address)"(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {};
@@ -404,17 +323,6 @@ export class IProtocolYieldSource extends Contract {
 
     "redeemToken(uint256)"(
       amount: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    reserve(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setReserve(_reserve: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "setReserve(address)"(
-      _reserve: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -450,13 +358,6 @@ export class IProtocolYieldSource extends Contract {
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
-
-    transferReserve(to: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "transferReserve(address)"(
-      to: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -481,20 +382,6 @@ export class IProtocolYieldSource extends Contract {
 
     "redeemToken(uint256)"(
       amount: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    reserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setReserve(
-      _reserve: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "setReserve(address)"(
-      _reserve: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -531,16 +418,6 @@ export class IProtocolYieldSource extends Contract {
       token: string,
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    transferReserve(
-      to: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "transferReserve(address)"(
-      to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

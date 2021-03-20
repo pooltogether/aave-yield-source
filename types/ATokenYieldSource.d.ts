@@ -33,15 +33,13 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "depositToken()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize(address,address,address)": FunctionFragment;
+    "initialize(address,address)": FunctionFragment;
     "lendingPoolAddressesProviderRegistry()": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "redeemToken(uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "reserve()": FunctionFragment;
     "setAssetManager(address)": FunctionFragment;
-    "setReserve(address)": FunctionFragment;
     "sponsor(uint256)": FunctionFragment;
     "supplyTokenTo(uint256,address)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -50,7 +48,6 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     "transferERC20(address,address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "transferReserve(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "aToken", values?: undefined): string;
@@ -86,7 +83,7 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [string, string, string]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "lendingPoolAddressesProviderRegistry",
@@ -102,12 +99,10 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "reserve", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setAssetManager",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "setReserve", values: [string]): string;
   encodeFunctionData(
     functionFragment: "sponsor",
     values: [BigNumberish]
@@ -135,10 +130,6 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferReserve",
     values: [string]
   ): string;
 
@@ -182,12 +173,10 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "reserve", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAssetManager",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setReserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sponsor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supplyTokenTo",
@@ -211,18 +200,12 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferReserve",
-    data: BytesLike
-  ): Result;
 
   events: {
-    "ATokenYieldSourceInitialized(address,address,address)": EventFragment;
+    "ATokenYieldSourceInitialized(address,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "AssetManagerTransferred(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "ReserveChanged(address)": EventFragment;
-    "ReserveTransferred(address,uint256)": EventFragment;
     "Sponsored(address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
@@ -233,8 +216,6 @@ interface ATokenYieldSourceInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetManagerTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Sponsored"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
@@ -367,14 +348,12 @@ export class ATokenYieldSource extends Contract {
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,address,address)"(
+    "initialize(address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -408,10 +387,6 @@ export class ATokenYieldSource extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-    reserve(overrides?: CallOverrides): Promise<[string]>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<[string]>;
-
     setAssetManager(
       newAssetManager: string,
       overrides?: Overrides
@@ -419,16 +394,6 @@ export class ATokenYieldSource extends Contract {
 
     "setAssetManager(address)"(
       newAssetManager: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    setReserve(
-      _reserve: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "setReserve(address)"(
-      _reserve: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -509,16 +474,6 @@ export class ATokenYieldSource extends Contract {
 
     "transferOwnership(address)"(
       newOwner: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    transferReserve(
-      to: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "transferReserve(address)"(
-      to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
   };
@@ -607,14 +562,12 @@ export class ATokenYieldSource extends Contract {
   initialize(
     _aToken: string,
     _lendingPoolAddressesProviderRegistry: string,
-    _reserve: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,address,address)"(
+  "initialize(address,address)"(
     _aToken: string,
     _lendingPoolAddressesProviderRegistry: string,
-    _reserve: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -648,10 +601,6 @@ export class ATokenYieldSource extends Contract {
 
   "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-  reserve(overrides?: CallOverrides): Promise<string>;
-
-  "reserve()"(overrides?: CallOverrides): Promise<string>;
-
   setAssetManager(
     newAssetManager: string,
     overrides?: Overrides
@@ -659,16 +608,6 @@ export class ATokenYieldSource extends Contract {
 
   "setAssetManager(address)"(
     newAssetManager: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  setReserve(
-    _reserve: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "setReserve(address)"(
-    _reserve: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -749,16 +688,6 @@ export class ATokenYieldSource extends Contract {
 
   "transferOwnership(address)"(
     newOwner: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  transferReserve(
-    to: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "transferReserve(address)"(
-    to: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -844,14 +773,12 @@ export class ATokenYieldSource extends Contract {
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,address,address)"(
+    "initialize(address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -885,10 +812,6 @@ export class ATokenYieldSource extends Contract {
 
     "renounceOwnership()"(overrides?: CallOverrides): Promise<void>;
 
-    reserve(overrides?: CallOverrides): Promise<string>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<string>;
-
     setAssetManager(
       newAssetManager: string,
       overrides?: CallOverrides
@@ -896,13 +819,6 @@ export class ATokenYieldSource extends Contract {
 
     "setAssetManager(address)"(
       newAssetManager: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setReserve(_reserve: string, overrides?: CallOverrides): Promise<void>;
-
-    "setReserve(address)"(
-      _reserve: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -982,27 +898,15 @@ export class ATokenYieldSource extends Contract {
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    transferReserve(to: string, overrides?: CallOverrides): Promise<void>;
-
-    "transferReserve(address)"(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
     ATokenYieldSourceInitialized(
       aToken: string | null,
-      lendingPoolAddressesProviderRegistry: null,
-      reserve: string | null
+      lendingPoolAddressesProviderRegistry: null
     ): TypedEventFilter<
-      [string, string, string],
-      {
-        aToken: string;
-        lendingPoolAddressesProviderRegistry: string;
-        reserve: string;
-      }
+      [string, string],
+      { aToken: string; lendingPoolAddressesProviderRegistry: string }
     >;
 
     Approval(
@@ -1029,15 +933,6 @@ export class ATokenYieldSource extends Contract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
-
-    ReserveChanged(
-      reserve: string | null
-    ): TypedEventFilter<[string], { reserve: string }>;
-
-    ReserveTransferred(
-      to: string | null,
-      amount: null
-    ): TypedEventFilter<[string, BigNumber], { to: string; amount: BigNumber }>;
 
     Sponsored(
       user: string | null,
@@ -1139,14 +1034,12 @@ export class ATokenYieldSource extends Contract {
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,address,address)"(
+    "initialize(address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1180,10 +1073,6 @@ export class ATokenYieldSource extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<BigNumber>;
 
-    reserve(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     setAssetManager(
       newAssetManager: string,
       overrides?: Overrides
@@ -1191,13 +1080,6 @@ export class ATokenYieldSource extends Contract {
 
     "setAssetManager(address)"(
       newAssetManager: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    setReserve(_reserve: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "setReserve(address)"(
-      _reserve: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1275,13 +1157,6 @@ export class ATokenYieldSource extends Contract {
 
     "transferOwnership(address)"(
       newOwner: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    transferReserve(to: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "transferReserve(address)"(
-      to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
   };
@@ -1374,14 +1249,12 @@ export class ATokenYieldSource extends Contract {
     initialize(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,address,address)"(
+    "initialize(address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -1415,10 +1288,6 @@ export class ATokenYieldSource extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<PopulatedTransaction>;
 
-    reserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "reserve()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     setAssetManager(
       newAssetManager: string,
       overrides?: Overrides
@@ -1426,16 +1295,6 @@ export class ATokenYieldSource extends Contract {
 
     "setAssetManager(address)"(
       newAssetManager: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    setReserve(
-      _reserve: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "setReserve(address)"(
-      _reserve: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -1516,16 +1375,6 @@ export class ATokenYieldSource extends Contract {
 
     "transferOwnership(address)"(
       newOwner: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    transferReserve(
-      to: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "transferReserve(address)"(
-      to: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

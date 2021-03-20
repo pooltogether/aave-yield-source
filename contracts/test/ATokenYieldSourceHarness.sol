@@ -6,8 +6,9 @@ import "../yield-source/ATokenYieldSource.sol";
 
 /* solium-disable security/no-block-members */
 contract ATokenYieldSourceHarness is ATokenYieldSource {
-  function mint(address account, uint256 amount) external {
-    return _mint(account, amount);
+  function mint(address account, uint256 amount) public returns (bool) {
+    _mint(account, amount);
+    return true;
   }
 
   function tokenToShares(uint256 tokens) external view returns (uint256) {

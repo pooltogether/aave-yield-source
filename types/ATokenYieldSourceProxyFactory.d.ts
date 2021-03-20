@@ -24,14 +24,14 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ATokenYieldSourceProxyFactoryInterface
   extends ethers.utils.Interface {
   functions: {
-    "create(address,address,address,address)": FunctionFragment;
+    "create(address,address,address)": FunctionFragment;
     "deployMinimal(address,bytes)": FunctionFragment;
     "instance()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "create",
-    values: [string, string, string, string]
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "deployMinimal",
@@ -100,15 +100,13 @@ export class ATokenYieldSourceProxyFactory extends Contract {
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "create(address,address,address,address)"(
+    "create(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -133,15 +131,13 @@ export class ATokenYieldSourceProxyFactory extends Contract {
   create(
     _aToken: string,
     _lendingPoolAddressesProviderRegistry: string,
-    _reserve: string,
     _owner: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "create(address,address,address,address)"(
+  "create(address,address,address)"(
     _aToken: string,
     _lendingPoolAddressesProviderRegistry: string,
-    _reserve: string,
     _owner: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -166,15 +162,13 @@ export class ATokenYieldSourceProxyFactory extends Contract {
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "create(address,address,address,address)"(
+    "create(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -204,15 +198,13 @@ export class ATokenYieldSourceProxyFactory extends Contract {
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "create(address,address,address,address)"(
+    "create(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -238,15 +230,13 @@ export class ATokenYieldSourceProxyFactory extends Contract {
     create(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "create(address,address,address,address)"(
+    "create(address,address,address)"(
       _aToken: string,
       _lendingPoolAddressesProviderRegistry: string,
-      _reserve: string,
       _owner: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
