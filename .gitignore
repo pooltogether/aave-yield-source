@@ -14,6 +14,7 @@ abis
 artifacts
 cache
 node_modules
+types
 
 # Solidity Coverage
 coverage
