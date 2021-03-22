@@ -6,6 +6,86 @@
 
 <br />
 
-## PoolTogether Aave Yield Source
+# PoolTogether Aave Yield Source 👻
 
+[![Coverage Status](https://coveralls.io/repos/github/pooltogether/aave-yield-source/badge.svg)](https://coveralls.io/github/pooltogether/aave-yield-source)
 [![built-with openzeppelin](https://img.shields.io/badge/built%20with-OpenZeppelin-3677FF)](https://docs.openzeppelin.com/)
+
+PoolTogether Yield Source that uses [Aave](https://aave.com/) V2 to generate yield by lending any ERC20 token supported by Aave and deposited into the Aave Yield Source.
+
+## Development
+
+Clone this repository and enter the directory.
+
+### Install
+
+Install dependencies:
+
+```
+yarn
+```
+
+This project uses [Yarn 2](https://yarnpkg.com), dependencies should get installed pretty quickly.
+
+### Env
+
+We use [direnv](https://direnv.net) to manage environment variables. You'll likely need to install it.
+
+Copy `.envrc.example` and write down the env variables needed to run this project.
+```
+cp .envrc.example .envrc
+```
+
+Once your env variables are setup, load them with:
+```
+direnv allow
+```
+
+### Test
+
+We use the [Hardhat](https://hardhat.org) ecosystem to test and deploy our contracts.
+
+To run unit tests:
+
+```
+yarn test
+```
+
+To run [solhint](https://protofire.github.io/solhint/) and tests:
+
+```
+yarn verify
+```
+
+To run coverage:
+
+```
+yarn coverage
+```
+
+### Deploy
+
+Deployment script can be found in `deploy/deploy.ts`. To deploy, simply run:
+
+```
+yarn deploy <NETWORK_NAME>
+```
+
+Once deployment is done, you can verify your contracts on [Etherscan](https://etherscan.io) by typing:
+
+```
+yarn etherscan-verify <NETWORK_NAME>
+```
+
+### Code quality
+
+[Prettier](https://prettier.io) is used to format TypeScript code. Use it by running:
+
+```
+yarn format
+```
+
+[Solhint](https://protofire.github.io/solhint/) is used to lint Solidity files. Run it with:
+```
+yarn hint
+```
