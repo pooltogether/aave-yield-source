@@ -695,7 +695,6 @@ __metadata:
     chai: 4.3.4
     chalk: 4.1.0
     debug: 4.3.1
-    deploy-eip-1820: 1.0.0
     ethereum-waffle: 3.3.0
     ethers: 5.0.32
     hardhat: 2.1.1
@@ -3625,15 +3624,6 @@ __metadata:
   version: 1.1.2
   resolution: "depd@npm:1.1.2"
   checksum: f45566ff7019a346852f095768a380778ed544de24e103b479fd5d3e61982d670efbb5234c09d0588d7fdb09c26c48283d7150e4be5e6ce5d3d37cd268d75c4d
-  languageName: node
-  linkType: hard
-
-"deploy-eip-1820@npm:1.0.0":
-  version: 1.0.0
-  resolution: "deploy-eip-1820@npm:1.0.0"
-  peerDependencies:
-    ethers: ^5.0.0
-  checksum: 179bbf3447e46ea1904907f3aa27ba33e16e917c3d39bd69c36ffabfd2aea5a671c0373eea29475f29a9d8bbdbc515eb42c338b7f20f01af4ec23a9cd55b5b3e
   languageName: node
   linkType: hard
 
