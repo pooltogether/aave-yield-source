@@ -43,7 +43,6 @@ describe('ATokenYieldSource', () => {
   let underlyingToken: ERC20;
 
   // Numerical error tests for shares decreasing
-  // Mainnet for creation of a pool with the yield source, depositing and awarding - can take example on the pool contracts
 
   beforeEach(async () => {
     const { deployMockContract } = waffle;
@@ -155,14 +154,35 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('100'))).to.equal(toWei('100'));
     });
 
-    it('should fail to return shares', async () => {
+    it('should return shares even if aToken total supply has a lot of decimals', async () => {
       await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('1'));
-      console.log(BigNumber.from(10).pow(18).toString());
       await aToken.mock.balanceOf
         .withArgs(aTokenYieldSource.address)
-        .returns(toWei(BigNumber.from(10).pow(18).toString()));
+        .returns(toWei('0.000000000000000005'));
 
-      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(toWei('1'));
+      expect(await aTokenYieldSource.tokenToShares(toWei('0.000000000000000005'))).to.equal(toWei('1'));
+    });
+
+    it('should return shares even if aToken total supply increases', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
+      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('100'));
+
+      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(toWei('2'));
+
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(ethers.utils.parseUnits('100', 36));
+      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(2);
+    });
+
+    it('should fail to return shares if aToken total supply increases too much', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
+      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('100'));
+
+      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(toWei('2'));
+
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(ethers.utils.parseUnits('100', 37));
+      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(0);
     });
   });
 
@@ -177,6 +197,24 @@ describe('ATokenYieldSource', () => {
 
     it('should return shares if totalSupply is 0', async () => {
       expect(await aTokenYieldSource.sharesToToken(toWei('100'))).to.equal(toWei('100'));
+    });
+
+    it('should return tokens even if totalSupply has a lot of decimals', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('0.000000000000000005'));
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('100'));
+
+      expect(await aTokenYieldSource.sharesToToken(toWei('0.000000000000000005'))).to.equal(toWei('100'));
+    });
+
+    it('should return tokens even if aToken total supply increases', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
+      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('100'));
+
+      expect(await aTokenYieldSource.sharesToToken(toWei('2'))).to.equal(toWei('1'));
+
+      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(ethers.utils.parseUnits('100', 36));
+      expect(await aTokenYieldSource.sharesToToken(2)).to.equal(toWei('1'));
     });
   });
 
