@@ -4,7 +4,7 @@ import { ethers } from 'hardhat';
 import {
   ADAI_ADDRESS_KOVAN,
   LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN,
-} from './Constant';
+} from '../Constant';
 
 import { ATokenYieldSourceProxyFactory } from '../types';
 

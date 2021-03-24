@@ -8,13 +8,15 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { ethers, waffle } from 'hardhat';
 
-import { ATokenInterface as AToken } from '../types';
-import { ATokenYieldSourceHarness } from '../types';
-import { ATokenYieldSourceProxyFactory } from '../types';
-import { IERC20Upgradeable as ERC20 } from '../types';
-import { ILendingPool as LendingPool } from '../types';
-import { ILendingPoolAddressesProvider as LendingPoolAddressesProvider } from '../types';
-import { ILendingPoolAddressesProviderRegistry as LendingPoolAddressesProviderRegistry } from '../types';
+import {
+  ATokenInterface as AToken,
+  ATokenYieldSourceHarness,
+  ATokenYieldSourceProxyFactory,
+  IERC20Upgradeable as ERC20,
+  ILendingPool as LendingPool,
+  ILendingPoolAddressesProvider as LendingPoolAddressesProvider,
+  ILendingPoolAddressesProviderRegistry as LendingPoolAddressesProviderRegistry,
+} from '../types';
 
 import ATokenInterface from '../abis/ATokenInterface.json';
 import ILendingPool from '../abis/ILendingPool.json';
@@ -39,6 +41,9 @@ describe('ATokenYieldSource', () => {
 
   let erc20Token: ERC20;
   let underlyingToken: ERC20;
+
+  // Numerical error tests for shares decreasing
+  // Mainnet for creation of a pool with the yield source, depositing and awarding - can take example on the pool contracts
 
   beforeEach(async () => {
     const { deployMockContract } = waffle;
@@ -149,6 +154,16 @@ describe('ATokenYieldSource', () => {
     it('should return tokens if totalSupply is 0', async () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('100'))).to.equal(toWei('100'));
     });
+
+    it('should fail to return shares', async () => {
+      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('1'));
+      console.log(BigNumber.from(10).pow(18).toString());
+      await aToken.mock.balanceOf
+        .withArgs(aTokenYieldSource.address)
+        .returns(toWei(BigNumber.from(10).pow(18).toString()));
+
+      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(toWei('1'));
+    });
   });
 
   describe('_sharesToToken()', () => {
@@ -237,12 +252,12 @@ describe('ATokenYieldSource', () => {
         .withArgs(underlyingToken.address, redeemAmount, aTokenYieldSource.address)
         .returns(redeemAmount);
 
-      const balanceAfter = await aToken.balanceOf(aTokenYieldSource.address)
+      const balanceAfter = await aToken.balanceOf(aTokenYieldSource.address);
       const balanceDiff = yieldSourceOwnerBalance.sub(balanceAfter);
 
       await underlyingToken.mock.transfer
-      .withArgs(yieldSourceOwner.address, balanceDiff)
-      .returns(true);
+        .withArgs(yieldSourceOwner.address, balanceDiff)
+        .returns(true);
 
       await aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount);
 
@@ -387,3 +402,6 @@ describe('ATokenYieldSource', () => {
     });
   });
 });
+function toHex(arg0: number) {
+  throw new Error('Function not implemented.');
+}

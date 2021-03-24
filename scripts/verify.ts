@@ -1,13 +1,10 @@
-import chalk from 'chalk';
-
 import { task } from 'hardhat/config';
 
-const info = (message: string) => console.log(chalk.dim(message));
-const success = (message: string) => console.log(chalk.green(message));
+import { info, success } from './helpers';
 
 export default task(
   'etherscan:verify',
-  'Verifies ATokenYieldSource contracts on Etherscan ',
+  'Verifies ATokenYieldSource contracts on Etherscan',
 ).setAction(async (taskArguments, hre) => {
   const getContract = async (name: string) => {
     const { deployments } = hre;
