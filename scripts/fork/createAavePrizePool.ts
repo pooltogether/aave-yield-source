@@ -13,7 +13,6 @@ import {
 } from '../../Constant';
 
 import { info, success } from '../helpers';
-import { ATokenYieldSourceProxyFactory, ATokenYieldSource } from '../../types';
 
 export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').setAction(
   async (taskArguments, hre) => {
@@ -33,7 +32,7 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
 
     const ATokenYieldSourceProxyFactory = await getContractFactory('ATokenYieldSourceProxyFactory');
 
-    const hardhatATokenYieldSourceProxyFactory = (await ATokenYieldSourceProxyFactory.deploy()) as ATokenYieldSourceProxyFactory;
+    const hardhatATokenYieldSourceProxyFactory = (await ATokenYieldSourceProxyFactory.deploy());
 
     const aTokenYieldSourceProxyFactoryTx = await hardhatATokenYieldSourceProxyFactory.create(
       ADAI_ADDRESS_MAINNET,
@@ -52,7 +51,7 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
       'ATokenYieldSource',
       proxyCreatedEvent.args.proxy,
       contractsOwner,
-    )) as ATokenYieldSource;
+    ));
 
     info('Deploying ATokenYieldSourcePrizePool...');
 
@@ -64,8 +63,8 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
 
     const aaveYieldSourcePrizePoolConfig = {
       yieldSource: aTokenYieldSource.address,
-      maxExitFeeMantissa: toWei('0'),
-      maxTimelockDuration: 365 * 24 * 3600,
+      maxExitFeeMantissa: toWei('0.5'),
+      maxTimelockDuration: 1000,
     };
 
     const block = await getBlock(await getBlockNumber());
@@ -73,13 +72,13 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     const multipleWinnersConfig = {
       rngService: RNGBlockhash.address,
       prizePeriodStart: block.timestamp,
-      prizePeriodSeconds: 1,
+      prizePeriodSeconds: 60,
       ticketName: 'Ticket',
       ticketSymbol: 'TICK',
       sponsorshipName: 'Sponsorship',
       sponsorshipSymbol: 'SPON',
-      ticketCreditLimitMantissa: '0',
-      ticketCreditRateMantissa: '0',
+      ticketCreditLimitMantissa: toWei('0.1'),
+      ticketCreditRateMantissa: toWei('0.001'),
       numberOfWinners: 1,
     };
 
@@ -120,7 +119,7 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     );
     await prizeStrategy.addExternalErc20Award(usdc.address);
 
-    const daiAmount = toWei('10');
+    const daiAmount = toWei('1000');
     const daiContract = await getContractAt(dai.abi, dai.address, contractsOwner);
     await daiContract.approve(prizePool.address, daiAmount);
 
@@ -137,7 +136,7 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
 
     info(`Prize strategy owner: ${await prizeStrategy.owner()}`);
 
-    await increaseTime(50);
+    await increaseTime(60);
 
     info('Starting award...');
     await prizeStrategy.startAward();
@@ -161,13 +160,14 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     info('Withdrawing...');
     const ticketAddress = await prizeStrategy.ticket();
     const ticket = await getContractAt(ControlledToken, ticketAddress, contractsOwner);
-    const withdrawalAmount = await ticket.balanceOf(contractsOwner.address);
+    const withdrawalAmount = toWei('100');
+    const earlyExitFee = await prizePool.callStatic.calculateEarlyExitFee(contractsOwner.address, ticket.address, withdrawalAmount);
 
     const withdrawTx = await prizePool.withdrawInstantlyFrom(
       contractsOwner.address,
       withdrawalAmount,
       ticket.address,
-      toWei('0'),
+      earlyExitFee.exitFee,
     );
 
     const withdrawReceipt = await getTransactionReceipt(withdrawTx.hash);
@@ -180,7 +180,11 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     });
 
     const withdrawn = withdrawLogs.find((event) => event && event.name === 'InstantWithdrawal');
+    success(`Withdrawn ${formatEther(withdrawn?.args?.redeemed)} Dai!`);
+    success(`Exit fee was ${formatEther(withdrawn?.args?.exitFee)} Dai`);
 
-    success(`Withdrawn ${formatEther(withdrawn?.args?.amount)} Dai!`);
+    await prizePool.captureAwardBalance();
+    const awardBalance = await prizePool.callStatic.awardBalance();
+    success(`Current awardable balance is ${formatEther(awardBalance)} Dai`);
   },
 );

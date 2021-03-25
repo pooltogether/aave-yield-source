@@ -11,10 +11,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 15.x
-      - name: yarn, typechain, compile, hint, coverage
+      - name: yarn, compile, hint, coverage
         run: |
           yarn
-          yarn typechain,
           yarn compile
           yarn hint
           yarn coverage
