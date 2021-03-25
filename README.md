@@ -105,3 +105,8 @@ yarn format
 ```
 yarn hint
 ```
+
+[TypeChain](https://github.com/ethereum-ts/Typechain) is used to generates types for scripts and tests. Generate types by running:
+```
+yarn typechain
+```
