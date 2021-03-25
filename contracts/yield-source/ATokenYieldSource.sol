@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "@pooltogether/fixed-point/contracts/FixedPoint.sol";
 
 import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
@@ -25,9 +26,29 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     address lendingPoolAddressesProviderRegistry
   );
 
-  event Sponsored(
-    address indexed user,
+  event RedeemedToken(
+    address indexed from,
+    uint256 shares,
     uint256 amount
+  );
+
+  event SuppliedTokenTo(
+    address indexed from,
+    uint256 shares,
+    uint256 amount,
+    address indexed to
+  );
+
+  event Sponsored(
+    address indexed from,
+    uint256 amount
+  );
+
+  event TransferredERC20(
+    address indexed from,
+    address indexed token,
+    uint256 amount,
+    address indexed to
   );
 
   /// @notice Interface for the Yield-bearing aToken by Aave
@@ -86,8 +107,11 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     } else {
       // rate = tokens / shares
       // shares = tokens * (totalShares / yielSourceTotalSupply)
-      shares = tokens.mul(totalSupply()).div(aToken.balanceOf(address(this)));
+      uint256 exchangeMantissa = FixedPoint.calculateMantissa(totalSupply(), aToken.balanceOf(address(this)));
+      shares = FixedPoint.multiplyUintByMantissa(tokens, exchangeMantissa);
     }
+
+    require(shares != uint256(0), "ATokenYieldSource/shares-equal-zero");
 
     return shares;
   }
@@ -101,7 +125,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
       tokens = shares;
     } else {
       // tokens = shares * (yielSourceTotalSupply / totalShares)
-      tokens = shares.mul(aToken.balanceOf(address(this))).div(totalSupply());
+      uint256 exchangeMantissa = FixedPoint.calculateMantissa(aToken.balanceOf(address(this)), totalSupply());
+      tokens = FixedPoint.multiplyUintByMantissa(shares, exchangeMantissa);
     }
 
     return tokens;
@@ -125,6 +150,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
     _mint(to, shares);
     _depositToAave(mintAmount);
+    emit SuppliedTokenTo(msg.sender, shares, mintAmount, to);
   }
 
   /// @notice Redeems asset tokens from the yield source
@@ -141,6 +167,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     uint256 balanceDiff = beforeBalance.sub(afterBalance);
     IERC20Upgradeable(depositToken()).safeTransfer(msg.sender, balanceDiff);
 
+    emit RedeemedToken(msg.sender, shares, redeemAmount);
     return balanceDiff;
   }
 
@@ -152,6 +179,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function transferERC20(address erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
     require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
     IERC20Upgradeable(erc20Token).safeTransfer(to, amount);
+    emit TransferredERC20(msg.sender, erc20Token, amount, to);
   }
 
   /// @notice Allows someone to deposit into the yield source without receiving any shares.  The deposited token will be the same as depositToken()

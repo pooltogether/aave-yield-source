@@ -182,7 +182,7 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(toWei('2'));
 
       await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(ethers.utils.parseUnits('100', 37));
-      expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(0);
+      await expect(aTokenYieldSource.tokenToShares(toWei('1'))).to.be.revertedWith('ATokenYieldSource/shares-equal-zero');
     });
   });
 

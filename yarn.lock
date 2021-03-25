@@ -823,6 +823,7 @@ __metadata:
     "@nomiclabs/hardhat-waffle": 2.0.1
     "@openzeppelin/contracts-upgradeable": 3.4.1
     "@openzeppelin/hardhat-upgrades": 1.6.0
+    "@pooltogether/fixed-point": 1.0.0
     "@pooltogether/pooltogether-contracts": 3.3.6
     "@pooltogether/pooltogether-rng-contracts": 1.1.1
     "@pooltogether/yield-source-interface": 1.0.1
@@ -852,6 +853,13 @@ __metadata:
     typescript: 4.2.3
   languageName: unknown
   linkType: soft
+
+"@pooltogether/fixed-point@npm:1.0.0":
+  version: 1.0.0
+  resolution: "@pooltogether/fixed-point@npm:1.0.0"
+  checksum: 4da156885355b6557e506f5227adf060ea0fcdd31813beeb38d9ed84ea84df3b10b34f8c83806f08f368e8f4636755b5252d6ce83f2f9c53d21aaa3ef2880c19
+  languageName: node
+  linkType: hard
 
 "@pooltogether/fixed-point@npm:1.0.0-beta.2":
   version: 1.0.0-beta.2

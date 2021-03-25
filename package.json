@@ -23,6 +23,7 @@
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
     "@openzeppelin/contracts-upgradeable": "3.4.1",
+    "@pooltogether/fixed-point": "1.0.0",
     "@pooltogether/yield-source-interface": "1.0.1"
   },
   "devDependencies": {
