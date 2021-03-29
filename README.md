@@ -63,6 +63,22 @@ To run coverage:
 yarn coverage
 ```
 
+### Mainnet fork
+
+Before deploying, you can make sure your implementation works by deploying a Yield Source Prize Pool on a fork of Mainnet.
+
+Start Mainnet fork in a terminal window with the command:
+
+```
+yarn start-fork
+```
+
+In another window, start the scripts to create a Aave Yield Source Prize Pool, deposit Dai into it, award the prize and withdraw.
+
+```
+yarn run-fork
+```
+
 ### Deploy
 
 Deployment script can be found in `deploy/deploy.ts`. To deploy, simply run:
@@ -88,4 +104,9 @@ yarn format
 [Solhint](https://protofire.github.io/solhint/) is used to lint Solidity files. Run it with:
 ```
 yarn hint
+```
+
+[TypeChain](https://github.com/ethereum-ts/Typechain) is used to generates types for scripts and tests. Generate types by running:
+```
+yarn typechain
 ```
