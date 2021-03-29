@@ -22,8 +22,8 @@ contract ATokenYieldSourceProxyFactory is ProxyFactory {
 
   /// @notice Creates a new aToken Yield Sources as a proxy of the template instance
   /// @param _aToken Aave aToken address
-  /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry
-  /// @param _owner Yield Source owner
+  /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry address
+  /// @param _owner Yield Source owner address
   /// @return A reference to the new proxied aToken Yield Sources
   function create(
     ATokenInterface _aToken,
