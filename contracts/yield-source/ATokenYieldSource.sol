@@ -197,7 +197,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param to The recipient of the tokens
   /// @param amount The amount of tokens to transfer
   function transferERC20(IERC20Upgradeable erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
-    require(address(erc20Token) != address(aToken) && address(erc20Token) != address(_tokenAddress()), "ATokenYieldSource/aToken-transfer-not-allowed");
+    require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
     erc20Token.safeTransfer(to, amount);
     emit TransferredERC20(msg.sender, to, amount, erc20Token);
   }
