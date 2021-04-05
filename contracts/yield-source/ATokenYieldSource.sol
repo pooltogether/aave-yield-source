@@ -113,10 +113,6 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function _tokenToShares(uint256 tokens) internal view returns (uint256) {
     uint256 shares = 0;
 
-    if(tokens == 0){
-      return 0;
-    }
-
     if (totalSupply() == 0) {
       shares = tokens;
     } else {
@@ -150,12 +146,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
-  function _depositToAave(uint256 mintAmount) internal {
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(depositToken());
+  /// @return 0 if successful 
+  function _depositToAave(uint256 mintAmount) internal returns (uint256) {
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress());
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
     _depositToken.safeApprove(address(_lendingPool()), mintAmount);
-    _lendingPool().deposit(address(_tokenAddress()), mintAmount, address(this), uint16(188));
+    _lendingPool().deposit(address(_tokenAddress()), mintAmount, address(this), _getRefferalCode());
+    return 0;
   }
 
   /// @notice Supplies asset tokens to the yield source
@@ -215,6 +213,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @return Returns Aave genesis market LendingPoolAddressesProvider's ID
   function _getAddressesProviderId() internal pure returns (uint256) {
     return uint256(0);
+  }
+
+  /// @notice Used to get PoolTogthers Aave Referral Code used calling deposit on Aave
+  /// @return Returns PoolTogether's Referral Code
+  function _getRefferalCode() internal pure returns (uint16) {
+    return uint16(188);
   }
 
   /// @notice Retrieves Aave LendingPoolAddressesProvider address
