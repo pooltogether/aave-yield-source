@@ -165,16 +165,17 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function supplyTokenTo(uint256 mintAmount, address to) external override {
     uint256 shares = _tokenToShares(mintAmount);
 
-    _mint(to, shares);
     _depositToAave(mintAmount);
+    _mint(to, shares);
+
     emit SuppliedTokenTo(msg.sender, shares, mintAmount, to);
   }
 
   /// @notice Redeems asset tokens from the yield source
   /// @dev Shares corresponding to the number of tokens withdrawn are burnt from the user's balance
   /// @dev Asset tokens are withdrawn from Aave, then transferred from the yield source to the user's wallet
-  /// @param redeemAmount The amount of yield-bearing tokens to be redeemed
-  /// @return The actual amount of tokens that were redeemed
+  /// @param redeemAmount The amount of asset tokens to be redeemed
+  /// @return The actual amount of asset tokens that were redeemed
   function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
     uint256 shares = _tokenToShares(redeemAmount);
     _burn(msg.sender, shares);
@@ -196,8 +197,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param to The recipient of the tokens
   /// @param amount The amount of tokens to transfer
   function transferERC20(IERC20Upgradeable erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
-    require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
-    IERC20Upgradeable(erc20Token).safeTransfer(to, amount);
+    require(address(erc20Token) != address(aToken) && address(erc20Token) != address(_tokenAddress()), "ATokenYieldSource/aToken-transfer-not-allowed");
+    erc20Token.safeTransfer(to, amount);
     emit TransferredERC20(msg.sender, to, amount, erc20Token);
   }
 
