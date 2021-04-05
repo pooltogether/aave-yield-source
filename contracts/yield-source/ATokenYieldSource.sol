@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@pooltogether/fixed-point/contracts/FixedPoint.sol";
 
 import "../access/AssetManager.sol";
@@ -19,7 +20,7 @@ import "../interfaces/IProtocolYieldSource.sol";
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
 /// @dev This contract inherits AssetManager which extends OwnableUpgradable
 /// @notice Yield source for a PoolTogether prize pool that generates yield by depositing into Aave V2
-contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManager {
+contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManager, ReentrancyGuardUpgradeable {
   using SafeMathUpgradeable for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -174,7 +175,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @dev Asset tokens are withdrawn from Aave, then transferred from the yield source to the user's wallet
   /// @param redeemAmount The amount of yield-bearing tokens to be redeemed
   /// @return The actual amount of tokens that were redeemed
-  function redeemToken(uint256 redeemAmount) external override returns (uint256) {
+  function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
     uint256 shares = _tokenToShares(redeemAmount);
     _burn(msg.sender, shares);
 
