@@ -15,17 +15,18 @@ import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
 import "../interfaces/IProtocolYieldSource.sol";
 
-/// @title Yield source for a PoolTogether prize pool that generates yield by depositing into Aave V2.
+/// @title Aave Yield Source integration contract, implementing PoolTogether's generic yeild source interface
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
-/// @notice Yield Source Prize Pools subclasses need to implement this interface so that yield can be generated.
+/// @dev This contract inherits AssetManager which extends OwnableUpgradable
+/// @notice Yield source for a PoolTogether prize pool that generates yield by depositing into Aave V2
 contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManager {
   using SafeMathUpgradeable for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
   /// @notice Emitted when the yield source is initialized
   event ATokenYieldSourceInitialized(
-    address indexed aToken,
-    address lendingPoolAddressesProviderRegistry
+    IAToken indexed aToken,
+    ILendingPoolAddressesProviderRegistry lendingPoolAddressesProviderRegistry
   );
 
   /// @notice Emitted when asset tokens are redeemed from the yield source
@@ -52,9 +53,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Emitted when ERC20 tokens other than yield source's aToken are withdrawn from the yield source
   event TransferredERC20(
     address indexed from,
-    address indexed token,
+    address indexed to,
     uint256 amount,
-    address indexed to
+    IERC20Upgradeable indexed token
   );
 
   /// @notice Interface for the yield-bearing Aave aToken
@@ -72,6 +73,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   )
     public
     initializer
+    returns (bool)
   {
     aToken = _aToken;
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
@@ -79,9 +81,11 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     __Ownable_init();
 
     emit ATokenYieldSourceInitialized (
-      address(aToken),
-      address(lendingPoolAddressesProviderRegistry)
+      aToken,
+      lendingPoolAddressesProviderRegistry
     );
+
+    return true;
   }
 
   /// @notice Returns the ERC20 asset token used for deposits
@@ -188,10 +192,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param erc20Token The ERC20 token to transfer
   /// @param to The recipient of the tokens
   /// @param amount The amount of tokens to transfer
-  function transferERC20(address erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
+  function transferERC20(IERC20Upgradeable erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
     require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
     IERC20Upgradeable(erc20Token).safeTransfer(to, amount);
-    emit TransferredERC20(msg.sender, erc20Token, amount, to);
+    emit TransferredERC20(msg.sender, to, amount, erc20Token);
   }
 
   /// @notice Allows someone to deposit into the yield source without receiving any shares
