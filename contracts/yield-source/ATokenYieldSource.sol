@@ -113,6 +113,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function _tokenToShares(uint256 tokens) internal view returns (uint256) {
     uint256 shares = 0;
 
+    if(tokens == 0){
+      return 0;
+    }
+
     if (totalSupply() == 0) {
       shares = tokens;
     } else {
