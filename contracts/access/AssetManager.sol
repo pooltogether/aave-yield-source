@@ -6,7 +6,8 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
 /**
- * @dev Contract module based on Ownable which provides a basic access control mechanism, where
+*  @title Abstract ownable contract with additional assetManager role
+ * @notice Contract module based on Ownable which provides a basic access control mechanism, where
  * there is an account (an asset manager) that can be granted exclusive access to
  * specific functions.
  *
@@ -19,10 +20,17 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 abstract contract AssetManager is ContextUpgradeable, OwnableUpgradeable {
     address private _assetManager;
 
+    /**
+     * @dev Emitted when the _assetManager has been changed
+     * @param previousAssetManager address of the former _assetManager
+     * @param newAssetManager address of the new _assetManager
+     */
     event AssetManagerTransferred(address indexed previousAssetManager, address indexed newAssetManager);
 
     /**
+     * @notice Gets the current _assetManager
      * @dev Returns the address of the current asset manager.
+     * @return The address of the current _assetManager
      */
     function assetManager() public view virtual returns (address) {
         return _assetManager;
@@ -37,11 +45,14 @@ abstract contract AssetManager is ContextUpgradeable, OwnableUpgradeable {
     }
 
     /**
-     * @dev Throws if called by any account other than the owner.
      * @notice Set the initial asset manager
+     * @dev Throws if called by any account other than the owner.
+     * @param newAssetManager The address of the desired new _assetManager
+     * @return Boolean to indicate if the operation was successful or not
      */
-    function setAssetManager(address newAssetManager) public virtual onlyOwner {
-        emit AssetManagerTransferred(address(0), newAssetManager);
+    function setAssetManager(address newAssetManager) public virtual onlyOwner returns (bool) {
         _assetManager = newAssetManager;
+        emit AssetManagerTransferred(address(0), newAssetManager);
+        return true;
     }
 }
