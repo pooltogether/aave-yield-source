@@ -153,6 +153,10 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('10'))).to.equal(toWei('2'));
     });
 
+    it('should return 0 if tokens param is 0', async () => {
+      expect(await aTokenYieldSource.tokenToShares("0")).to.equal("0");
+    });
+
     it('should return tokens if totalSupply is 0', async () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('100'))).to.equal(toWei('100'));
     });
