@@ -16,7 +16,7 @@ import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
 import "../interfaces/IProtocolYieldSource.sol";
 
-/// @title Aave Yield Source integration contract, implementing PoolTogether's generic yeild source interface
+/// @title Aave Yield Source integration contract, implementing PoolTogether's generic yield source interface
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
 /// @dev This contract inherits AssetManager which extends OwnableUpgradable
 /// @notice Yield source for a PoolTogether prize pool that generates yield by depositing into Aave V2
@@ -217,7 +217,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     return uint256(0);
   }
 
-  /// @notice Used to get PoolTogthers Aave Referral Code used calling deposit on Aave
+  /// @notice Used to get PoolTogther's Aave Referral Code when calling depositTo Aave
   /// @return Returns PoolTogether's Referral Code
   function _getRefferalCode() internal pure returns (uint16) {
     return uint16(188);
