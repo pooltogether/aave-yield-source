@@ -82,8 +82,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     __Ownable_init();
 
     emit ATokenYieldSourceInitialized (
-      aToken,
-      lendingPoolAddressesProviderRegistry
+      _aToken,
+      _lendingPoolAddressesProviderRegistry
     );
 
     return true;
