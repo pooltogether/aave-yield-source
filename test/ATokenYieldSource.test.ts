@@ -181,7 +181,7 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(2);
     });
 
-    it('should fail to return shares if aToken total supply increases too much', async () => {
+    it('should fail to return shares if aToken total supply increases too much', async () => { // failing here
     
       await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
       await aTokenYieldSource.mint(wallet2.address, toWei('100'));
