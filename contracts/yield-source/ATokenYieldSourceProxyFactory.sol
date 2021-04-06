@@ -28,11 +28,14 @@ contract ATokenYieldSourceProxyFactory is ProxyFactory {
   function create(
     ATokenInterface _aToken,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
-    address _owner
+    address _owner,
+    uint8 _decimals,
+    string calldata _name,
+    string calldata _symbol
   ) public returns (ATokenYieldSource) {
     ATokenYieldSource aTokenYieldSource = ATokenYieldSource(deployMinimal(address(instance), ""));
 
-    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry);
+    aTokenYieldSource.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _decimals, _name, _symbol);
     aTokenYieldSource.transferOwnership(_owner);
 
     return aTokenYieldSource;

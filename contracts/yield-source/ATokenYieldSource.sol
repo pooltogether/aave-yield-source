@@ -27,7 +27,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Emitted when the yield source is initialized
   event ATokenYieldSourceInitialized(
     IAToken indexed aToken,
-    ILendingPoolAddressesProviderRegistry lendingPoolAddressesProviderRegistry
+    ILendingPoolAddressesProviderRegistry lendingPoolAddressesProviderRegistry,
+    uint8 decimals
   );
 
   /// @notice Emitted when asset tokens are redeemed from the yield source
@@ -70,7 +71,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry address
   function initialize(
     ATokenInterface _aToken,
-    ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry
+    ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
+    uint8 _decimals,
+    string calldata _symbol,
+    string calldata _name
   )
     public
     initializer
@@ -81,9 +85,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
     __Ownable_init();
 
+    __ERC20_init(_name,_symbol);
+    require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
+    _setupDecimals(_decimals);
+
     emit ATokenYieldSourceInitialized (
       _aToken,
-      _lendingPoolAddressesProviderRegistry
+      _lendingPoolAddressesProviderRegistry,
+      _decimals
     );
 
     return true;
@@ -118,12 +127,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
       shares = tokens;
     } else {
       // rate = tokens / shares
-      // shares = tokens * (totalShares / yielSourceTotalSupply)
+      // shares = tokens * (totalShares / yieldSourceTotalSupply)
       uint256 exchangeMantissa = FixedPoint.calculateMantissa(totalSupply(), aToken.balanceOf(address(this)));
       shares = FixedPoint.multiplyUintByMantissa(tokens, exchangeMantissa);
     }
-
-    require(shares != uint256(0), "ATokenYieldSource/shares-equal-zero");
 
     return shares;
   }
@@ -137,7 +144,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     if (totalSupply() == 0) {
       tokens = shares;
     } else {
-      // tokens = shares * (yielSourceTotalSupply / totalShares)
+      // tokens = shares * (yieldSourceTotalSupply / totalShares)
       uint256 exchangeMantissa = FixedPoint.calculateMantissa(aToken.balanceOf(address(this)), totalSupply());
       tokens = FixedPoint.multiplyUintByMantissa(shares, exchangeMantissa);
     }
@@ -165,6 +172,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function supplyTokenTo(uint256 mintAmount, address to) external override nonReentrant {
     uint256 shares = _tokenToShares(mintAmount);
 
+    require(shares > 0, "ATokenYieldSource/shares-equal-zero");
     _depositToAave(mintAmount);
     _mint(to, shares);
 

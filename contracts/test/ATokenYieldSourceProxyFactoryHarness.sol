@@ -29,11 +29,14 @@ contract ATokenYieldSourceProxyFactoryHarness is ProxyFactory {
   function create(
     ATokenInterface _aToken,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
-    address _owner
+    address _owner,
+    uint8 _decimals,
+    string calldata _name,
+    string calldata _symbol
   ) public returns (ATokenYieldSourceHarness) {
     ATokenYieldSourceHarness aTokenYieldSourceHarness = ATokenYieldSourceHarness(deployMinimal(address(instance), ""));
 
-    aTokenYieldSourceHarness.initialize(_aToken, _lendingPoolAddressesProviderRegistry);
+    aTokenYieldSourceHarness.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _decimals, _name, _symbol);
     aTokenYieldSourceHarness.transferOwnership(_owner);
 
     return aTokenYieldSourceHarness;

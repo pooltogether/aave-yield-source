@@ -23,6 +23,9 @@ describe('ATokenYieldSourceProxyFactory', () => {
         ADAI_ADDRESS_KOVAN,
         LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN,
         '0x3A791e828fDd420fbE16416efDF509E4b9088Dd4',
+        18,
+        "Test",
+        "TEST"
       );
       const receipt = await provider.getTransactionReceipt(tx.hash);
       const event = hardhatATokenYieldSourceProxyFactory.interface.parseLog(receipt.logs[0]);
