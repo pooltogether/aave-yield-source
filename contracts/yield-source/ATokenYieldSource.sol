@@ -71,6 +71,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Initializes the yield source with Aave aToken
   /// @param _aToken Aave aToken address
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry address
+  /// @param _decimals Number of decimals the shares (inhereted ERC20) will have. Set as same as underlying asset to ensure sane ExchangeRates
+  /// @param _symbol Token symbol for the underlying shares ERC20
+  /// @param _name Token name for the underlying shares ERC20
   function initialize(
     ATokenInterface _aToken,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
