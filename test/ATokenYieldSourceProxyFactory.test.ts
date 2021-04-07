@@ -24,13 +24,19 @@ describe('ATokenYieldSourceProxyFactory', () => {
         LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN,
         '0x3A791e828fDd420fbE16416efDF509E4b9088Dd4',
         18,
-        "Test",
-        "TEST"
+        "TEST",
+        "TestToken"
       );
       const receipt = await provider.getTransactionReceipt(tx.hash);
-      const event = hardhatATokenYieldSourceProxyFactory.interface.parseLog(receipt.logs[0]);
+      const createdEvent = hardhatATokenYieldSourceProxyFactory.interface.parseLog(receipt.logs[0]);
 
-      expect(event.name).to.equal('ProxyCreated');
+      const hardhatAtokenYieldSource = await ethers.getContractAt("ATokenYieldSource", ethers.constants.AddressZero)
+      const initializedEvent = hardhatAtokenYieldSource.interface.parseLog(receipt.logs[2]);
+
+      expect(createdEvent.name).to.equal('ProxyCreated');
+      expect(initializedEvent.args.symbol).to.equal('TEST');
+      expect(initializedEvent.args.name).to.equal('TestToken');
+      expect(initializedEvent.args.decimals).to.equal(18);
     });
   });
 });

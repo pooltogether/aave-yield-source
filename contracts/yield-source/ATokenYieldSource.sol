@@ -28,7 +28,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   event ATokenYieldSourceInitialized(
     IAToken indexed aToken,
     ILendingPoolAddressesProviderRegistry lendingPoolAddressesProviderRegistry,
-    uint8 decimals
+    uint8 decimals,
+    string name,
+    string symbol
   );
 
   /// @notice Emitted when asset tokens are redeemed from the yield source
@@ -92,7 +94,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     emit ATokenYieldSourceInitialized (
       _aToken,
       _lendingPoolAddressesProviderRegistry,
-      _decimals
+      _decimals,
+      _name,
+      _symbol
     );
 
     return true;
