@@ -93,7 +93,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   dim(`deployer: ${admin}`);
 
   cyan(`\nDeploying ATokenYieldSourceProxyFactory...`);
-  const aTokenYieldSourceProxyFactoryResult = await deploy('ATokenYieldSourceProxyFactory', {
+  const aTokenYieldSourceProxyFactoryResult = await deploy('ATokenYieldSource', {
     from: deployer,
   });
   displayResult('ATokenYieldSourceProxyFactory', aTokenYieldSourceProxyFactoryResult);
