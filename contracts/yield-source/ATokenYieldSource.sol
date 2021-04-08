@@ -68,6 +68,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
+  
+  /// @notice Mock Initializer to prevent 
+  function mockInitialize() public initializer {
+    //no-op
+  }
+
   /// @notice Initializes the yield source with Aave aToken
   /// @param _aToken Aave aToken address
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry address

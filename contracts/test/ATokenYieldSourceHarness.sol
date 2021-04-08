@@ -9,17 +9,7 @@ import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegi
 
 /* solium-disable security/no-block-members */
 contract ATokenYieldSourceHarness is ATokenYieldSource {
-  // function initialize(
-  //   ATokenInterface _aToken,
-  //   ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
-  //   uint8 _decimals,
-  //   string calldata _symbol,
-  //   string calldata _name
-  // )public returns (bool){
-  //   super.initialize(_aToken, _lendingPoolAddressesProviderRegistry, _decimals, _symbol, _name);
-  // }
-  
-  
+    
   function mint(address account, uint256 amount) public returns (bool) {
     _mint(account, amount);
     return true;

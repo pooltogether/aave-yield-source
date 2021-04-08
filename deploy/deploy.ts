@@ -92,11 +92,16 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   dim(`deployer: ${admin}`);
 
-  cyan(`\nDeploying ATokenYieldSourceProxyFactory...`);
-  const aTokenYieldSourceProxyFactoryResult = await deploy('ATokenYieldSource', {
+  cyan(`\nDeploying ATokenYieldSource...`);
+  const aTokenYieldSourceResult = await deploy('ATokenYieldSource', {
     from: deployer,
   });
-  displayResult('ATokenYieldSourceProxyFactory', aTokenYieldSourceProxyFactoryResult);
+
+  //if aTokenYieldSourceProxyFactoryResult.deployed()  then mockInitialize()
+
+  /// array of aave markets
+
+  displayResult('ATokenYieldSource', aTokenYieldSourceResult);
 };
 
 export default deployFunction;

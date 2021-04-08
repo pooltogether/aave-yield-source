@@ -88,13 +88,13 @@ describe('ATokenYieldSource', () => {
     debug('deploying ATokenYieldSource instance...');
 
     const ATokenYieldSource = await ethers.getContractFactory(
-      'ATokenYieldSource',
+      'ATokenYieldSourceHarness',
     );
-    const hardhatATokenYieldSource = await ATokenYieldSource.deploy()
+    const hardhatATokenYieldSourceHarness = await ATokenYieldSource.deploy()
 
     aTokenYieldSource = (await ethers.getContractAt(
         'ATokenYieldSourceHarness',
-        hardhatATokenYieldSource.address,
+        hardhatATokenYieldSourceHarness.address,
         contractsOwner,
       )) as ATokenYieldSourceHarness;
   
@@ -106,12 +106,8 @@ describe('ATokenYieldSource', () => {
       "TEST"
     );
 
-    // const receipt = await provider.getTransactionReceipt(initializeTx.hash);
-    // const proxyCreatedEvent = hardhatATokenYieldSource.interface.parseLog(
-    //   receipt.logs[0],
-    // );
+    const changeOwnershipTx = await aTokenYieldSource.transferOwnership(yieldSourceOwner.address)
 
-    // expect(proxyCreatedEvent.name).to.equal('ProxyCreated');
   });
 
   describe('create()', () => {
