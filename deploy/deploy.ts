@@ -2,6 +2,8 @@ import chalk from 'chalk';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
+import { hardhatArguments } from 'hardhat';
+import { Contract, ContractFactory } from 'ethers';
 
 const displayLogs = !process.env.HIDE_DEPLOY_LOG;
 
@@ -96,12 +98,46 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const aTokenYieldSourceResult = await deploy('ATokenYieldSource', {
     from: deployer,
   });
-
-  //if aTokenYieldSourceProxyFactoryResult.deployed()  then mockInitialize()
-
-  /// array of aave markets
-
+  
   displayResult('ATokenYieldSource', aTokenYieldSourceResult);
+
+  let aTokenYieldSourceContract
+  if(aTokenYieldSourceResult.address){
+    aTokenYieldSourceContract = await ethers.getContractAt("ATokenYieldSource", aTokenYieldSourceResult.address)
+    await aTokenYieldSourceContract.mockInitialize()
+  }
+
+  const genericProxyFactoryAbi = await hre.artifacts.readArtifact("GenericProxyFactory")
+  let proxyFactoryContractFactory : ContractFactory
+  let proxyFactoryContract : Contract
+
+  if(isTestEnvironment){
+    proxyFactoryContractFactory = await ethers.getContractFactory("GenericProxyFactory")
+    proxyFactoryContract = await proxyFactoryContractFactory.deploy()
+
+  }
+  else { // real network!
+    // import GenericProxyClone address (using namedAccounts) for specific network
+    let { genericProxyFactoryAddress } = await getNamedAccounts()
+    proxyFactoryContract = await ethers.getContractAt("GenericProxyFactory", genericProxyFactoryAddress)
+  }
+  
+  // get array of aave markets we want to use and create these using the GenericProxyFactory
+  // now deploy proxy contracts pointing at ATokenYieldSource
+  // change to forEach for array of deployments
+  if(aTokenYieldSourceContract){
+    const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, "0x") // we probably want to call ATokenYieldSource.initialize here
+    console.log(createATokenYieldSourceResult)
+
+    // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode? , deployedBytecode?
+    const receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
+    const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
+    console.log("receipt is", receipt)
+    console.log("event is ", createdEvent)
+
+    // write to deployments/networkName/contractName.file
+  }
+  
 };
 
 export default deployFunction;

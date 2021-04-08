@@ -6,6 +6,7 @@ import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
+import 'hardhat-dependency-compiler'
 
 import { HardhatUserConfig } from 'hardhat/config';
 
@@ -16,6 +17,8 @@ import networks from './hardhat.network';
 const optimizerEnabled = !process.env.OPTIMIZER_DISABLED;
 
 const config: HardhatUserConfig = {
+
+
   abiExporter: {
     path: './abis',
     clear: true,
@@ -54,6 +57,11 @@ const config: HardhatUserConfig = {
     outDir: 'types',
     target: 'ethers-v5',
   },
+  dependencyCompiler: {
+    paths:['@pooltogether/pooltogether-proxy-factory'],
+    path: "./abis",
+    keep: true
+  }
 };
 
 verifyTask;
