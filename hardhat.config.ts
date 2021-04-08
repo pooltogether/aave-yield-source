@@ -58,7 +58,7 @@ const config: HardhatUserConfig = {
     target: 'ethers-v5',
   },
   dependencyCompiler: {
-    paths:['@pooltogether/pooltogether-proxy-factory'],
+    paths:['@pooltogether/pooltogether-proxy-factory/contracts/GenericProxyFactory.sol'],
     path: "./abis",
     keep: true
   }
