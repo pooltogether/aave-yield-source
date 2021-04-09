@@ -162,7 +162,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @dev Asset tokens are supplied to the yield source, then deposited into Aave
   /// @param mintAmount The amount of asset tokens to be supplied
   /// @param to The user whose balance will receive the tokens
-  function supplyTokenTo(uint256 mintAmount, address to) external override {
+  function supplyTokenTo(uint256 mintAmount, address to) external override nonReentrant {
     uint256 shares = _tokenToShares(mintAmount);
 
     _depositToAave(mintAmount);
