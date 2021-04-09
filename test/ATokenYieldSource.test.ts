@@ -97,6 +97,9 @@ describe('ATokenYieldSource', () => {
       aToken.address,
       lendingPoolAddressesProviderRegistry.address,
       yieldSourceOwner.address,
+      18,
+      "Test",
+      "TEST"
     );
 
     const receipt = await provider.getTransactionReceipt(initializeTx.hash);
@@ -150,6 +153,10 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('10'))).to.equal(toWei('2'));
     });
 
+    it('should return 0 if tokens param is 0', async () => {
+      expect(await aTokenYieldSource.tokenToShares("0")).to.equal("0");
+    });
+
     it('should return tokens if totalSupply is 0', async () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('100'))).to.equal(toWei('100'));
     });
@@ -175,6 +182,7 @@ describe('ATokenYieldSource', () => {
     });
 
     it('should fail to return shares if aToken total supply increases too much', async () => {
+    
       await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
       await aTokenYieldSource.mint(wallet2.address, toWei('100'));
       await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('100'));
@@ -182,7 +190,8 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(toWei('2'));
 
       await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(ethers.utils.parseUnits('100', 37));
-      await expect(aTokenYieldSource.tokenToShares(toWei('1'))).to.be.revertedWith('ATokenYieldSource/shares-equal-zero');
+      await expect(aTokenYieldSource.supplyTokenTo(toWei('1'), wallet2.address)).to.be.revertedWith('ATokenYieldSource/shares-equal-zero');
+
     });
   });
 

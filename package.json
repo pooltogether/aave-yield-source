@@ -5,6 +5,7 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "scripts": {
+    "clean" : "rm -rf cache/ artifacts/",
     "compile": "hardhat --show-stack-traces --max-memory 8192 compile",
     "coverage": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat coverage",
     "deploy": "hardhat deploy --write true --network",
@@ -17,7 +18,7 @@
     "distribute-ether": "hardhat --network localhost fork:distribute-ether-from-binance",
     "create-prize-pool": "hardhat --network localhost fork:create-aave-prize-pool",
     "run-fork": "yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
-    "test": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
+    "test": "yarn clean && HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
     "verify": "yarn hint && yarn test"
   },
