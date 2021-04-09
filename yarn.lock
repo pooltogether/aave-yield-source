@@ -840,6 +840,7 @@ __metadata:
     debug: 4.3.1
     ethereum-waffle: 3.3.0
     ethers: 5.0.32
+    evm-chains: ^0.2.0
     hardhat: 2.1.1
     hardhat-abi-exporter: 2.1.2
     hardhat-dependency-compiler: ^1.1.1
@@ -5217,6 +5218,13 @@ __metadata:
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: 56fa12567013e85b98782a1d971442ea29df057129d8a94432711fd68303357594ea37bfbe234860e28581a7768f943a8bea88c16b48aa01b96acf804bc01d52
+  languageName: node
+  linkType: hard
+
+"evm-chains@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "evm-chains@npm:0.2.0"
+  checksum: 180b114c63e30e11df4e6b022d09356f8b7e287f822d287c6cb0c73d5cc86402bcdea3185978fab78522fadba0dc5172e3e3d7aba3689c4c5f96de61d8ac348c
   languageName: node
   linkType: hard
 

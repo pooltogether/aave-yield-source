@@ -48,6 +48,7 @@
     "debug": "4.3.1",
     "ethereum-waffle": "3.3.0",
     "ethers": "5.0.32",
+    "evm-chains": "^0.2.0",
     "hardhat": "2.1.1",
     "hardhat-abi-exporter": "2.1.2",
     "hardhat-dependency-compiler": "^1.1.1",

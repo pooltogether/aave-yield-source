@@ -2,8 +2,14 @@ import chalk from 'chalk';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
-import { ADAI_ADDRESS_KOVAN, LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN} from "../Constant"
+import { LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN, LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET } from "../Constant"
 import { Contract, ContractFactory } from 'ethers';
+import { readFileSync, writeFileSync } from "fs"
+import { getChainByChainId } from "evm-chains"
+
+// minimal proxy factory constants
+const prefix = "0x363d3d373d3d3d363d73"
+const postfix = "5af43d82803e903d91602b57fd5bf3"
 
 const displayLogs = !process.env.HIDE_DEPLOY_LOG;
 
@@ -74,7 +80,7 @@ interface ProxyDeployment {
   transactionHash?: string
   receipt?: any
   args?: any
-  
+  bytecode?: string
 }
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -116,7 +122,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     await aTokenYieldSourceContract.mockInitialize()
   }
 
-  // const genericProxyFactoryAbi = await hre.artifacts.readArtifact("GenericProxyFactory")
   let proxyFactoryContractFactory : ContractFactory
   let proxyFactoryContract : Contract
 
@@ -130,54 +135,78 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     let { genericProxyFactoryAddress } = await getNamedAccounts()
     proxyFactoryContract = await ethers.getContractAt("GenericProxyFactory", genericProxyFactoryAddress)
   }
-  dim(`GenericProxyFactory at ${proxyFactoryContract.address}`)
-  
-  // get array of aave markets we want to use and create these using the GenericProxyFactory
-  // now deploy proxy contracts pointing at ATokenYieldSource
-  // change to forEach for array of deployments
 
-  if(aTokenYieldSourceContract){
-    console.log("now deploying proxies")
-    /*
-      _aToken,
-      _lendingPoolAddressesProviderRegistry,
-      _decimals,
-      _name,
-      _symbol
-    */
+  dim(`GenericProxyFactory for ${getChainByChainId(chainId).network} at ${proxyFactoryContract.address}`)
+  
+  // read in aave deployment lendingMarkets json file (https://docs.aave.com/developers/deployed-contracts/deployed-contracts)
+  let aaveAddressesArray
+  if(chainId == 1){
+    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveMainnet.json", {encoding: "utf-8"}))).proto
+  }
+  if(chainId == 4){
+    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
+  }
+  else{
+    dim(`TestEnvironment! No deployed ATokens. Using Kovan as mock.`)
+    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
+  }
+
+  // we can filter here for aTokens that we want
+  // const aTokenFilter = []
+
+  if(aTokenYieldSourceContract){ // needed check for typescript
+    green(`Now deploying aToken proxies`)
 
     const aTokenYieldSourceInterface = new ethers.utils.Interface((await hre.artifacts.readArtifact("ATokenYieldSource")).abi)
-    // todo: switch out with object args
-    let constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
-      [
-      ADAI_ADDRESS_KOVAN,
-      LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN,
-      18,
-      "PT aDai",
-      "ptaDai"
-      ])
-
-    console.log("calling create")
-    
-    const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) // we probably want to call ATokenYieldSource.initialize here
-    
-    
-    //console.log(createATokenYieldSourceResult)
-
-    // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode? , deployedBytecode?
-    const receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
-    const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
-
-    dim(`creating json object`)
-
-    let jsonObj: ProxyDeployment = {
-      address: createATokenYieldSourceResult.address,
-      transactionHash: receipt.transactionHash,
-      receipt: receipt,
-      args: constructorArgs
+    let addressesProviderReg: string
+    if(chainId == 1){
+      addressesProviderReg = LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET
+    }
+    else {
+      addressesProviderReg = LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN
     }
 
-    // write to deployments/networkName/contractName.file
+    for(const aTokenEntry of aaveAddressesArray){
+      
+      let constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
+        [
+          aTokenEntry.aTokenAddress,
+          addressesProviderReg,
+          aTokenEntry.decimals,
+          `pt-${aTokenEntry.aTokenSymbol}`,
+          `pt${aTokenEntry.aTokenSymbol}`
+        ]
+      )
+
+      dim(`Creating Proxy for ${aTokenEntry.aTokenSymbol}`)
+      
+      const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
+     
+      // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
+      const receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
+      const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
+
+      green(`aToken proxy for ${aTokenEntry.aTokenSymbol} created at ${createdEvent.args.created}`)
+
+      dim(`saving deployments file for ${aTokenEntry.aTokenSymbol}`)
+
+      let jsonObj: ProxyDeployment = {
+        address: createdEvent.args.created,
+        transactionHash: receipt.transactionHash,
+        receipt: receipt,
+        args: constructorArgs,
+        bytecode: `${prefix}${createdEvent.args.created}${postfix}`
+      }
+
+      // write to deployments/networkName/contractName.file
+      if(!isTestEnvironment){
+        writeFileSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+      }
+      else{
+        writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+      }
+    }
+    
   }
   
 };
