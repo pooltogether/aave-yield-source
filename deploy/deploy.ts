@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
 import { LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN, LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET } from "../Constant"
 import { Contract, ContractFactory } from 'ethers';
-import { readFileSync, writeFileSync } from "fs"
+import { existsSync, readFileSync, writeFileSync } from "fs"
 import { getChainByChainId } from "evm-chains"
 
 // minimal proxy factory constants
@@ -112,6 +112,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   cyan(`\nDeploying ATokenYieldSource...`);
   const aTokenYieldSourceResult = await deploy('ATokenYieldSource', {
     from: deployer,
+    skipIfAlreadyDeployed: true
   });
   
   displayResult('ATokenYieldSource', aTokenYieldSourceResult);
@@ -119,7 +120,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   let aTokenYieldSourceContract
   if(aTokenYieldSourceResult.address){
     aTokenYieldSourceContract = await ethers.getContractAt("ATokenYieldSource", aTokenYieldSourceResult.address)
-    await aTokenYieldSourceContract.mockInitialize()
+    dim(`calling mockInitialize()`)
+    //await aTokenYieldSourceContract.mockInitialize()
+    green(`mockInitialize success`)
   }
 
   let proxyFactoryContractFactory : ContractFactory
@@ -133,8 +136,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
   else { // real network!
     // import GenericProxyClone address (using namedAccounts) for specific network
-    let { genericProxyFactoryAddress } = await getNamedAccounts()
-    proxyFactoryContract = await ethers.getContractAt("GenericProxyFactory", genericProxyFactoryAddress)
+    dim(`getting genericProxyFactory address`)
+    let { genericProxyFactory } = await getNamedAccounts()
+    proxyFactoryContract = await ethers.getContractAt("GenericProxyFactory", genericProxyFactory)
   }
 
   if(!isTestEnvironment){
@@ -146,7 +150,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   if(chainId == 1){
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveMainnet.json", {encoding: "utf-8"}))).proto
   }
-  if(chainId == 4){
+  if(chainId == 42){
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
   }
   else{
@@ -154,8 +158,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
   }
 
-  // we can filter here for aTokens that we want
-  // const aTokenFilter = []
+  // we can filter here for aTokens that we want - by symbol
+  // const aTokenFilter = [aDai]
 
   if(aTokenYieldSourceContract){ // needed check for typescript
     green(`Now deploying aToken proxies`)
@@ -169,8 +173,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       addressesProviderReg = LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN
     }
 
+    // deploy a proxy for each entry in aaveAddressesArray
     for(const aTokenEntry of aaveAddressesArray){
       
+      // if already deployed - skip
+      if(existsSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`)){
+        dim(`${aTokenEntry.aTokenSymbol} already exists for this network`)
+        continue
+      }
+
       let constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
         [
           aTokenEntry.aTokenAddress,

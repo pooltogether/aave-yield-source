@@ -39,6 +39,10 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0,
     },
+    genericProxyFactory:{
+      4: "0x594069c560D260F90C21Be25fD2C8684efbb5628",
+      42: "0x713edC7728C4F0BCc135D48fF96282444d77E604"
+    }
   },
   networks,
   solidity: {

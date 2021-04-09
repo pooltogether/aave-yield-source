@@ -20,7 +20,7 @@
     "run-fork": "yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
     "test": "yarn clean && HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
-    "verify": "yarn hint && yarn test"
+    "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network"
   },
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
