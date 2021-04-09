@@ -9,10 +9,10 @@ import "../external/aave/ATokenInterface.sol";
 import "../external/openzeppelin/ProxyFactory.sol";
 
 /// @title aToken Yield Source Proxy Factory
-/// @notice Minimal proxy pattern for creating new aToken Yield Sources
+/// @notice EIP-1167 Minimal proxy factory pattern for creating new aToken Yield Sources
 contract ATokenYieldSourceProxyFactory is ProxyFactory {
 
-  /// @notice Contract template for deploying proxied aToken Yield Sources
+  /// @notice Contract implementation for deploying proxied aToken Yield Sources
   ATokenYieldSource public instance;
 
   /// @notice Initializes the Factory with an instance of the aToken Yield Source
