@@ -34,7 +34,7 @@
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@openzeppelin/hardhat-upgrades": "1.6.0",
     "@pooltogether/pooltogether-contracts": "3.3.6",
-    "@pooltogether/pooltogether-proxy-factory": "^1.0.0-beta.1",
+    "@pooltogether/pooltogether-proxy-factory": "^1.0.0-beta.2",
     "@pooltogether/pooltogether-rng-contracts": "1.1.1",
     "@studydefi/money-legos": "2.4.1",
     "@typechain/ethers-v5": "6.0.2",

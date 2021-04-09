@@ -825,7 +825,7 @@ __metadata:
     "@openzeppelin/hardhat-upgrades": 1.6.0
     "@pooltogether/fixed-point": 1.0.0
     "@pooltogether/pooltogether-contracts": 3.3.6
-    "@pooltogether/pooltogether-proxy-factory": ^1.0.0-beta.1
+    "@pooltogether/pooltogether-proxy-factory": ^1.0.0-beta.2
     "@pooltogether/pooltogether-rng-contracts": 1.1.1
     "@pooltogether/yield-source-interface": 1.0.1
     "@studydefi/money-legos": 2.4.1
@@ -888,12 +888,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pooltogether/pooltogether-proxy-factory@npm:^1.0.0-beta.1":
-  version: 1.0.0-beta.1
-  resolution: "@pooltogether/pooltogether-proxy-factory@npm:1.0.0-beta.1"
+"@pooltogether/pooltogether-proxy-factory@npm:^1.0.0-beta.2":
+  version: 1.0.0-beta.2
+  resolution: "@pooltogether/pooltogether-proxy-factory@npm:1.0.0-beta.2"
   dependencies:
     "@openzeppelin/contracts-upgradeable": 3.4.1
-  checksum: f977c401e243182442c08879c4e420c00cda4e711e2e05ddc67b1ef6dc3b9ae536f336d9dec38806464dbdd69aa1f6f5c5f552e8d41ea9603d8647e65bf6c258
+  checksum: f21ab06d2f75e2e14da8500c8175ae6a3fb5d7c01c325588d539e6e6cb2399621a2373d3e32a26330fc4f774f479f3ac7bd8e9127b0c080c48c4e1bd3e6331d7
   languageName: node
   linkType: hard
 

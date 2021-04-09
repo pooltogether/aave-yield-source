@@ -129,6 +129,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     dim(`TestEnvironment detected, deploying a local GenericProxyFactory`)
     proxyFactoryContractFactory = await ethers.getContractFactory("GenericProxyFactory")
     proxyFactoryContract = await proxyFactoryContractFactory.deploy()
+    green(`Deployed a local GenericProxyFactory at ${proxyFactoryContract.address}`)
   }
   else { // real network!
     // import GenericProxyClone address (using namedAccounts) for specific network
@@ -136,8 +137,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     proxyFactoryContract = await ethers.getContractAt("GenericProxyFactory", genericProxyFactoryAddress)
   }
 
-  dim(`GenericProxyFactory for ${getChainByChainId(chainId).network} at ${proxyFactoryContract.address}`)
-  
+  if(!isTestEnvironment){
+    dim(`GenericProxyFactory for ${getChainByChainId(chainId).network} at ${proxyFactoryContract.address}`)
+  }
+   
   // read in aave deployment lendingMarkets json file (https://docs.aave.com/developers/deployed-contracts/deployed-contracts)
   let aaveAddressesArray
   if(chainId == 1){
