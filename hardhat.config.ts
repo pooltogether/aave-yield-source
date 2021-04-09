@@ -17,8 +17,6 @@ import networks from './hardhat.network';
 const optimizerEnabled = !process.env.OPTIMIZER_DISABLED;
 
 const config: HardhatUserConfig = {
-
-
   abiExporter: {
     path: './abis',
     clear: true,
@@ -59,7 +57,6 @@ const config: HardhatUserConfig = {
   },
   dependencyCompiler: {
     paths:['@pooltogether/pooltogether-proxy-factory/contracts/GenericProxyFactory.sol'],
-    path: "./abis",
     keep: true
   }
 };
