@@ -110,18 +110,19 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   dim(`deployer: ${admin}`);
 
   cyan(`\nDeploying ATokenYieldSource...`);
-  const aTokenYieldSourceResult = await deploy('ATokenYieldSource', {
+  const aTokenYieldSourceResult : DeployResult = await deploy('ATokenYieldSource', {
     from: deployer,
     skipIfAlreadyDeployed: true
   });
   
   displayResult('ATokenYieldSource', aTokenYieldSourceResult);
 
-  let aTokenYieldSourceContract
-  if(aTokenYieldSourceResult.address){
-    aTokenYieldSourceContract = await ethers.getContractAt("ATokenYieldSource", aTokenYieldSourceResult.address)
+  let aTokenYieldSourceContract: Contract
+
+  aTokenYieldSourceContract = await ethers.getContractAt("ATokenYieldSource", aTokenYieldSourceResult.address)
+  if(aTokenYieldSourceResult.newlyDeployed){
     dim(`calling mockInitialize()`)
-    //await aTokenYieldSourceContract.mockInitialize()
+    await aTokenYieldSourceContract.freeze()
     green(`mockInitialize success`)
   }
 
@@ -161,67 +162,60 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // we can filter here for aTokens that we want - by symbol
   // const aTokenFilter = [aDai]
 
-  if(aTokenYieldSourceContract){ // needed check for typescript
-    green(`Now deploying aToken proxies`)
+  green(`Now deploying aToken proxies`)
 
-    const aTokenYieldSourceInterface = new ethers.utils.Interface((await hre.artifacts.readArtifact("ATokenYieldSource")).abi)
-    let addressesProviderReg: string
-    if(chainId == 1){
-      addressesProviderReg = LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET
-    }
-    else {
-      addressesProviderReg = LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN
-    }
+  const aTokenYieldSourceInterface = new ethers.utils.Interface((await hre.artifacts.readArtifact("ATokenYieldSource")).abi)
+  let { lendingPoolAddressesProviderRegistry }= await getNamedAccounts()
 
-    // deploy a proxy for each entry in aaveAddressesArray
-    for(const aTokenEntry of aaveAddressesArray){
-      
-      // if already deployed - skip
-      if(existsSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`)){
-        dim(`${aTokenEntry.aTokenSymbol} already exists for this network`)
-        continue
-      }
-
-      let constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
-        [
-          aTokenEntry.aTokenAddress,
-          addressesProviderReg,
-          aTokenEntry.decimals,
-          `pt-${aTokenEntry.aTokenSymbol}`,
-          `pt${aTokenEntry.aTokenSymbol}`
-        ]
-      )
-
-      dim(`Creating Proxy for ${aTokenEntry.aTokenSymbol}`)
-      
-      const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
-     
-      // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
-      const receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
-      const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
-
-      green(`aToken proxy for ${aTokenEntry.aTokenSymbol} created at ${createdEvent.args.created}`)
-
-      dim(`saving deployments file for ${aTokenEntry.aTokenSymbol}`)
-
-      let jsonObj: ProxyDeployment = {
-        address: createdEvent.args.created,
-        transactionHash: receipt.transactionHash,
-        receipt: receipt,
-        args: constructorArgs,
-        bytecode: `${prefix}${createdEvent.args.created}${postfix}`
-      }
-
-      // write to deployments/networkName/contractName.file
-      if(!isTestEnvironment){
-        writeFileSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-      }
-      else{
-        writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-      }
-    }
+  // deploy a proxy for each entry in aaveAddressesArray
+  for(const aTokenEntry of aaveAddressesArray){
     
+    // if already deployed - skip
+    if(existsSync(`./deployments/${isTestEnvironment? 'localhost': getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`)){
+      dim(`${aTokenEntry.aTokenSymbol} already exists for this network`)
+      continue
+    }
+
+    let constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
+      [
+        aTokenEntry.aTokenAddress,
+        lendingPoolAddressesProviderRegistry,
+        aTokenEntry.decimals,
+        `pt-${aTokenEntry.aTokenSymbol}`,
+        `pt${aTokenEntry.aTokenSymbol}`
+      ]
+    )
+
+    dim(`Creating Proxy for ${aTokenEntry.aTokenSymbol}`)
+    
+    const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
+    
+    // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
+    const receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
+    const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
+
+    green(`aToken proxy for ${aTokenEntry.aTokenSymbol} created at ${createdEvent.args.created}`)
+
+    dim(`saving deployments file for ${aTokenEntry.aTokenSymbol}`)
+
+    let jsonObj: ProxyDeployment = {
+      address: createdEvent.args.created,
+      transactionHash: receipt.transactionHash,
+      receipt: receipt,
+      args: constructorArgs,
+      bytecode: `${await ethers.provider.getCode(createdEvent.args.created)}`
+    }
+
+    // write to deployments/networkName/contractName.file
+    if(!isTestEnvironment){
+      writeFileSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    }
+    else{
+      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    }
   }
+    
+
   
 };
 

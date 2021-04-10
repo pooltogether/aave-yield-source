@@ -70,7 +70,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   
   /// @notice Mock Initializer to prevent 
-  function mockInitialize() public initializer {
+  function freeze() public initializer {
     //no-op
   }
 
