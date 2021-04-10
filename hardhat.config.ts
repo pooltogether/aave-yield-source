@@ -6,10 +6,10 @@ import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
+import 'hardhat-dependency-compiler'
 
 import { HardhatUserConfig } from 'hardhat/config';
 
-import * as verifyTask from './scripts/verify';
 import * as forkTasks from './scripts/fork';
 import networks from './hardhat.network';
 
@@ -38,6 +38,14 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0,
     },
+    genericProxyFactory:{
+      4: "0x594069c560D260F90C21Be25fD2C8684efbb5628",
+      42: "0x713edC7728C4F0BCc135D48fF96282444d77E604"
+    },
+    lendingPoolAddressesProviderRegistry:{
+      default: "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+      42: "0x1E40B561EC587036f9789aF83236f057D1ed2A90"
+    }
   },
   networks,
   solidity: {
@@ -54,9 +62,11 @@ const config: HardhatUserConfig = {
     outDir: 'types',
     target: 'ethers-v5',
   },
+  dependencyCompiler: {
+    paths:['@pooltogether/pooltogether-proxy-factory/contracts/GenericProxyFactory.sol']
+  }
 };
 
-verifyTask;
 forkTasks;
 
 export default config;

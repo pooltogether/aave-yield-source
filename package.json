@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "scripts": {
-    "clean" : "rm -rf cache/ artifacts/",
+    "clean": "rm -rf cache/ artifacts/",
     "compile": "hardhat --show-stack-traces --max-memory 8192 compile",
     "coverage": "HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat coverage",
     "deploy": "hardhat deploy --write true --network",
@@ -20,7 +20,7 @@
     "run-fork": "yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
     "test": "yarn clean && HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
-    "verify": "yarn hint && yarn test"
+    "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network"
   },
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
@@ -34,6 +34,7 @@
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@openzeppelin/hardhat-upgrades": "1.6.0",
     "@pooltogether/pooltogether-contracts": "3.3.6",
+    "@pooltogether/pooltogether-proxy-factory": "^1.0.0-beta.2",
     "@pooltogether/pooltogether-rng-contracts": "1.1.1",
     "@studydefi/money-legos": "2.4.1",
     "@typechain/ethers-v5": "6.0.2",
@@ -47,8 +48,10 @@
     "debug": "4.3.1",
     "ethereum-waffle": "3.3.0",
     "ethers": "5.0.32",
+    "evm-chains": "^0.2.0",
     "hardhat": "2.1.1",
     "hardhat-abi-exporter": "2.1.2",
+    "hardhat-dependency-compiler": "^1.1.1",
     "hardhat-deploy": "0.7.0-beta.47",
     "hardhat-deploy-ethers": "0.3.0-beta.7",
     "hardhat-gas-reporter": "1.0.4",

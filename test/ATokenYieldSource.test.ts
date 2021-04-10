@@ -11,7 +11,6 @@ import { ethers, waffle } from 'hardhat';
 import {
   ATokenInterface as AToken,
   ATokenYieldSourceHarness,
-  ATokenYieldSourceProxyFactory,
   IERC20Upgradeable as ERC20,
   ILendingPool as LendingPool,
   ILendingPoolAddressesProvider as LendingPoolAddressesProvider,
@@ -86,34 +85,29 @@ describe('ATokenYieldSource', () => {
       '0x67FB118A780fD740C8936511947cC4bE7bb7730c',
     ]);
 
-    debug('deploying ATokenYieldSourceProxyFactory...');
+    debug('deploying ATokenYieldSource instance...');
 
-    const ATokenYieldSourceProxyFactory = await ethers.getContractFactory(
-      'ATokenYieldSourceProxyFactoryHarness',
+    const ATokenYieldSource = await ethers.getContractFactory(
+      'ATokenYieldSourceHarness',
     );
-    const hardhatATokenYieldSourceProxyFactory = (await ATokenYieldSourceProxyFactory.deploy()) as ATokenYieldSourceProxyFactory;
+    const hardhatATokenYieldSourceHarness = await ATokenYieldSource.deploy()
 
-    const initializeTx = await hardhatATokenYieldSourceProxyFactory.create(
+    aTokenYieldSource = (await ethers.getContractAt(
+        'ATokenYieldSourceHarness',
+        hardhatATokenYieldSourceHarness.address,
+        contractsOwner,
+      )) as ATokenYieldSourceHarness;
+  
+    const initializeTx = await aTokenYieldSource.initialize(
       aToken.address,
       lendingPoolAddressesProviderRegistry.address,
-      yieldSourceOwner.address,
       18,
       "Test",
       "TEST"
     );
 
-    const receipt = await provider.getTransactionReceipt(initializeTx.hash);
-    const proxyCreatedEvent = hardhatATokenYieldSourceProxyFactory.interface.parseLog(
-      receipt.logs[0],
-    );
+    const changeOwnershipTx = await aTokenYieldSource.transferOwnership(yieldSourceOwner.address)
 
-    expect(proxyCreatedEvent.name).to.equal('ProxyCreated');
-
-    aTokenYieldSource = (await ethers.getContractAt(
-      'ATokenYieldSourceHarness',
-      proxyCreatedEvent.args.proxy,
-      contractsOwner,
-    )) as ATokenYieldSourceHarness;
   });
 
   describe('create()', () => {
@@ -181,7 +175,7 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.tokenToShares(toWei('1'))).to.equal(2);
     });
 
-    it('should fail to return shares if aToken total supply increases too much', async () => {
+    it('should fail to return shares if aToken total supply increases too much', async () => { // failing here
     
       await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
       await aTokenYieldSource.mint(wallet2.address, toWei('100'));

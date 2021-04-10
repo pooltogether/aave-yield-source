@@ -3,9 +3,13 @@
 pragma solidity >=0.6.0 <0.7.0;
 
 import "../yield-source/ATokenYieldSource.sol";
+import "../external/aave/ATokenInterface.sol";
+import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegistry.sol";
+
 
 /* solium-disable security/no-block-members */
 contract ATokenYieldSourceHarness is ATokenYieldSource {
+    
   function mint(address account, uint256 amount) public returns (bool) {
     _mint(account, amount);
     return true;

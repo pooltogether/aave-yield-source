@@ -13,11 +13,30 @@
 
 PoolTogether Yield Source that uses [Aave](https://aave.com/) V2 to generate yield by lending any ERC20 token supported by Aave and deposited into the Aave Yield Source.
 
+# Usage
+## Deployment
+Follow Installation instructions.
+
+Aave provides a json blob per network of the files in the [docs](https://docs.aave.com/developers/deployed-contracts/deployed-contracts)
+The deploy script parses this and deploys a proxy contract if the aToken file does exist in the deployments directory.
+
+Ensure the lendingPoolAddressesProviderRegistry is up to date in the namedAccounts field of `hardhat.config.ts` .
+
+To add a new network, add a json file in the `./aave` directory then run:
+
+`yarn deploy <new_network_name>`
+
+To add a new lending market, update the appropriate network json at `./aave` and run: 
+
+`yarn deploy <network_name>`
+
+The deployment script can be found in `deploy/deploy.ts`.
+
 ## Development
 
 Clone this repository and enter the directory.
 
-### Install
+### Installation
 
 Install dependencies:
 
@@ -79,18 +98,12 @@ In another window, start the scripts to create a Aave Yield Source Prize Pool, d
 yarn run-fork
 ```
 
-### Deploy
-
-Deployment script can be found in `deploy/deploy.ts`. To deploy, simply run:
-
-```
-yarn deploy <NETWORK_NAME>
-```
+### Contract Verification
 
 Once deployment is done, you can verify your contracts on [Etherscan](https://etherscan.io) by typing:
 
 ```
-yarn etherscan-verify <NETWORK_NAME>
+yarn verify <NETWORK_NAME>
 ```
 
 ### Code quality

@@ -825,6 +825,7 @@ __metadata:
     "@openzeppelin/hardhat-upgrades": 1.6.0
     "@pooltogether/fixed-point": 1.0.0
     "@pooltogether/pooltogether-contracts": 3.3.6
+    "@pooltogether/pooltogether-proxy-factory": ^1.0.0-beta.2
     "@pooltogether/pooltogether-rng-contracts": 1.1.1
     "@pooltogether/yield-source-interface": 1.0.1
     "@studydefi/money-legos": 2.4.1
@@ -839,8 +840,10 @@ __metadata:
     debug: 4.3.1
     ethereum-waffle: 3.3.0
     ethers: 5.0.32
+    evm-chains: ^0.2.0
     hardhat: 2.1.1
     hardhat-abi-exporter: 2.1.2
+    hardhat-dependency-compiler: ^1.1.1
     hardhat-deploy: 0.7.0-beta.47
     hardhat-deploy-ethers: 0.3.0-beta.7
     hardhat-gas-reporter: 1.0.4
@@ -882,6 +885,15 @@ __metadata:
   bin:
     pt-cli: scripts/cli.js
   checksum: 826aaa4ea1a75ea997c155b8600eb0235030f5cb33aa336e90e73e4d6e482c3f2f302ff9087e91e3132ebff8530060f1a4da79ae7c215d33f2440d25429fe99f
+  languageName: node
+  linkType: hard
+
+"@pooltogether/pooltogether-proxy-factory@npm:^1.0.0-beta.2":
+  version: 1.0.0-beta.2
+  resolution: "@pooltogether/pooltogether-proxy-factory@npm:1.0.0-beta.2"
+  dependencies:
+    "@openzeppelin/contracts-upgradeable": 3.4.1
+  checksum: f21ab06d2f75e2e14da8500c8175ae6a3fb5d7c01c325588d539e6e6cb2399621a2373d3e32a26330fc4f774f479f3ac7bd8e9127b0c080c48c4e1bd3e6331d7
   languageName: node
   linkType: hard
 
@@ -5209,6 +5221,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"evm-chains@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "evm-chains@npm:0.2.0"
+  checksum: 180b114c63e30e11df4e6b022d09356f8b7e287f822d287c6cb0c73d5cc86402bcdea3185978fab78522fadba0dc5172e3e3d7aba3689c4c5f96de61d8ac348c
+  languageName: node
+  linkType: hard
+
 "evp_bytestokey@npm:^1.0.0, evp_bytestokey@npm:^1.0.3":
   version: 1.0.3
   resolution: "evp_bytestokey@npm:1.0.3"
@@ -6367,6 +6386,15 @@ fsevents@~2.3.1:
   peerDependencies:
     hardhat: ^2.0.0
   checksum: 376070262dc56b7d6fa23431fbd7052282875ebae65eb1e20bc161db442edddff086a79a0ba4c25566b6c4b07513ee8dab8fdc7ae74fe26901bef01a684ba80e
+  languageName: node
+  linkType: hard
+
+"hardhat-dependency-compiler@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "hardhat-dependency-compiler@npm:1.1.1"
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 835019a2b4cc107c1eb45a9fafdad44cb22bad4109ba9227987d3df0db5d4f1ecdef63d9610723411c80479028b88c463f3196261669792eca83642d2c0d4d04
   languageName: node
   linkType: hard
 
