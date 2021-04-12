@@ -7,7 +7,7 @@ import { dai, usdc } from '@studydefi/money-legos/erc20';
 
 import { task } from 'hardhat/config';
 
-import {gUSDAddress} from "../../Constant"
+import {bUSDAddress, gUSDAddress, sUSDAddress} from "../../Constant"
 
 import { info, success } from '../helpers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
@@ -33,6 +33,22 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     console.log("running lifecycle for GUSD")
     await poolLifecycle(hre, contractsOwner, allDeployments.aGUSD.address, {depositAssetName: "GUSD", depositAssetAddress: gUSDAddress, depositAssetAbi: dai.abi, depositAmount: BigNumber.from(50)})
 
+
+    console.log("running lifecycle for BUSD")
+    await poolLifecycle(hre, contractsOwner, allDeployments.aBUSD.address,
+      {depositAssetName: "BUSD",
+      depositAssetAddress: bUSDAddress,
+      depositAssetAbi: dai.abi,
+      depositAmount: BigNumber.from(50)
+    })
+
+    console.log("running lifecycle for sUSD")
+    await poolLifecycle(hre, contractsOwner, allDeployments.aSUSD.address,
+      {depositAssetName: "sUSD",
+      depositAssetAddress: sUSDAddress,
+      depositAssetAbi: dai.abi,
+      depositAmount: BigNumber.from(50)
+    })
 
   },
 );
@@ -161,7 +177,7 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
   const awardTx = await prizeStrategy.completeAward();
   const awardReceipt = await getTransactionReceipt(awardTx.hash);
 
-  console.log("awardReceipt event lenght  ", awardReceipt.logs.length)
+  // console.log("awardReceipt event lenght  ", awardReceipt.logs.length)
 
   const awardLogs = awardReceipt.logs.map((log) => {
     try {
@@ -188,15 +204,12 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
     success(`Awarded ${awarded?.args?.amount} ${depositAssetName}!`);
   }
 
-  
-
-  
 
   info('Withdrawing...');
   const ticketAddress = await prizeStrategy.ticket();
   const ticket = await getContractAt(ControlledToken, ticketAddress, contractsOwner);
   
-  const withdrawalAmount = depositAmount.div(2);
+  const withdrawalAmount = depositAmount.div(2); // withdraw half the amount deposited
   
   const earlyExitFee = await prizePool.callStatic.calculateEarlyExitFee(contractsOwner.address, ticket.address, withdrawalAmount);
 

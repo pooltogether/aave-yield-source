@@ -2,7 +2,7 @@ import { dai, usdc } from '@studydefi/money-legos/erc20';
 
 import { task } from 'hardhat/config';
 
-import { BINANCE_ADDRESS, BINANCE7_ADDRESS, DAI_RICH_ADDRESS, LARGE_GUSD_ADDRESS, gUSDAddress } from '../../Constant';
+import { BINANCE_ADDRESS, BINANCE7_ADDRESS, DAI_RICH_ADDRESS, LARGE_GUSD_ADDRESS, gUSDAddress, LARGE_BUSD_ADDRESS, bUSDAddress, sUSDAddress, LARGE_SUSD_ADDRESS } from '../../Constant';
 import { info, success } from '../helpers';
 
 export default task(
@@ -20,10 +20,14 @@ export default task(
   const binance = provider.getUncheckedSigner(BINANCE_ADDRESS);
   const binance7 = provider.getUncheckedSigner(BINANCE7_ADDRESS);
   const gusdHolder = provider.getUncheckedSigner(LARGE_GUSD_ADDRESS);
+  const busdHolder = provider.getUncheckedSigner(LARGE_BUSD_ADDRESS);
+  const susdHolder = provider.getUncheckedSigner(LARGE_SUSD_ADDRESS);
 
   const daiContract = await getContractAt(dai.abi, dai.address, binance);
   const usdcContract = await getContractAt(usdc.abi, usdc.address, binance7);
   const gusdContract = await getContractAt(dai.abi, gUSDAddress, gusdHolder)
+  const busdContract = await getContractAt(dai.abi, bUSDAddress, busdHolder)
+  const susdContract = await getContractAt(dai.abi, sUSDAddress, susdHolder)
 
   const recipients: { [key: string]: string } = {
     ['Deployer']: deployer,
@@ -32,7 +36,7 @@ export default task(
     ['yieldSourceOwner']: yieldSourceOwner.address,
   };
 
-  await binance.sendTransaction({ to: gusdHolder._address, value: ethers.utils.parseEther('1000') });
+  await binance.sendTransaction({ to: gusdHolder._address, value: ethers.utils.parseEther('10') });
 
   const keys = Object.keys(recipients);
 
@@ -47,11 +51,13 @@ export default task(
     await daiContract.transfer(address, ethers.utils.parseEther('1000'));
 
     info(`Sending 1000 GUSD to ${name}...`);
-    await gusdContract.transfer(address, "1000");
+    await gusdContract.transfer(address, ethers.utils.parseUnits('1000', 2));
 
-    info(`Sending 1000 USDC to ${name}...`);
-    await usdcContract.transfer(address, ethers.utils.parseUnits('1000', 8));
+    info(`Sending 1000 BUSD to ${name}...`);
+    await busdContract.transfer(address, ethers.utils.parseUnits('1000', 18));
 
+    info(`Sending 1000 SUSD to ${name}...`);
+    await susdContract.transfer(address, ethers.utils.parseUnits('1000', 18));
 
   }
 
