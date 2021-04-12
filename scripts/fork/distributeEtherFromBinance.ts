@@ -12,8 +12,10 @@ export default task(
   info('Gathering funds from Binance...');
 
   const { getNamedAccounts, ethers } = hre;
-  const { provider, getContractAt } = ethers;
+  const { provider, getContractAt, getSigners } = ethers;
   const { deployer } = await getNamedAccounts();
+
+  const [contractsOwner, yieldSourceOwner] = await getSigners();
 
   const binance = provider.getUncheckedSigner(BINANCE_ADDRESS);
   const binance7 = provider.getUncheckedSigner(BINANCE7_ADDRESS);
@@ -24,6 +26,8 @@ export default task(
   const recipients: { [key: string]: string } = {
     ['Deployer']: deployer,
     ['Dai Rich Signer']: DAI_RICH_ADDRESS,
+    ['contractsOwner']: contractsOwner.address,
+    ['yieldSourceOwner']: yieldSourceOwner.address,
   };
 
   const keys = Object.keys(recipients);

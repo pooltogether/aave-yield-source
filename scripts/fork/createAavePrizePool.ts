@@ -27,29 +27,31 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
       await send('evm_increaseTime', [time]);
       await send('evm_mine', []);
     }
+    console.log("contractsOwner address ", contractsOwner.address)
+    console.log("balance of contractsOwner ", (await provider.getBalance(contractsOwner.address)).toString())
 
-    info('Deploying ATokenYieldSourceProxyFactory...');
+    // info('Deploying ATokenYieldSourceProxyFactory...');
 
-    const ATokenYieldSourceProxyFactory = await getContractFactory('ATokenYieldSourceProxyFactory');
+    // const ATokenYieldSourceProxyFactory = await getContractFactory('ATokenYieldSourceProxyFactory');
 
-    const hardhatATokenYieldSourceProxyFactory = (await ATokenYieldSourceProxyFactory.deploy());
+    // const hardhatATokenYieldSourceProxyFactory = (await ATokenYieldSourceProxyFactory.deploy());
 
-    const aTokenYieldSourceProxyFactoryTx = await hardhatATokenYieldSourceProxyFactory.create(
-      ADAI_ADDRESS_MAINNET,
-      LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET,
-      yieldSourceOwner.address,
-    );
+    // const aTokenYieldSourceProxyFactoryTx = await hardhatATokenYieldSourceProxyFactory.create(
+    //   ADAI_ADDRESS_MAINNET,
+    //   LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET,
+    //   yieldSourceOwner.address,
+    // );
 
-    const aTokenYieldSourceProxyFactoryReceipt = await getTransactionReceipt(
-      aTokenYieldSourceProxyFactoryTx.hash,
-    );
-    const proxyCreatedEvent = hardhatATokenYieldSourceProxyFactory.interface.parseLog(
-      aTokenYieldSourceProxyFactoryReceipt.logs[0],
-    );
+    // const aTokenYieldSourceProxyFactoryReceipt = await getTransactionReceipt(
+    //   aTokenYieldSourceProxyFactoryTx.hash,
+    // );
+    // const proxyCreatedEvent = hardhatATokenYieldSourceProxyFactory.interface.parseLog(
+    //   aTokenYieldSourceProxyFactoryReceipt.logs[0],
+    // );
 
     const aTokenYieldSource = (await getContractAt(
       'ATokenYieldSource',
-      proxyCreatedEvent.args.proxy,
+      "0x2bA1e000a381aD42af10C6e33aFe5994eE878D72",
       contractsOwner,
     ));
 
@@ -124,6 +126,14 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     await daiContract.approve(prizePool.address, daiAmount);
 
     info(`Depositing ${formatEther(daiAmount)} Dai...`);
+
+    console.log("contractsOwner address ", contractsOwner.address)
+    console.log("balance of contractsOwner ", (await provider.getBalance(contractsOwner.address)).toString())
+    console.log("prizepool address ", prizePool.address)
+    console.log("prizestrat address ", prizeStrategy.address)
+    console.log("ticket ", await prizeStrategy.ticket())
+
+    // console.log((await provider.getGasPrice()).toString())
 
     await prizePool.depositTo(
       contractsOwner.address,
