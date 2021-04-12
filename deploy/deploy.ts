@@ -163,7 +163,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 
   // we can filter here for aTokens that we want - by symbol
-  const aTokenFilter: string[] = ["AAVE"] //"GUSD", "BUSD", "sUSD"
+  const aTokenFilter: string[] = ["DAI", "GUSD"] //"GUSD", "BUSD", "sUSD"
 
   aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
     if(aTokenFilter.includes(entry.symbol)){
