@@ -15,7 +15,7 @@ artifacts
 cache
 node_modules
 types
-deployments/localhost/*
+deployments/localhost/
 
 # Solidity Coverage
 coverage

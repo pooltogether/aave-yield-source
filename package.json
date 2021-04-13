@@ -17,7 +17,8 @@
     "impersonate-accounts": "hardhat --network localhost fork:impersonate-accounts ",
     "distribute-ether": "hardhat --network localhost fork:distribute-ether-from-binance",
     "create-prize-pool": "hardhat --network localhost fork:create-aave-prize-pool",
-    "run-fork": "yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
+    "deploy-fork": "FORK_ENABLED=true; rm -rf deployments/localhost && yarn deploy localhost",
+    "run-fork": "FORK_ENABLED=true; yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
     "test": "yarn clean && HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
     "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network"
@@ -33,7 +34,7 @@
     "@nomiclabs/hardhat-etherscan": "2.1.1",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@openzeppelin/hardhat-upgrades": "1.6.0",
-    "@pooltogether/pooltogether-contracts": "3.3.6",
+    "@pooltogether/pooltogether-contracts": "3.3.7",
     "@pooltogether/pooltogether-proxy-factory": "^1.0.0-beta.2",
     "@pooltogether/pooltogether-rng-contracts": "1.1.1",
     "@studydefi/money-legos": "2.4.1",

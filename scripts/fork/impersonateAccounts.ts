@@ -1,6 +1,6 @@
 import { task } from 'hardhat/config';
 
-import { BINANCE_ADDRESS, BINANCE7_ADDRESS, DAI_RICH_ADDRESS } from '../../Constant';
+import { BINANCE_ADDRESS, BINANCE7_ADDRESS, DAI_RICH_ADDRESS, LARGE_GUSD_ADDRESS, LARGE_BUSD_ADDRESS, LARGE_SUSD_ADDRESS } from '../../Constant';
 import { info, success } from '../helpers';
 
 export default task('fork:impersonate-accounts', 'Impersonate accounts').setAction(
@@ -25,6 +25,21 @@ export default task('fork:impersonate-accounts', 'Impersonate accounts').setActi
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
       params: [DAI_RICH_ADDRESS],
+    });
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [LARGE_GUSD_ADDRESS],
+    });
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [LARGE_BUSD_ADDRESS],
+    });
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [LARGE_SUSD_ADDRESS],
     });
 
     success('Done!');

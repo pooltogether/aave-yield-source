@@ -39,8 +39,10 @@ const config: HardhatUserConfig = {
       default: 0,
     },
     genericProxyFactory:{
+      default: "0x14e09c3319244a84e7c1E7B52634f5220FA96623",
       4: "0x594069c560D260F90C21Be25fD2C8684efbb5628",
-      42: "0x713edC7728C4F0BCc135D48fF96282444d77E604"
+      42: "0x713edC7728C4F0BCc135D48fF96282444d77E604",
+      80001: "0xd1797D46C3E825fce5215a0259D3426a5c49455C"
     },
     lendingPoolAddressesProviderRegistry:{
       default: "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",

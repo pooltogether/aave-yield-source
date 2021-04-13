@@ -2,14 +2,10 @@ import chalk from 'chalk';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
-import { LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN, LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET } from "../Constant"
 import { Contract, ContractFactory } from 'ethers';
 import { existsSync, readFileSync, writeFileSync } from "fs"
 import { getChainByChainId } from "evm-chains"
 
-// minimal proxy factory constants
-const prefix = "0x363d3d373d3d3d363d73"
-const postfix = "5af43d82803e903d91602b57fd5bf3"
 
 const displayLogs = !process.env.HIDE_DEPLOY_LOG;
 
@@ -84,6 +80,11 @@ interface ProxyDeployment {
 }
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  dim('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  dim('PoolTogether Aave Yield Source - Deploy Script');
+  dim('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
+  
+  
   const { getNamedAccounts, deployments, getChainId, ethers } = hre;
   const { deploy } = deployments;
 
@@ -95,10 +96,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const isTestEnvironment = chainId === 31337 || chainId === 1337;
 
   const signer = ethers.provider.getSigner(deployer);
-
-  dim('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-  dim('PoolTogether Aave Yield Source - Deploy Script');
-  dim('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
 
   dim(`network: ${chainName(chainId)} (${isTestEnvironment ? 'local' : 'remote'})`);
   dim(`deployer: ${deployer}`);
@@ -148,10 +145,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
    
   // read in aave deployment lendingMarkets json file (https://docs.aave.com/developers/deployed-contracts/deployed-contracts)
   let aaveAddressesArray
-  if(chainId == 1){
+  if(chainId === 1){
+    dim(`loading Aave mainnet json`)
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveMainnet.json", {encoding: "utf-8"}))).proto
   }
-  if(chainId == 42){
+  else if(chainId === 42){
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
   }
   else{
@@ -160,9 +158,15 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 
   // we can filter here for aTokens that we want - by symbol
-  // const aTokenFilter = [aDai]
+  const aTokenFilter: string[] = ["GUSD", "BUSD", "sUSD"] //"GUSD", "BUSD", "sUSD"
 
-  green(`Now deploying aToken proxies`)
+  aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
+    if(aTokenFilter.includes(entry.symbol)){
+      return entry
+    }
+  })
+
+  green(`Now deploying ${aaveAddressesArray.length} aToken proxies`)
 
   const aTokenYieldSourceInterface = new ethers.utils.Interface((await hre.artifacts.readArtifact("ATokenYieldSource")).abi)
   let { lendingPoolAddressesProviderRegistry }= await getNamedAccounts()
@@ -205,9 +209,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       args: constructorArgs,
       bytecode: `${await ethers.provider.getCode(createdEvent.args.created)}`
     }
-
+    
     // write to deployments/networkName/contractName.file
-    if(!isTestEnvironment){
+    if(process.env.FORK_ENABLED){
+      dim(`fork detected`)
+      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+      
+    }
+    else if(!isTestEnvironment){
       writeFileSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
     }
     else{
