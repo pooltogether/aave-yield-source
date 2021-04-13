@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
 import { Contract, ContractFactory } from 'ethers';
-import { existsSync, readFileSync, writeFileSync } from "fs"
+import { existsSync, readFile, readFileSync, writeFileSync } from "fs"
 import { getChainByChainId } from "evm-chains"
 
 
@@ -195,7 +195,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
     
     // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
-    const receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
+    // const createATokenYieldSourceResult = JSON.parse(readFileSync("./aaveMumbaiReceipt.json", {encoding:'utf8'})) // work around for slow rpc
+    
+  
+    let receipt
+    if(createATokenYieldSourceResult.hash){
+      receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
+    }
+    else {
+      receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.transactionHash);
+    }
+    
+
     const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
 
     green(`aToken proxy for ${aTokenEntry.aTokenSymbol} created at ${createdEvent.args.created}`)
@@ -211,13 +222,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     }
     
     // write to deployments/networkName/contractName.file
-    if(process.env.FORK_ENABLED){
+    if(!process.env.FORK_ENABLED){
       dim(`fork detected`)
       writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
       
     }
     else if(!isTestEnvironment){
-      writeFileSync(`./deployments/${getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+      dim(`external network ${getChainByChainId(chainId).chain} detected`)
+      writeFileSync(`./deployments/${getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
     }
     else{
       writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
