@@ -11,10 +11,10 @@ export const BINANCE7_ADDRESS = '0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8';
 export const DAI_RICH_ADDRESS = '0xF977814e90dA44bFA03b6295A0616a897441aceC';
 
 export const LARGE_GUSD_ADDRESS = '0xd2e801f22e3e85a12dce545a9a6064cb04de9c43'
-export const gUSDAddress = "0x056fd409e1d7a124bd7017459dfea2f387b6d5cd"
+export const GUSD_ADDRESS = "0x056fd409e1d7a124bd7017459dfea2f387b6d5cd"
 
 export const LARGE_SUSD_ADDRESS = '0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be'
-export const sUSDAddress = '0x57ab1ec28d129707052df4df418d58a2d46d5f51'
+export const SUSD_ADDRESS = '0x57ab1ec28d129707052df4df418d58a2d46d5f51'
 
-export const bUSDAddress = '0x4fabb145d64652a948d72533023f6e7a623c7c53'
+export const BUSD_ADDRESS = '0x4fabb145d64652a948d72533023f6e7a623c7c53'
 export const LARGE_BUSD_ADDRESS = '0xf977814e90da44bfa03b6295a0616a897441acec'

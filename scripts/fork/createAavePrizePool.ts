@@ -7,7 +7,7 @@ import { dai } from '@studydefi/money-legos/erc20';
 
 import { task } from 'hardhat/config';
 
-import {bUSDAddress, gUSDAddress, sUSDAddress} from "../../Constant"
+import {BUSD_ADDRESS, GUSD_ADDRESS, SUSD_ADDRESS} from "../../Constant"
 
 import { info, success } from '../helpers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
@@ -24,12 +24,12 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     const allDeployments = await deployments.all()
 
     // call for each deployed yield source
-    // aGUSD 
+
     info("running prize pool lifecycle for GUSD")
     await poolLifecycle(hre, contractsOwner, allDeployments.aGUSD.address,
       {
         depositAssetName: "GUSD",
-        depositAssetAddress: gUSDAddress,
+        depositAssetAddress: GUSD_ADDRESS,
         depositAssetAbi: dai.abi,
         depositAmount: BigNumber.from(50)
       })
@@ -39,7 +39,7 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     await poolLifecycle(hre, contractsOwner, allDeployments.aBUSD.address,
       {
         depositAssetName: "BUSD",
-        depositAssetAddress: bUSDAddress,
+        depositAssetAddress: BUSD_ADDRESS,
         depositAssetAbi: dai.abi,
         depositAmount: BigNumber.from(50)
       })
@@ -48,7 +48,7 @@ export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').set
     await poolLifecycle(hre, contractsOwner, allDeployments.aSUSD.address,
       {
         depositAssetName: "sUSD",
-        depositAssetAddress: sUSDAddress,
+        depositAssetAddress: SUSD_ADDRESS,
         depositAssetAbi: dai.abi,
         depositAmount: BigNumber.from(50)
       })
