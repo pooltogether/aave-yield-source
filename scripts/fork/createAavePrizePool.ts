@@ -1,60 +1,60 @@
-import PoolWithMultipleWinnersBuilder from '@pooltogether/pooltogether-contracts/deployments/mainnet/PoolWithMultipleWinnersBuilder.json';
-import RNGBlockhash from '@pooltogether/pooltogether-rng-contracts/deployments/mainnet/RNGBlockhash.json';
+import PoolWithMultipleWinnersBuilder from '@pooltogether/pooltogether-contracts/deployments/mumbai/PoolWithMultipleWinnersBuilder.json';
+import RNGBlockhash from '@pooltogether/pooltogether-rng-contracts/deployments/mumbai_80001/RNGBlockhash.json';
 import ControlledToken from '@pooltogether/pooltogether-contracts/abis/ControlledToken.json';
 import MultipleWinners from '@pooltogether/pooltogether-contracts/abis/MultipleWinners.json';
 import YieldSourcePrizePool from '@pooltogether/pooltogether-contracts/abis/YieldSourcePrizePool.json';
+
 import { dai } from '@studydefi/money-legos/erc20';
-
-import { task } from 'hardhat/config';
-
-import {BUSD_ADDRESS, GUSD_ADDRESS, SUSD_ADDRESS} from "../../Constant"
+import Erc20MintableAbi from "../../abis/ERC20Mintable.json"
 
 import { info, success } from '../helpers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { BigNumber } from 'ethers';
+import { getNamedSigner } from 'hardhat-deploy-ethers/dist/src/helpers';
 
-export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').setAction(
-  async (taskArguments, hre) => {
-    const { ethers, deployments } = hre;
-    const { getSigners} = ethers;
+
+const hre = require("hardhat");
+const { ethers, deployments,getChainId } = hre;
+
+// export default task('fork:create-aave-prize-pool', 'Create Aave Prize Pool').setAction(
+async function createPrizePools(){
+    console.log("running create prize pool script")
+    const chainId = parseInt(await getChainId());
+    console.log("chain id is ", chainId)
+   
+    const { getSigners, utils} = ethers;
+    const { formatEther, parseEther: toWei } = utils;
 
     const [contractsOwner] = await getSigners();
+    const deployer = await getNamedSigner(hre, "deployer")
 
     const allDeployments = await deployments.all()
 
+    // minting mumbai AAVE
+    console.log("deployer address is ", deployer.address)
+    const aaveTokenContract = await ethers.getContractAt(Erc20MintableAbi,"0x341d1f30e77D3FBfbD43D17183E2acb9dF25574E", deployer)
+
+    
+    const mintResult = await aaveTokenContract.mint(contractsOwner.address, "100")
+
+    console.log(mintResult)
+
+
     // call for each deployed yield source
+    console.log("running lifecycle for aAAVE")
+    // await poolLifecycle(hre, contractsOwner, allDeployments.aAAVE.address,
+    //   {depositAssetName: "sUSD",
+    //   depositAssetAddress: sUSDAddress,
+    //   depositAssetAbi: dai.abi,
+    //   depositAmount: BigNumber.from(50)
+    // })
 
-    info("running prize pool lifecycle for GUSD")
-    await poolLifecycle(hre, contractsOwner, allDeployments.aGUSD.address,
-      {
-        depositAssetName: "GUSD",
-        depositAssetAddress: GUSD_ADDRESS,
-        depositAssetAbi: dai.abi,
-        depositAmount: BigNumber.from(50)
-      })
+}
+createPrizePools()
 
 
-    info("running prize pool lifecycle for BUSD")
-    await poolLifecycle(hre, contractsOwner, allDeployments.aBUSD.address,
-      {
-        depositAssetName: "BUSD",
-        depositAssetAddress: BUSD_ADDRESS,
-        depositAssetAbi: dai.abi,
-        depositAmount: BigNumber.from(50)
-      })
-
-    info("running prize pool lifecycle for sUSD")
-    await poolLifecycle(hre, contractsOwner, allDeployments.aSUSD.address,
-      {
-        depositAssetName: "sUSD",
-        depositAssetAddress: SUSD_ADDRESS,
-        depositAssetAbi: dai.abi,
-        depositAmount: BigNumber.from(50)
-      })
-
-  },
-);
+// );
 
 interface DepositAsset {
   depositAssetName: string,
@@ -66,7 +66,7 @@ interface DepositAsset {
 
 async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: SignerWithAddress, aTokenYieldSourceAddress: string, depositArgs: DepositAsset){
 
-  const { ethers } = hre;
+  // const { ethers } = hre;
   
   const {depositAssetAddress, depositAssetName, depositAmount, depositAssetAbi } = depositArgs
 
@@ -128,7 +128,7 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
   );
 
   const yieldSourcePrizePoolInitializedEvent = yieldSourceMultipleWinnersReceipt.logs.map(
-    (log) => {
+    (log: any) => {
       try {
         return poolBuilder.interface.parseLog(log);
       } catch (e) {
@@ -180,7 +180,9 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
   const awardTx = await prizeStrategy.completeAward();
   const awardReceipt = await getTransactionReceipt(awardTx.hash);
 
-  const awardLogs = awardReceipt.logs.map((log) => {
+  // console.log("awardReceipt event lenght  ", awardReceipt.logs.length)
+
+  const awardLogs = awardReceipt.logs.map((log:any) => {
     try {
       return prizePool.interface.parseLog(log);
     } catch (e) {
@@ -188,7 +190,7 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
     }
   });
 
-  const completeAwardLogs = awardReceipt.logs.map((log) => {
+  const completeAwardLogs = awardReceipt.logs.map((log:any) => {
     try {
       return prizeStrategy.interface.parseLog(log);
     } catch (e) {
@@ -196,9 +198,11 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
     }
   });
 
-  const awarded = awardLogs.find((event) => event && event.name === 'Awarded');
+  // console.log("completeAwardLogs ", completeAwardLogs)
 
-  // some of the prize pools will complete successfully and not emit the Awarded event
+  const awarded = awardLogs.find((event:any) => event && event.name === 'Awarded');
+  // console.log("awarded event", awarded)
+  
   if(awarded){
     success(`Awarded ${awarded?.args?.amount} ${depositAssetName}!`);
   }
@@ -219,7 +223,7 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
   );
 
   const withdrawReceipt = await getTransactionReceipt(withdrawTx.hash);
-  const withdrawLogs = withdrawReceipt.logs.map((log) => {
+  const withdrawLogs = withdrawReceipt.logs.map((log:any) => {
     try {
       return prizePool.interface.parseLog(log);
     } catch (e) {
@@ -227,7 +231,7 @@ async function poolLifecycle(hre :HardhatRuntimeEnvironment, contractsOwner: Sig
     }
   });
 
-  const withdrawn = withdrawLogs.find((event) => event && event.name === 'InstantWithdrawal');
+  const withdrawn = withdrawLogs.find((event:any) => event && event.name === 'InstantWithdrawal');
   success(`Withdrawn ${withdrawn?.args?.redeemed} ${depositAssetName}!`);
   success(`Exit fee was ${withdrawn?.args?.exitFee} ${depositAssetName}`);
 

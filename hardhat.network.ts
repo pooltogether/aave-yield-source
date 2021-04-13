@@ -58,7 +58,7 @@ if (mnemonic) {
   };
   networks.mumbai = {
     chainId: 80001,
-    url: 'https://matic-testnet-archive-rpc.bwarelabs.com',
+    url: 'https://rpc-mumbai.maticvigil.com/',
     accounts: {
       mnemonic,
     },

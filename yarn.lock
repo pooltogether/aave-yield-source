@@ -826,7 +826,7 @@ __metadata:
     "@pooltogether/fixed-point": 1.0.0
     "@pooltogether/pooltogether-contracts": 3.3.7
     "@pooltogether/pooltogether-proxy-factory": ^1.0.0-beta.2
-    "@pooltogether/pooltogether-rng-contracts": 1.1.1
+    "@pooltogether/pooltogether-rng-contracts": 1.1.2
     "@pooltogether/yield-source-interface": 1.0.1
     "@studydefi/money-legos": 2.4.1
     "@typechain/ethers-v5": 6.0.2
@@ -904,10 +904,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pooltogether/pooltogether-rng-contracts@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@pooltogether/pooltogether-rng-contracts@npm:1.1.1"
-  checksum: b43841599b10d8eb8bd1b46d77554e2d9ae28b71b0d6b6c2d9ac8875159ebdb77b6779ab558f6da9f98b382498f388b9782a0e18062405c28438a534a308487c
+"@pooltogether/pooltogether-rng-contracts@npm:1.1.2":
+  version: 1.1.2
+  resolution: "@pooltogether/pooltogether-rng-contracts@npm:1.1.2"
+  checksum: edf911f9ff95d4f542330750c6f25cdace93a803dc5c2d93debb078d893c43c9867e8e93e4f0f1edd74d98b59b2c695740869a1d1f75fdc311e19efceae07123
   languageName: node
   linkType: hard
 
