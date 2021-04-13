@@ -2,15 +2,10 @@ import chalk from 'chalk';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
-import { LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_KOVAN, LENDING_POOL_ADDRESSES_PROVIDER_REGISTRY_ADDRESS_MAINNET } from "../Constant"
 import { Contract, ContractFactory } from 'ethers';
 import { existsSync, readFileSync, writeFileSync } from "fs"
 import { getChainByChainId } from "evm-chains"
-import { env } from 'process';
 
-// minimal proxy factory constants
-const prefix = "0x363d3d373d3d3d363d73"
-const postfix = "5af43d82803e903d91602b57fd5bf3"
 
 const displayLogs = !process.env.HIDE_DEPLOY_LOG;
 
@@ -163,7 +158,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 
   // we can filter here for aTokens that we want - by symbol
-  const aTokenFilter: string[] = ["DAI", "GUSD", "BUSD", "sUSD"] //"GUSD", "BUSD", "sUSD"
+  const aTokenFilter: string[] = ["GUSD", "BUSD", "sUSD"] //"GUSD", "BUSD", "sUSD"
 
   aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
     if(aTokenFilter.includes(entry.symbol)){
