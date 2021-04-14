@@ -152,13 +152,17 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   else if(chainId === 42){
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
   }
+  else if(chainId === 137){
+    dim(`reading addresses for Polygon`)
+    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aavePolygon.json", {encoding: "utf-8"}))).proto
+  }
   else{
     dim(`TestEnvironment! No deployed ATokens. Using Kovan as mock.`)
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
   }
 
-  // we can filter here for aTokens that we want - by symbol
-  const aTokenFilter: string[] = ["GUSD", "BUSD", "sUSD"] //"GUSD", "BUSD", "sUSD"
+  // we can filter here for aTokens that we want - by token symbol
+  const aTokenFilter: string[] = ["DAI", "USDC", "USDT", "WBTC", "WETH", "WMATIC"] //"GUSD", "BUSD", "sUSD"
 
   aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
     if(aTokenFilter.includes(entry.symbol)){
@@ -173,9 +177,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   // deploy a proxy for each entry in aaveAddressesArray
   for(const aTokenEntry of aaveAddressesArray){
-    
+    dim(`checking if ./deployments/${isTestEnvironment? 'localhost': getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json exists`)
     // if already deployed - skip
-    if(existsSync(`./deployments/${isTestEnvironment? 'localhost': getChainByChainId(chainId).network}/${aTokenEntry.aTokenSymbol}.json`)){
+    if(existsSync(`./deployments/${isTestEnvironment? 'localhost': getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`)){
       dim(`${aTokenEntry.aTokenSymbol} already exists for this network`)
       continue
     }
@@ -185,8 +189,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
         aTokenEntry.aTokenAddress,
         lendingPoolAddressesProviderRegistry,
         aTokenEntry.decimals,
-        `pt-${aTokenEntry.aTokenSymbol}`,
-        `pt${aTokenEntry.aTokenSymbol}`
+        `pt${aTokenEntry.aTokenSymbol}`,
+        `PoolTogether ${aTokenEntry.aTokenSymbol}`
       ]
     )
 
@@ -194,10 +198,10 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     
     const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
     
+    console.log("createATokenYieldSourceResult", createATokenYieldSourceResult)
     // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
-    // const createATokenYieldSourceResult = JSON.parse(readFileSync("./aaveMumbaiReceipt.json", {encoding:'utf8'})) // work around for slow rpc
-    
-  
+    await new Promise(r => setTimeout(r, 120000));
+
     let receipt
     if(createATokenYieldSourceResult.hash){
       receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
@@ -205,7 +209,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     else {
       receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.transactionHash);
     }
-    
+
 
     const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
 
