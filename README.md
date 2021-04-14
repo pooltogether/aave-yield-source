@@ -20,7 +20,7 @@ Follow Installation instructions.
 Aave provides a json blob per network of the files in the [docs](https://docs.aave.com/developers/deployed-contracts/deployed-contracts)
 The deploy script parses this and deploys a proxy contract if the aToken file does exist in the deployments directory.
 
-Ensure the lendingPoolAddressesProviderRegistry is up to date in the namedAccounts field of `hardhat.config.ts` .
+Ensure the `lendingPoolAddressesProviderRegistry` is up to date in the namedAccounts field of `hardhat.config.ts` .
 
 To add a new network, add a json file in the `./aave` directory then run:
 

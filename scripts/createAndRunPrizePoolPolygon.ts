@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types"
 import {ethers, deployments, getNamedAccounts, getChainId} from "hardhat"
 import Erc20UpgradeableAbi from "../abis/ERC20Upgradeable.json"
 
-import PoolWithMultipleWinnersBuilder from '@pooltogether/pooltogether-contracts/deployments/mumbai/PoolWithMultipleWinnersBuilder.json';
-import RNGBlockhash from '@pooltogether/pooltogether-rng-contracts/deployments/mumbai_80001/RNGBlockhash.json';
+import PoolWithMultipleWinnersBuilder from '@pooltogether/pooltogether-contracts/deployments/matic/PoolWithMultipleWinnersBuilder.json';
+import RNGBlockhash from '@pooltogether/pooltogether-rng-contracts/deployments/matic_137/RNGBlockhash.json';
 import ControlledToken from '@pooltogether/pooltogether-contracts/abis/ControlledToken.json';
 import MultipleWinners from '@pooltogether/pooltogether-contracts/abis/MultipleWinners.json';
 import YieldSourcePrizePool from '@pooltogether/pooltogether-contracts/abis/YieldSourcePrizePool.json';
@@ -11,8 +11,6 @@ import YieldSourcePrizePool from '@pooltogether/pooltogether-contracts/abis/Yiel
 import { BigNumber } from 'ethers';
 import { dai } from '@studydefi/money-legos/erc20';
 import { info, success } from './helpers';
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { SSL_OP_EPHEMERAL_RSA } from "constants";
 
 interface DepositAsset {
   depositAssetName: string,
