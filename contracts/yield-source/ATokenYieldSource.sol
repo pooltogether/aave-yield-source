@@ -30,7 +30,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     ILendingPoolAddressesProviderRegistry lendingPoolAddressesProviderRegistry,
     uint8 decimals,
     string name,
-    string symbol
+    string symbol,
+    address owner
   );
 
   /// @notice Emitted when asset tokens are redeemed from the yield source
@@ -85,7 +86,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
     uint8 _decimals,
     string calldata _symbol,
-    string calldata _name
+    string calldata _name,
+    address _owner
   )
     public
     initializer
@@ -95,6 +97,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
 
     __Ownable_init();
+    transferOwnership(_owner);
 
     __ERC20_init(_name,_symbol);
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
@@ -105,7 +108,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
       _lendingPoolAddressesProviderRegistry,
       _decimals,
       _name,
-      _symbol
+      _symbol,
+      _owner
     );
 
     return true;

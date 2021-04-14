@@ -88,7 +88,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const { getNamedAccounts, deployments, getChainId, ethers } = hre;
   const { deploy } = deployments;
 
-  let { deployer, admin } = await getNamedAccounts();
+  let { deployer, admin, multisig } = await getNamedAccounts();
 
   const chainId = parseInt(await getChainId());
 
@@ -102,6 +102,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   if (!admin) {
     admin = signer._address;
+  }
+  if(!multisig){
+    throw new Error("MultiSig address not set - needed for Owner of YieldSource")
   }
 
   dim(`deployer: ${admin}`);
@@ -185,8 +188,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
         aTokenEntry.aTokenAddress,
         lendingPoolAddressesProviderRegistry,
         aTokenEntry.decimals,
-        `pt-${aTokenEntry.aTokenSymbol}`,
-        `pt${aTokenEntry.aTokenSymbol}`
+        `pt${aTokenEntry.aTokenSymbol}`,
+        `PoolTogether ${aTokenEntry.aTokenSymbol}`,
+        multisig
       ]
     )
 
