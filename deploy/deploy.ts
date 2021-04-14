@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
 import { Contract, ContractFactory } from 'ethers';
-import { existsSync, readFile, readFileSync, writeFileSync } from "fs"
+import { existsSync, readFileSync, writeFileSync } from "fs"
 import { getChainByChainId } from "evm-chains"
 
 
@@ -135,10 +135,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     proxyFactoryContract = await proxyFactoryContractFactory.deploy()
     green(`Deployed a local GenericProxyFactory at ${proxyFactoryContract.address}`)
   }
-  else { // real network!
-    // import GenericProxyClone address (using namedAccounts) for specific network
-    dim(`getting genericProxyFactory address`)
-    let { genericProxyFactory } = await getNamedAccounts()
+  else { // real network
+    let { genericProxyFactory } = await getNamedAccounts()     // import GenericProxyClone address (using namedAccounts) for specific network
     proxyFactoryContract = await ethers.getContractAt("GenericProxyFactory", genericProxyFactory)
   }
 
@@ -158,6 +156,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   else if(chainId === 137){
     dim(`reading addresses for Polygon`)
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aavePolygon.json", {encoding: "utf-8"}))).proto
+  }
+  else if(chainId === 80001){
+    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
   }
   else{
     dim(`TestEnvironment! No deployed ATokens. Using Kovan as mock.`)
@@ -187,7 +188,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       continue
     }
 
-    let constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
+    const constructorArgs: string = aTokenYieldSourceInterface.encodeFunctionData(aTokenYieldSourceInterface.getFunction("initialize"),
       [
         aTokenEntry.aTokenAddress,
         lendingPoolAddressesProviderRegistry,
@@ -198,25 +199,23 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       ]
     )
 
-    dim(`Creating Proxy for ${aTokenEntry.aTokenSymbol}`)
+    cyan(`Creating Proxy for ${aTokenEntry.aTokenSymbol}`)
     
     const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
     
     console.log("createATokenYieldSourceResult", createATokenYieldSourceResult)
     // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
-    await new Promise(r => setTimeout(r, 120000));
+    await new Promise(r => setTimeout(r, 120000)); // blocking sleep to ensure rpc is synced 
 
     let receipt
     if(createATokenYieldSourceResult.hash){
       receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
     }
-    else {
+    else { // some rpc nodes are returning transactionHash (vs hash)
       receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.transactionHash);
     }
 
-
     const createdEvent = proxyFactoryContract.interface.parseLog(receipt.logs[0]);
-
     green(`aToken proxy for ${aTokenEntry.aTokenSymbol} created at ${createdEvent.args.created}`)
 
     dim(`saving deployments file for ${aTokenEntry.aTokenSymbol}`)
@@ -243,9 +242,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
     }
   }
-    
-
-  
 };
 
 export default deployFunction;
