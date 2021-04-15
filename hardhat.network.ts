@@ -58,10 +58,11 @@ if (mnemonic) {
   };
   networks.mumbai = {
     chainId: 80001,
-    url: 'https://rpc-mumbai.maticvigil.com',
+    url: 'https://rpc-mumbai.matic.today',
     accounts: {
       mnemonic,
     },
+    loggingEnabled: true,
   };
 }
 

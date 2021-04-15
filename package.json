@@ -21,7 +21,8 @@
     "run-fork": "FORK_ENABLED=true; yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
     "test": "yarn clean && HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
-    "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network"
+    "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network",
+    "integration-test-mumbai": "yarn deploy mumbai && hardhat run --network mumbai ./scripts/createAndRunPrizePool.ts "
   },
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
@@ -36,7 +37,7 @@
     "@openzeppelin/hardhat-upgrades": "1.6.0",
     "@pooltogether/pooltogether-contracts": "3.3.7",
     "@pooltogether/pooltogether-proxy-factory": "^1.0.0-beta.2",
-    "@pooltogether/pooltogether-rng-contracts": "1.1.1",
+    "@pooltogether/pooltogether-rng-contracts": "1.1.2",
     "@studydefi/money-legos": "2.4.1",
     "@typechain/ethers-v5": "6.0.2",
     "@typechain/hardhat": "1.0.1",
