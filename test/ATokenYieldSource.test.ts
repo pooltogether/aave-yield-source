@@ -103,11 +103,9 @@ describe('ATokenYieldSource', () => {
       lendingPoolAddressesProviderRegistry.address,
       18,
       "Test",
-      "TEST"
+      "TEST",
+      yieldSourceOwner.address
     );
-
-    const changeOwnershipTx = await aTokenYieldSource.transferOwnership(yieldSourceOwner.address)
-
   });
 
   describe('create()', () => {

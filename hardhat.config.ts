@@ -47,6 +47,10 @@ const config: HardhatUserConfig = {
     lendingPoolAddressesProviderRegistry:{
       default: "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
       42: "0x1E40B561EC587036f9789aF83236f057D1ed2A90"
+    },
+    multisig: {
+      default: "0x42cd8312D2BCe04277dD5161832460e95b24262E",
+      137: "0xfD54F172c162072BAAb2d20DcC8E530736a269a7" 
     }
   },
   networks,
