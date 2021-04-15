@@ -19,7 +19,7 @@
     "create-prize-pool": "hardhat --network localhost fork:create-aave-prize-pool",
     "deploy-fork": "FORK_ENABLED=true; rm -rf deployments/localhost && yarn deploy localhost",
     "run-fork": "FORK_ENABLED=true; yarn impersonate-accounts && yarn distribute-ether && yarn create-prize-pool",
-    "test": "yarn clean && HIDE_DEPLOY_LOG=true OPTIMIZER_DISABLED=true hardhat test",
+    "test": "yarn clean && hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
     "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network",
     "integration-test-mumbai": "yarn deploy mumbai && hardhat run --network mumbai ./scripts/createAndRunPrizePool.ts "
