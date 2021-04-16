@@ -166,7 +166,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 
   // we can filter here for aTokens that we want - by token symbol
-  const aTokenFilter: string[] = ["DAI", "USDC", "USDT", "WBTC", "WETH", "WMATIC", "AAVE"] //"GUSD", "BUSD", "sUSD"
+  const aTokenFilter: string[] = ["GUSD", "sUSD"] //"GUSD", "BUSD", "sUSD"
 
   aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
     if(aTokenFilter.includes(entry.symbol)){
@@ -228,19 +228,21 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       bytecode: `${await ethers.provider.getCode(createdEvent.args.created)}`
     }
     
+    writeFileSync(`./deployments/mainnet/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+
     // write to deployments/networkName/contractName.file
-    if(!process.env.FORK_ENABLED){
-      dim(`fork detected`)
-      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    // if(!process.env.FORK_ENABLED){
+    //   dim(`fork detected`)
+    //   writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
       
-    }
-    else if(!isTestEnvironment){
-      dim(`external network ${getChainByChainId(chainId).chain} detected`)
-      writeFileSync(`./deployments/${getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-    }
-    else{
-      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-    }
+    // }
+    // else if(!isTestEnvironment){
+    //   dim(`external network ${getChainByChainId(chainId).chain} detected`)
+    //   writeFileSync(`./deployments/${getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    // }
+    // else{
+    //   writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    // }
   }
 };
 

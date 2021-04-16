@@ -64,5 +64,15 @@
     "ts-node": "9.1.1",
     "typechain": "4.0.3",
     "typescript": "4.2.3"
-  }
+  },
+  "files":[
+    "LICENSE",
+    "abis/**",
+    "aave/",
+    "artifacts/**",
+    "contracts/**",
+    "deployments/**",
+    "deploy/**",
+    "types/**"
+  ]
 }
