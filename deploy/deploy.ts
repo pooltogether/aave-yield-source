@@ -205,13 +205,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     
     console.log("createATokenYieldSourceResult", createATokenYieldSourceResult)
     // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
-    await new Promise(r => setTimeout(r, 120000)); // blocking sleep to ensure rpc is synced 
-
+    
     let receipt
-    if(createATokenYieldSourceResult.hash){
+    if(createATokenYieldSourceResult.hash){ // one of the RPC endpoints was returning an object with transactionHash (vs hash)
+      await ethers.provider.waitForTransaction(createATokenYieldSourceResult.hash)
       receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.hash);
     }
     else { // some rpc nodes are returning transactionHash (vs hash)
+      await ethers.provider.waitForTransaction(createATokenYieldSourceResult.transactionHash)
       receipt = await ethers.provider.getTransactionReceipt(createATokenYieldSourceResult.transactionHash);
     }
 
