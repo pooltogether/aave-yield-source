@@ -1,6 +1,6 @@
 {
   "name": "@pooltogether/aave-yield-source",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "PoolTogether Aave Yield Source",
   "main": "index.js",
   "license": "GPL-3.0",
