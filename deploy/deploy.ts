@@ -166,13 +166,13 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 
   // we can filter here for aTokens that we want - by token symbol
-  // const aTokenFilter: string[] = ["GUSD", "sUSD"] //"GUSD", "BUSD", "sUSD"
+  const aTokenFilter: string[] = [] //"GUSD", "BUSD", "sUSD"
 
-  // aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
-  //   if(aTokenFilter.includes(entry.symbol)){
-  //     return entry
-  //   }
-  // })
+  aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
+    if(aTokenFilter.includes(entry.symbol)){
+      return entry
+    }
+  })
 
   green(`Now deploying ${aaveAddressesArray.length} aToken proxies`)
 
@@ -229,21 +229,19 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       bytecode: `${await ethers.provider.getCode(createdEvent.args.created)}`
     }
     
-    writeFileSync(`./deployments/matic/${aTokenEntry.aTokenSymbol}YieldSource.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-
     // write to deployments/networkName/contractName.file
-    // if(!process.env.FORK_ENABLED){
-    //   dim(`fork detected`)
-    //   writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    if(!process.env.FORK_ENABLED){
+      dim(`fork detected`)
+      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
       
-    // }
-    // else if(!isTestEnvironment){
-    //   dim(`external network ${getChainByChainId(chainId).chain} detected`)
-    //   writeFileSync(`./deployments/${getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-    // }
-    // else{
-    //   writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-    // }
+    }
+    else if(!isTestEnvironment){
+      dim(`external network ${getChainByChainId(chainId).chain} detected`)
+      writeFileSync(`./deployments/${getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    }
+    else{
+      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    }
   }
 };
 
