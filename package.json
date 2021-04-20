@@ -35,7 +35,7 @@
     "@nomiclabs/hardhat-etherscan": "2.1.1",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@openzeppelin/hardhat-upgrades": "1.6.0",
-    "@pooltogether/pooltogether-contracts": "3.3.7",
+    "@pooltogether/pooltogether-contracts": "3.3.8",
     "@pooltogether/pooltogether-proxy-factory": "^1.0.0-beta.2",
     "@pooltogether/pooltogether-rng-contracts": "1.1.2",
     "@studydefi/money-legos": "2.4.1",
@@ -65,7 +65,7 @@
     "typechain": "4.0.3",
     "typescript": "4.2.3"
   },
-  "files":[
+  "files": [
     "LICENSE",
     "abis/**",
     "aave/",

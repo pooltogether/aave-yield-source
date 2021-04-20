@@ -824,7 +824,7 @@ __metadata:
     "@openzeppelin/contracts-upgradeable": 3.4.1
     "@openzeppelin/hardhat-upgrades": 1.6.0
     "@pooltogether/fixed-point": 1.0.0
-    "@pooltogether/pooltogether-contracts": 3.3.7
+    "@pooltogether/pooltogether-contracts": 3.3.8
     "@pooltogether/pooltogether-proxy-factory": ^1.0.0-beta.2
     "@pooltogether/pooltogether-rng-contracts": 1.1.2
     "@pooltogether/yield-source-interface": 1.0.1
@@ -871,9 +871,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pooltogether/pooltogether-contracts@npm:3.3.7":
-  version: 3.3.7
-  resolution: "@pooltogether/pooltogether-contracts@npm:3.3.7"
+"@pooltogether/pooltogether-contracts@npm:3.3.8":
+  version: 3.3.8
+  resolution: "@pooltogether/pooltogether-contracts@npm:3.3.8"
   dependencies:
     "@openzeppelin/contracts-upgradeable": 3.4.0
     "@pooltogether/fixed-point": 1.0.0-beta.2
@@ -884,7 +884,7 @@ __metadata:
     sortition-sum-tree-factory: 0.1.0
   bin:
     pt-cli: scripts/cli.js
-  checksum: 5e4213a48f2f8b59aaea03e7480b7cf59a14b77e030f24f02104ca95af3ea74af382c2e87cf89d8366dc1dec75b1fb8e685deb12b2afbe4ffa4fba1d22d4ef19
+  checksum: 3938a8c1c9001dc5088610d6ca8162b9f8960449daa3d1061f11b43ae437da8d409874c5b55700c2b09ad28b51cc86eaf0c2c38a795791745f6ed1f037c70fce
   languageName: node
   linkType: hard
 
