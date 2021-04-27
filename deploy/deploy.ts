@@ -233,7 +233,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     }
     
     dim(`Writing to ${outputFile}...`)
-    writeFileSync(outputFile, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
+    writeFileSync(outputFile, JSON.stringify(jsonObj, null, 2), {encoding:'utf8',flag:'w'})
   }
 };
 
