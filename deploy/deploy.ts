@@ -5,6 +5,7 @@ import { DeployFunction, DeployResult } from 'hardhat-deploy/types';
 import { Contract, ContractFactory } from 'ethers';
 import { existsSync, readFileSync, writeFileSync } from "fs"
 import { getChainByChainId } from "evm-chains"
+import { yieldSourceTokenSymbols } from '../aave.config'
 
 
 const displayLogs = !process.env.HIDE_DEPLOY_LOG;
@@ -88,26 +89,22 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const { getNamedAccounts, deployments, getChainId, ethers } = hre;
   const { deploy } = deployments;
 
-  let { deployer, admin, multisig } = await getNamedAccounts();
+  let { deployer, multisig } = await getNamedAccounts();
 
   const chainId = parseInt(await getChainId());
 
   // 31337 is unit testing, 1337 is for coverage
   const isTestEnvironment = chainId === 31337 || chainId === 1337;
 
-  const signer = ethers.provider.getSigner(deployer);
-
   dim(`network: ${chainName(chainId)} (${isTestEnvironment ? 'local' : 'remote'})`);
   dim(`deployer: ${deployer}`);
 
-  if (!admin) {
-    admin = signer._address;
-  }
   if(!multisig){
-    throw new Error("MultiSig address not set - needed for Owner of YieldSource")
+    yellow(`multisig address not defined for network ${chainId}, falling back to deployer: ${deployer}`)
+    multisig = deployer;
+  } else {
+    dim(`multisig ${multisig}`)
   }
-
-  dim(`deployer: ${admin}`);
 
   cyan(`\nDeploying ATokenYieldSource...`);
   const aTokenYieldSourceResult : DeployResult = await deploy('ATokenYieldSource', {
@@ -166,7 +163,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   }
 
   // we can filter here for aTokens that we want - by token symbol
-  const aTokenFilter: string[] = [] //"GUSD", "BUSD", "sUSD"
+  const aTokenFilter: string[] = yieldSourceTokenSymbols[chainId]
 
   aaveAddressesArray = aaveAddressesArray.filter((entry: any)=>{
     if(aTokenFilter.includes(entry.symbol)){
@@ -179,11 +176,17 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const aTokenYieldSourceInterface = new ethers.utils.Interface((await hre.artifacts.readArtifact("ATokenYieldSource")).abi)
   let { lendingPoolAddressesProviderRegistry }= await getNamedAccounts()
 
+  const outputDirectory = `./deployments/${hre.network.name}`
+
   // deploy a proxy for each entry in aaveAddressesArray
   for(const aTokenEntry of aaveAddressesArray){
-    dim(`checking if ./deployments/${isTestEnvironment? 'localhost': getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json exists`)
+
+    const proxyName = `Aave${aTokenEntry.symbol.toUpperCase()}YieldSource`
+    const outputFile = `${outputDirectory}/${proxyName}.json`
+
+    dim(`checking if ${outputFile} exists`)
     // if already deployed - skip
-    if(existsSync(`./deployments/${isTestEnvironment? 'localhost': getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`)){
+    if(existsSync(outputFile)){
       dim(`${aTokenEntry.aTokenSymbol} already exists for this network`)
       continue
     }
@@ -199,9 +202,9 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       ]
     )
 
-    cyan(`Creating Proxy for ${aTokenEntry.aTokenSymbol}`)
+    cyan(`Creating Proxy ${proxyName} for ${aTokenEntry.aTokenSymbol}`)
     
-    const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs) 
+    const createATokenYieldSourceResult = await proxyFactoryContract.create(aTokenYieldSourceContract.address, constructorArgs)
     
     console.log("createATokenYieldSourceResult", createATokenYieldSourceResult)
     // now generate deployments JSON entry -- need: address, abi (of instance), txHash, receipt, constructor args, bytecode
@@ -229,19 +232,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
       bytecode: `${await ethers.provider.getCode(createdEvent.args.created)}`
     }
     
-    // write to deployments/networkName/contractName.file
-    if(!process.env.FORK_ENABLED){
-      dim(`fork detected`)
-      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-      
-    }
-    else if(!isTestEnvironment){
-      dim(`external network ${getChainByChainId(chainId).chain} detected`)
-      writeFileSync(`./deployments/${getChainByChainId(chainId).chain}/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-    }
-    else{
-      writeFileSync(`./deployments/localhost/${aTokenEntry.aTokenSymbol}.json`, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
-    }
+    dim(`Writing to ${outputFile}...`)
+    writeFileSync(outputFile, JSON.stringify(jsonObj), {encoding:'utf8',flag:'w'})
   }
 };
 
