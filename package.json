@@ -22,7 +22,9 @@
     "test": "yarn clean && hardhat test",
     "typechain": "typechain --target=ethers-v5 \"./abis/*.json\" --outDir \"./types\"",
     "verify": "hardhat etherscan-verify --license GPL-3.0 --solc-input --network",
-    "integration-test-mumbai": "yarn deploy mumbai && hardhat run --network mumbai ./scripts/createAndRunPrizePool.ts "
+    "integration-test-mumbai": "yarn deploy mumbai && hardhat run --network mumbai ./scripts/createAndRunPrizePool.ts ",
+    "prepack": "rm -rf build cache && yarn compile",
+    "postpublish": "PACKAGE_VERSION=$(./scripts/package-version.sh) && git tag -ae v$PACKAGE_VERSION && git push --tags"
   },
   "dependencies": {
     "@aave/protocol-v2": "1.0.1",
