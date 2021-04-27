@@ -9,12 +9,21 @@
 # PoolTogether Aave Yield Source 👻
 
 [![Coverage Status](https://coveralls.io/repos/github/pooltogether/aave-yield-source/badge.svg)](https://coveralls.io/github/pooltogether/aave-yield-source)
+[Tests](https://github.com/pooltogether/aave-yield-source/actions/workflows/main.yml/badge.svg)
 [![built-with openzeppelin](https://img.shields.io/badge/built%20with-OpenZeppelin-3677FF)](https://docs.openzeppelin.com/)
 
 PoolTogether Yield Source that uses [Aave](https://aave.com/) V2 to generate yield by lending any ERC20 token supported by Aave and deposited into the Aave Yield Source.
 
 # Usage
+
+## Adding a new Aave Lending Pool
+
+First make sure the Aave json config (`aave/aaveMainnet.json`, etc) includes the lending pool.
+
+Then, add the token symbol to the list in `aave.config.ts`.
+
 ## Deployment
+
 Follow Installation instructions.
 
 Aave provides a json blob per network of the files in the [docs](https://docs.aave.com/developers/deployed-contracts/deployed-contracts)

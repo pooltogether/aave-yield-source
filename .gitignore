@@ -20,3 +20,6 @@ deployments/localhost/
 # Solidity Coverage
 coverage
 coverage.json
+
+# VS Code
+.history
