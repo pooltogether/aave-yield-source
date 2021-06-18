@@ -155,7 +155,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     aaveAddressesArray = (JSON.parse(readFileSync("./aave/aavePolygon.json", {encoding: "utf-8"}))).proto
   }
   else if(chainId === 80001){
-    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveKovan.json", {encoding: "utf-8"}))).proto
+    aaveAddressesArray = (JSON.parse(readFileSync("./aave/aaveMumbai.json", {encoding: "utf-8"}))).proto
   }
   else{
     dim(`TestEnvironment! No deployed ATokens. Using Kovan as mock.`)
