@@ -99,6 +99,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     transferOwnership(_owner);
 
     __ERC20_init(_name,_symbol);
+    __ReentrancyGuard_init();
+
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
     _setupDecimals(_decimals);
 
