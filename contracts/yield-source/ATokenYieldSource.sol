@@ -93,9 +93,13 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     initializer
     returns (bool)
   {
+    require(address(_aToken) != address(0), "ATokenYieldSource/aToken-not-zero-address");
     aToken = _aToken;
+
+    require(address(_lendingPoolAddressesProviderRegistry) != address(0), "ATokenYieldSource/lendingPoolRegistry-not-zero-address");
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
 
+    require(_owner != address(0), "ATokenYieldSource/owner-not-zero-address");
     __Ownable_init();
     transferOwnership(_owner);
 
@@ -201,7 +205,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function supplyTokenTo(uint256 mintAmount, address to) external override nonReentrant {
     uint256 shares = _tokenToShares(mintAmount);
 
-    require(shares > 0, "ATokenYieldSource/shares-equal-zero");
+    require(shares > 0, "ATokenYieldSource/shares-gt-zero");
     _depositToAave(mintAmount);
     _mint(to, shares);
 
