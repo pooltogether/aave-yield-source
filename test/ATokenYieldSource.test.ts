@@ -12,6 +12,7 @@ import {
   ATokenInterface as AToken,
   ATokenYieldSourceHarness,
   IERC20Upgradeable as ERC20,
+  IERC20Upgradeable,
   ILendingPool as LendingPool,
   ILendingPoolAddressesProvider as LendingPoolAddressesProvider,
   ILendingPoolAddressesProviderRegistry as LendingPoolAddressesProviderRegistry,
@@ -97,7 +98,9 @@ describe('ATokenYieldSource', () => {
         hardhatATokenYieldSourceHarness.address,
         contractsOwner,
       )) as ATokenYieldSourceHarness;
-  
+    
+    await underlyingToken.mock.safeApprove.returns(true);
+    
     const initializeTx = await aTokenYieldSource.initialize(
       aToken.address,
       lendingPoolAddressesProviderRegistry.address,
@@ -106,6 +109,8 @@ describe('ATokenYieldSource', () => {
       "TEST",
       yieldSourceOwner.address
     );
+
+    console.log("done before each")
   });
 
   describe('create()', () => {
