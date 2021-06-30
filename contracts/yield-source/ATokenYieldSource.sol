@@ -93,6 +93,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     initializer
     returns (bool)
   {
+    require(address(_aToken) != address(0), "ATokenYieldSource/aToken-not-zero");
+    require(address(_lendingPoolAddressesProviderRegistry) != address(0), "ATokenYieldSource/lendingPoolAddressesProviderRegistry-not-zero");
+    require(address(_owner) != address(0), "ATokenYieldSource/owner-not-zero");
+    
     aToken = _aToken;
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
 
