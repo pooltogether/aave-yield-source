@@ -59,7 +59,7 @@ describe('ATokenYieldSource', () => {
     underlyingToken = ((await deployMockContract(
       contractsOwner,
       SafeERC20WrapperUpgradeable,
-    )) as unknown) as ERC20;
+    )) as unknown) as IERC20Upgradeable;
 
     aToken = ((await deployMockContract(contractsOwner, ATokenInterface)) as unknown) as AToken;
     await aToken.mock.UNDERLYING_ASSET_ADDRESS.returns(underlyingToken.address);
@@ -99,7 +99,7 @@ describe('ATokenYieldSource', () => {
         contractsOwner,
       )) as ATokenYieldSourceHarness;
     
-    await underlyingToken.mock.safeApprove.returns(true);
+    await underlyingToken.mock.approve.withArgs(lendingPool.address, ethers.constants.MaxUint256).returns(true);
     
     const initializeTx = await aTokenYieldSource.initialize(
       aToken.address,
