@@ -40,7 +40,7 @@ describe('ATokenYieldSource', () => {
   let aTokenYieldSource: ATokenYieldSourceHarness;
 
   let erc20Token: ERC20;
-  let underlyingToken: ERC20;
+  let underlyingToken: IERC20Upgradeable;
 
   // Numerical error tests for shares decreasing
 
@@ -99,7 +99,9 @@ describe('ATokenYieldSource', () => {
         contractsOwner,
       )) as ATokenYieldSourceHarness;
     
+    await underlyingToken.mock.allowance.returns(ethers.constants.Zero);
     await underlyingToken.mock.approve.withArgs(lendingPool.address, ethers.constants.MaxUint256).returns(true);
+    
     
     const initializeTx = await aTokenYieldSource.initialize(
       aToken.address,
@@ -110,7 +112,6 @@ describe('ATokenYieldSource', () => {
       yieldSourceOwner.address
     );
 
-    console.log("done before each")
   });
 
   describe('create()', () => {

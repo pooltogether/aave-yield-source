@@ -16,7 +16,6 @@ import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
 import "../interfaces/IProtocolYieldSource.sol";
 
-import "hardhat/console.sol";
 
 /// @title Aave Yield Source integration contract, implementing PoolTogether's generic yield source interface
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
@@ -106,10 +105,8 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
     _setupDecimals(_decimals);
 
-    console.log("ATOKENYEILDSOURCE:: approving ", _tokenAddress());
-    console.log("ATOKENYEILDSOURCE:: approving for ", address(_lendingPool()));
+    // approve once for max amount
     IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
-    console.log("done approving:");
 
     emit ATokenYieldSourceInitialized (
       _aToken,
