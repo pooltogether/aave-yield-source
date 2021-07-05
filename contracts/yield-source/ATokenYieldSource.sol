@@ -69,8 +69,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
-  
-  /// @notice Mock Initializer to prevent 
+  /// @notice Mock Initializer to initialize implementations used by minimal proxies.
   function freeze() public initializer {
     //no-op
   }
@@ -171,7 +170,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
-  /// @return 0 if successful 
+  /// @return 0 if successful
   function _depositToAave(uint256 mintAmount) internal returns (uint256) {
     IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress());
 
@@ -210,7 +209,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     uint256 afterBalance = aToken.balanceOf(address(this));
 
     uint256 balanceDiff = beforeBalance.sub(afterBalance);
-    IERC20Upgradeable(depositToken()).safeTransfer(msg.sender, balanceDiff);
+    IERC20Upgradeable(_tokenAddress()).safeTransfer(msg.sender, balanceDiff);
 
     emit RedeemedToken(msg.sender, shares, redeemAmount);
     return balanceDiff;
