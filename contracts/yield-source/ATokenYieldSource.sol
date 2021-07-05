@@ -170,14 +170,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
-  /// @return 0 if successful
-  function _depositToAave(uint256 mintAmount) internal returns (uint256) {
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress());
+  function _depositToAave(uint256 mintAmount) internal {
+    address _tokenAddress = _tokenAddress();
+    ILendingPool _lendingPool = _lendingPool();
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _depositToken.safeApprove(address(_lendingPool()), mintAmount);
-    _lendingPool().deposit(address(_tokenAddress()), mintAmount, address(this), _getRefferalCode());
-    return 0;
+    _depositToken.safeApprove(address(_lendingPool), mintAmount);
+    _lendingPool.deposit(_tokenAddress, mintAmount, address(this), _getRefferalCode());
   }
 
   /// @notice Supplies asset tokens to the yield source
