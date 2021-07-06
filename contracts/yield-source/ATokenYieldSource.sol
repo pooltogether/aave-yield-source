@@ -120,6 +120,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     return true;
   }
 
+  /// @notice Approve lending pool contract to spend max uint256 amount
+  /// @dev Emergency function to re-approve max amount if approval amount dropped too low
+  /// @return true if operation is successful
+  function approveMaxAmount() external returns (bool) {
+    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
+    return true;
+  }
+
   /// @notice Returns the ERC20 asset token used for deposits
   /// @return The ERC20 asset token address
   function depositToken() public view override returns (address) {
@@ -177,12 +185,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
   function _depositToAave(uint256 mintAmount) internal {
-    address _tokenAddress = _tokenAddress();
+    address _underlyingAssetAddress = _tokenAddress();
     ILendingPool _lendingPool = _lendingPool();
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress);
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _lendingPool.deposit(_tokenAddress, mintAmount, address(this), _getRefferalCode());
+    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), _getRefferalCode());
   }
 
   /// @notice Supplies asset tokens to the yield source
