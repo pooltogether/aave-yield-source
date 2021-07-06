@@ -218,15 +218,18 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param redeemAmount The amount of asset tokens to be redeemed
   /// @return The actual amount of asset tokens that were redeemed
   function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
+    address _tokenAddress = _tokenAddress();
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress);
+
     uint256 shares = _tokenToShares(redeemAmount);
     _burn(msg.sender, shares);
 
-    uint256 beforeBalance = aToken.balanceOf(address(this));
-    _lendingPool().withdraw(address(_tokenAddress()), redeemAmount, address(this));
-    uint256 afterBalance = aToken.balanceOf(address(this));
+    uint256 beforeBalance = _depositToken.balanceOf(address(this));
+    _lendingPool().withdraw(_tokenAddress, redeemAmount, address(this));
+    uint256 afterBalance = _depositToken.balanceOf(address(this));
 
-    uint256 balanceDiff = beforeBalance.sub(afterBalance);
-    IERC20Upgradeable(_tokenAddress()).safeTransfer(msg.sender, balanceDiff);
+    uint256 balanceDiff = afterBalance.sub(beforeBalance);
+    _depositToken.safeTransfer(msg.sender, balanceDiff);
 
     emit RedeemedToken(msg.sender, shares, redeemAmount);
     return balanceDiff;

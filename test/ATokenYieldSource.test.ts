@@ -48,7 +48,7 @@ describe('ATokenYieldSource', () => {
     aTokenAddress: string,
     lendingPoolAddressesProviderRegistryAddress: string,
     decimals: number,
-    owner: string
+    owner: string,
   ) => {
     await aTokenYieldSource.initialize(
       aTokenAddress,
@@ -107,34 +107,32 @@ describe('ATokenYieldSource', () => {
     const ATokenYieldSource = await ethers.getContractFactory('ATokenYieldSourceHarness');
     const hardhatATokenYieldSourceHarness = await ATokenYieldSource.deploy();
 
-    aTokenYieldSource = (await ethers.getContractAt(
+    aTokenYieldSource = ((await ethers.getContractAt(
       'ATokenYieldSourceHarness',
       hardhatATokenYieldSourceHarness.address,
-      contractsOwner
-    )) as unknown as ATokenYieldSourceHarness;
+      contractsOwner,
+    )) as unknown) as ATokenYieldSourceHarness;
 
-    await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.Zero);
-    await underlyingToken.mock.approve.withArgs(lendingPool.address, ethers.constants.MaxUint256).returns(true);
+    await underlyingToken.mock.allowance
+      .withArgs(aTokenYieldSource.address, lendingPool.address)
+      .returns(ethers.constants.Zero);
+    await underlyingToken.mock.approve
+      .withArgs(lendingPool.address, ethers.constants.MaxUint256)
+      .returns(true);
 
     if (!isInitializeTest) {
       await initializeATokenYieldSource(
         aToken.address,
         lendingPoolAddressesProviderRegistry.address,
         18,
-        yieldSourceOwner.address
+        yieldSourceOwner.address,
       );
     }
   });
 
   describe('initialize()', () => {
-    let randomWalletAddress: string;
-
     before(() => {
       isInitializeTest = true;
-    });
-
-    beforeEach(() => {
-      randomWalletAddress = ethers.Wallet.createRandom().address;
     });
 
     after(() => {
@@ -147,7 +145,7 @@ describe('ATokenYieldSource', () => {
           ethers.constants.AddressZero,
           lendingPoolAddressesProviderRegistry.address,
           18,
-          yieldSourceOwner.address
+          yieldSourceOwner.address,
         ),
       ).to.be.revertedWith('ATokenYieldSource/aToken-not-zero-address');
     });
@@ -158,7 +156,7 @@ describe('ATokenYieldSource', () => {
           aToken.address,
           ethers.constants.AddressZero,
           18,
-          yieldSourceOwner.address
+          yieldSourceOwner.address,
         ),
       ).to.be.revertedWith('ATokenYieldSource/lendingPoolRegistry-not-zero-address');
     });
@@ -169,7 +167,7 @@ describe('ATokenYieldSource', () => {
           aToken.address,
           lendingPoolAddressesProviderRegistry.address,
           18,
-          ethers.constants.AddressZero
+          ethers.constants.AddressZero,
         ),
       ).to.be.revertedWith('ATokenYieldSource/owner-not-zero-address');
     });
@@ -180,7 +178,7 @@ describe('ATokenYieldSource', () => {
           aToken.address,
           lendingPoolAddressesProviderRegistry.address,
           0,
-          yieldSourceOwner.address
+          yieldSourceOwner.address,
         ),
       ).to.be.revertedWith('ATokenYieldSource/decimals-gt-zero');
     });
@@ -198,14 +196,24 @@ describe('ATokenYieldSource', () => {
 
   describe('approveMaxAmount()', () => {
     it('should approve lending pool to spend max uint256 amount', async () => {
-      await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.Zero);
-      expect(await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(ethers.constants.Zero);
+      await underlyingToken.mock.allowance
+        .withArgs(aTokenYieldSource.address, lendingPool.address)
+        .returns(ethers.constants.Zero);
+      expect(
+        await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address),
+      ).to.equal(ethers.constants.Zero);
 
-      await underlyingToken.mock.approve.withArgs(lendingPool.address, ethers.constants.MaxUint256).returns(true);
+      await underlyingToken.mock.approve
+        .withArgs(lendingPool.address, ethers.constants.MaxUint256)
+        .returns(true);
       expect(await aTokenYieldSource.callStatic.approveMaxAmount()).to.equal(true);
 
-      await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.MaxUint256);
-      expect(await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(ethers.constants.MaxUint256);
+      await underlyingToken.mock.allowance
+        .withArgs(aTokenYieldSource.address, lendingPool.address)
+        .returns(ethers.constants.MaxUint256);
+      expect(
+        await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address),
+      ).to.equal(ethers.constants.MaxUint256);
     });
   });
 
@@ -388,15 +396,16 @@ describe('ATokenYieldSource', () => {
       await aToken.mock.balanceOf
         .withArgs(aTokenYieldSource.address)
         .returns(yieldSourceOwnerBalance);
+      await underlyingToken.mock.balanceOf
+        .withArgs(aTokenYieldSource.address)
+        .returns(redeemAmount);
       await lendingPool.mock.withdraw
         .withArgs(underlyingToken.address, redeemAmount, aTokenYieldSource.address)
         .returns(redeemAmount);
 
-      const balanceAfter = await aToken.balanceOf(aTokenYieldSource.address);
-      const balanceDiff = yieldSourceOwnerBalance.sub(balanceAfter);
-
+      // mocked underlyingToken will always return 100 so afterBalance.sub(beforeBalance) returns 0
       await underlyingToken.mock.transfer
-        .withArgs(yieldSourceOwner.address, balanceDiff)
+        .withArgs(yieldSourceOwner.address, toWei('0'))
         .returns(true);
 
       await aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount);
