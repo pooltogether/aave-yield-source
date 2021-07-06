@@ -12,6 +12,7 @@ import {
   ATokenInterface as AToken,
   ATokenYieldSourceHarness,
   IERC20Upgradeable as ERC20,
+  IERC20Upgradeable,
   ILendingPool as LendingPool,
   ILendingPoolAddressesProvider as LendingPoolAddressesProvider,
   ILendingPoolAddressesProviderRegistry as LendingPoolAddressesProviderRegistry,
@@ -26,7 +27,7 @@ import SafeERC20WrapperUpgradeable from '../abis/SafeERC20WrapperUpgradeable.jso
 const toWei = ethers.utils.parseEther;
 
 describe('ATokenYieldSource', () => {
-  let contractsOwner: Signer;
+  let contractsOwner: SignerWithAddress;
   let yieldSourceOwner: SignerWithAddress;
   let wallet2: SignerWithAddress;
   let provider: JsonRpcProvider;
@@ -39,7 +40,7 @@ describe('ATokenYieldSource', () => {
   let aTokenYieldSource: ATokenYieldSourceHarness;
 
   let erc20Token: ERC20;
-  let underlyingToken: ERC20;
+  let underlyingToken: IERC20Upgradeable;
 
   // Numerical error tests for shares decreasing
 
@@ -58,7 +59,7 @@ describe('ATokenYieldSource', () => {
     underlyingToken = ((await deployMockContract(
       contractsOwner,
       SafeERC20WrapperUpgradeable,
-    )) as unknown) as ERC20;
+    )) as unknown) as IERC20Upgradeable;
 
     aToken = ((await deployMockContract(contractsOwner, ATokenInterface)) as unknown) as AToken;
     await aToken.mock.UNDERLYING_ASSET_ADDRESS.returns(underlyingToken.address);
@@ -93,12 +94,15 @@ describe('ATokenYieldSource', () => {
     const hardhatATokenYieldSourceHarness = await ATokenYieldSource.deploy()
 
     aTokenYieldSource = (await ethers.getContractAt(
-        'ATokenYieldSourceHarness',
-        hardhatATokenYieldSourceHarness.address,
-        contractsOwner,
-      )) as ATokenYieldSourceHarness;
-  
-    const initializeTx = await aTokenYieldSource.initialize(
+      'ATokenYieldSourceHarness',
+      hardhatATokenYieldSourceHarness.address,
+      contractsOwner
+    )) as unknown as ATokenYieldSourceHarness;
+
+    await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.Zero);
+    await underlyingToken.mock.approve.withArgs(lendingPool.address, ethers.constants.MaxUint256).returns(true);
+
+    await aTokenYieldSource.initialize(
       aToken.address,
       lendingPoolAddressesProviderRegistry.address,
       18,
@@ -106,6 +110,7 @@ describe('ATokenYieldSource', () => {
       "TEST",
       yieldSourceOwner.address
     );
+
   });
 
   describe('create()', () => {
@@ -115,6 +120,19 @@ describe('ATokenYieldSource', () => {
         lendingPoolAddressesProviderRegistry.address,
       );
       expect(await aTokenYieldSource.owner()).to.equal(yieldSourceOwner.address);
+    });
+  });
+
+  describe('approveMaxAmount()', () => {
+    it('should approve lending pool to spend max uint256 amount', async () => {
+      await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.Zero);
+      expect(await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(ethers.constants.Zero);
+
+      await underlyingToken.mock.approve.withArgs(lendingPool.address, ethers.constants.MaxUint256).returns(true);
+      expect(await aTokenYieldSource.callStatic.approveMaxAmount()).to.equal(true);
+
+      await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.MaxUint256);
+      expect(await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(ethers.constants.MaxUint256);
     });
   });
 
@@ -174,7 +192,7 @@ describe('ATokenYieldSource', () => {
     });
 
     it('should fail to return shares if aToken total supply increases too much', async () => { // failing here
-    
+
       await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
       await aTokenYieldSource.mint(wallet2.address, toWei('100'));
       await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('100'));

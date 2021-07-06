@@ -16,6 +16,7 @@ import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
 import "../interfaces/IProtocolYieldSource.sol";
 
+
 /// @title Aave Yield Source integration contract, implementing PoolTogether's generic yield source interface
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
 /// @dev This contract inherits AssetManager which extends OwnableUpgradable
@@ -104,6 +105,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
     _setupDecimals(_decimals);
 
+    // approve once for max amount
+    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
+
     emit ATokenYieldSourceInitialized (
       _aToken,
       _lendingPoolAddressesProviderRegistry,
@@ -113,6 +117,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
       _owner
     );
 
+    return true;
+  }
+
+  /// @notice Approve lending pool contract to spend max uint256 amount
+  /// @dev Emergency function to re-approve max amount if approval amount dropped too low
+  /// @return true if operation is successful
+  function approveMaxAmount() external returns (bool) {
+    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
     return true;
   }
 
@@ -173,13 +185,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
   function _depositToAave(uint256 mintAmount) internal {
-    address _tokenAddress = _tokenAddress();
+    address _underlyingAssetAddress = _tokenAddress();
     ILendingPool _lendingPool = _lendingPool();
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress);
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _depositToken.safeApprove(address(_lendingPool), mintAmount);
-    _lendingPool.deposit(_tokenAddress, mintAmount, address(this), _getRefferalCode());
+    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), _getRefferalCode());
   }
 
   /// @notice Supplies asset tokens to the yield source
