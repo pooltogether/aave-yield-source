@@ -139,7 +139,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param tokens Amount of tokens
   /// @return Number of shares
   function _tokenToShares(uint256 tokens) internal view returns (uint256) {
-    uint256 shares = 0;
+    uint256 shares;
 
     if (totalSupply() == 0) {
       shares = tokens;
@@ -157,7 +157,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param shares Amount of shares
   /// @return Number of tokens
   function _sharesToToken(uint256 shares) internal view returns (uint256) {
-    uint256 tokens = 0;
+    uint256 tokens;
 
     if (totalSupply() == 0) {
       tokens = shares;
