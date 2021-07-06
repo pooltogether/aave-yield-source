@@ -231,7 +231,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Allows someone to deposit into the yield source without receiving any shares
   /// @dev This allows anyone to distribute tokens among the share holders
   /// @param amount The amount of tokens to deposit
-  function sponsor(uint256 amount) external override {
+  function sponsor(uint256 amount) external override nonReentrant {
     _depositToAave(amount);
     emit Sponsored(msg.sender, amount);
   }
