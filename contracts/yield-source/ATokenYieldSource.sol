@@ -70,9 +70,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
-  /// @notice Aave genesis market LendingPoolAddressesProvider's ID
+  /// @dev Aave genesis market LendingPoolAddressesProvider's ID
   /// @dev This variable could evolve in the future if we decide to support other markets
   uint256 private addressesProviderId = uint256(0);
+
+  /// @dev PoolTogether's Aave Referral Code
+  uint16 private referralCode = uint16(188);
 
   /// @notice Mock Initializer to initialize implementations used by minimal proxies.
   function freeze() public initializer {
@@ -198,7 +201,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), _getRefferalCode());
+    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), referralCode);
   }
 
   /// @notice Supplies asset tokens to the yield source
@@ -256,12 +259,6 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function sponsor(uint256 amount) external override nonReentrant {
     _depositToAave(amount);
     emit Sponsored(msg.sender, amount);
-  }
-
-  /// @notice Used to get PoolTogther's Aave Referral Code when calling depositTo Aave
-  /// @return Returns PoolTogether's Referral Code
-  function _getRefferalCode() internal pure returns (uint16) {
-    return uint16(188);
   }
 
   /// @notice Retrieves Aave LendingPoolAddressesProvider address
