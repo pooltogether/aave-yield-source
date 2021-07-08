@@ -134,8 +134,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Approve lending pool contract to spend max uint256 amount
   /// @dev Emergency function to re-approve max amount if approval amount dropped too low
   /// @return true if operation is successful
-  function approveMaxAmount() external returns (bool) {
-    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
+  function approveMaxAmount() external onlyOwner returns (bool) {
+    address _lendingPoolAddress = address(_lendingPool());
+    IERC20Upgradeable _underlyingAsset = IERC20Upgradeable(_tokenAddress());
+    uint256 allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
+
+    _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(allowance));
     return true;
   }
 

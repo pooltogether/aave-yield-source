@@ -196,24 +196,14 @@ describe('ATokenYieldSource', () => {
 
   describe('approveMaxAmount()', () => {
     it('should approve lending pool to spend max uint256 amount', async () => {
-      await underlyingToken.mock.allowance
-        .withArgs(aTokenYieldSource.address, lendingPool.address)
-        .returns(ethers.constants.Zero);
-      expect(
-        await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address),
-      ).to.equal(ethers.constants.Zero);
+      await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.MaxUint256);
 
-      await underlyingToken.mock.approve
-        .withArgs(lendingPool.address, ethers.constants.MaxUint256)
-        .returns(true);
-      expect(await aTokenYieldSource.callStatic.approveMaxAmount()).to.equal(true);
+			expect(await aTokenYieldSource.connect(yieldSourceOwner).callStatic.approveMaxAmount()).to.equal(true);
+      expect(await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(ethers.constants.MaxUint256);
+    });
 
-      await underlyingToken.mock.allowance
-        .withArgs(aTokenYieldSource.address, lendingPool.address)
-        .returns(ethers.constants.MaxUint256);
-      expect(
-        await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address),
-      ).to.equal(ethers.constants.MaxUint256);
+    it('should fail if not owner', async () => {
+			await expect(aTokenYieldSource.connect(wallet2).callStatic.approveMaxAmount()).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
 
