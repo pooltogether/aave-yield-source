@@ -70,6 +70,13 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
+  /// @dev Aave genesis market LendingPoolAddressesProvider's ID
+  /// @dev This variable could evolve in the future if we decide to support other markets
+  uint256 private constant ADDRESSES_PROVIDER_ID = uint256(0);
+
+  /// @dev PoolTogether's Aave Referral Code
+  uint16 private constant REFERRAL_CODE = uint16(188);
+
   /// @notice Mock Initializer to initialize implementations used by minimal proxies.
   function freeze() public initializer {
     //no-op
@@ -127,8 +134,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Approve lending pool contract to spend max uint256 amount
   /// @dev Emergency function to re-approve max amount if approval amount dropped too low
   /// @return true if operation is successful
-  function approveMaxAmount() external returns (bool) {
-    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
+  function approveMaxAmount() external onlyOwner returns (bool) {
+    address _lendingPoolAddress = address(_lendingPool());
+    IERC20Upgradeable _underlyingAsset = IERC20Upgradeable(_tokenAddress());
+    uint256 allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
+
+    _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(allowance));
     return true;
   }
 
@@ -194,7 +205,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), _getRefferalCode());
+    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), REFERRAL_CODE);
   }
 
   /// @notice Supplies asset tokens to the yield source
@@ -254,24 +265,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     emit Sponsored(msg.sender, amount);
   }
 
-  /// @notice Used to get Aave LendingPoolAddressesProvider's ID
-  /// @dev This function could evolve in the future if we decide to support other markets
-  /// @return Returns Aave genesis market LendingPoolAddressesProvider's ID
-  function _getAddressesProviderId() internal pure returns (uint256) {
-    return uint256(0);
-  }
-
-  /// @notice Used to get PoolTogther's Aave Referral Code when calling depositTo Aave
-  /// @return Returns PoolTogether's Referral Code
-  function _getRefferalCode() internal pure returns (uint16) {
-    return uint16(188);
-  }
-
   /// @notice Retrieves Aave LendingPoolAddressesProvider address
   /// @return A reference to LendingPoolAddressesProvider interface
   function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
-    uint256 addressesProviderId = _getAddressesProviderId();
-    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[addressesProviderId]);
+    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[ADDRESSES_PROVIDER_ID]);
   }
 
   /// @notice Retrieves Aave LendingPool address
