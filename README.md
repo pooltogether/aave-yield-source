@@ -9,7 +9,7 @@
 # PoolTogether Aave Yield Source 👻
 
 ![Tests](https://github.com/pooltogether/aave-yield-source/actions/workflows/main.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/pooltogether/aave-yield-source/badge.svg)](https://coveralls.io/github/pooltogether/aave-yield-source)
+[![Coverage Status](https://coveralls.io/repos/github/pooltogether/aave-yield-source/badge.svg?branch=main)](https://coveralls.io/github/pooltogether/aave-yield-source?branch=main)
 [![built-with openzeppelin](https://img.shields.io/badge/built%20with-OpenZeppelin-3677FF)](https://docs.openzeppelin.com/)
 
 PoolTogether Yield Source that uses [Aave](https://aave.com/) V2 to generate yield by lending any ERC20 token supported by Aave and deposited into the Aave Yield Source.
