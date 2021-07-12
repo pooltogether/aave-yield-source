@@ -16,6 +16,7 @@ import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
 import "../interfaces/IProtocolYieldSource.sol";
 
+
 /// @title Aave Yield Source integration contract, implementing PoolTogether's generic yield source interface
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
 /// @dev This contract inherits AssetManager which extends OwnableUpgradable
@@ -69,8 +70,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
-  
-  /// @notice Mock Initializer to prevent 
+  /// @dev Aave genesis market LendingPoolAddressesProvider's ID
+  /// @dev This variable could evolve in the future if we decide to support other markets
+  uint256 private constant ADDRESSES_PROVIDER_ID = uint256(0);
+
+  /// @dev PoolTogether's Aave Referral Code
+  uint16 private constant REFERRAL_CODE = uint16(188);
+
+  /// @notice Mock Initializer to initialize implementations used by minimal proxies.
   function freeze() public initializer {
     //no-op
   }
@@ -93,15 +100,24 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     initializer
     returns (bool)
   {
+    require(address(_aToken) != address(0), "ATokenYieldSource/aToken-not-zero-address");
     aToken = _aToken;
+
+    require(address(_lendingPoolAddressesProviderRegistry) != address(0), "ATokenYieldSource/lendingPoolRegistry-not-zero-address");
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
 
+    require(_owner != address(0), "ATokenYieldSource/owner-not-zero-address");
     __Ownable_init();
     transferOwnership(_owner);
 
     __ERC20_init(_name,_symbol);
+    __ReentrancyGuard_init();
+
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
     _setupDecimals(_decimals);
+
+    // approve once for max amount
+    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
 
     emit ATokenYieldSourceInitialized (
       _aToken,
@@ -112,6 +128,18 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
       _owner
     );
 
+    return true;
+  }
+
+  /// @notice Approve lending pool contract to spend max uint256 amount
+  /// @dev Emergency function to re-approve max amount if approval amount dropped too low
+  /// @return true if operation is successful
+  function approveMaxAmount() external onlyOwner returns (bool) {
+    address _lendingPoolAddress = address(_lendingPool());
+    IERC20Upgradeable _underlyingAsset = IERC20Upgradeable(_tokenAddress());
+    uint256 allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
+
+    _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(allowance));
     return true;
   }
 
@@ -138,7 +166,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param tokens Amount of tokens
   /// @return Number of shares
   function _tokenToShares(uint256 tokens) internal view returns (uint256) {
-    uint256 shares = 0;
+    uint256 shares;
 
     if (totalSupply() == 0) {
       shares = tokens;
@@ -156,7 +184,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param shares Amount of shares
   /// @return Number of tokens
   function _sharesToToken(uint256 shares) internal view returns (uint256) {
-    uint256 tokens = 0;
+    uint256 tokens;
 
     if (totalSupply() == 0) {
       tokens = shares;
@@ -171,14 +199,13 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
-  /// @return 0 if successful 
-  function _depositToAave(uint256 mintAmount) internal returns (uint256) {
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress());
+  function _depositToAave(uint256 mintAmount) internal {
+    address _underlyingAssetAddress = _tokenAddress();
+    ILendingPool _lendingPool = _lendingPool();
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _depositToken.safeApprove(address(_lendingPool()), mintAmount);
-    _lendingPool().deposit(address(_tokenAddress()), mintAmount, address(this), _getRefferalCode());
-    return 0;
+    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), REFERRAL_CODE);
   }
 
   /// @notice Supplies asset tokens to the yield source
@@ -189,7 +216,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function supplyTokenTo(uint256 mintAmount, address to) external override nonReentrant {
     uint256 shares = _tokenToShares(mintAmount);
 
-    require(shares > 0, "ATokenYieldSource/shares-equal-zero");
+    require(shares > 0, "ATokenYieldSource/shares-gt-zero");
     _depositToAave(mintAmount);
     _mint(to, shares);
 
@@ -202,15 +229,18 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param redeemAmount The amount of asset tokens to be redeemed
   /// @return The actual amount of asset tokens that were redeemed
   function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
+    address _tokenAddress = _tokenAddress();
+    IERC20Upgradeable _depositToken = IERC20Upgradeable(_tokenAddress);
+
     uint256 shares = _tokenToShares(redeemAmount);
     _burn(msg.sender, shares);
 
-    uint256 beforeBalance = aToken.balanceOf(address(this));
-    _lendingPool().withdraw(address(_tokenAddress()), redeemAmount, address(this));
-    uint256 afterBalance = aToken.balanceOf(address(this));
+    uint256 beforeBalance = _depositToken.balanceOf(address(this));
+    _lendingPool().withdraw(_tokenAddress, redeemAmount, address(this));
+    uint256 afterBalance = _depositToken.balanceOf(address(this));
 
-    uint256 balanceDiff = beforeBalance.sub(afterBalance);
-    IERC20Upgradeable(depositToken()).safeTransfer(msg.sender, balanceDiff);
+    uint256 balanceDiff = afterBalance.sub(beforeBalance);
+    _depositToken.safeTransfer(msg.sender, balanceDiff);
 
     emit RedeemedToken(msg.sender, shares, redeemAmount);
     return balanceDiff;
@@ -230,29 +260,15 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Allows someone to deposit into the yield source without receiving any shares
   /// @dev This allows anyone to distribute tokens among the share holders
   /// @param amount The amount of tokens to deposit
-  function sponsor(uint256 amount) external override {
+  function sponsor(uint256 amount) external override nonReentrant {
     _depositToAave(amount);
     emit Sponsored(msg.sender, amount);
-  }
-
-  /// @notice Used to get Aave LendingPoolAddressesProvider's ID
-  /// @dev This function could evolve in the future if we decide to support other markets
-  /// @return Returns Aave genesis market LendingPoolAddressesProvider's ID
-  function _getAddressesProviderId() internal pure returns (uint256) {
-    return uint256(0);
-  }
-
-  /// @notice Used to get PoolTogther's Aave Referral Code when calling depositTo Aave
-  /// @return Returns PoolTogether's Referral Code
-  function _getRefferalCode() internal pure returns (uint16) {
-    return uint16(188);
   }
 
   /// @notice Retrieves Aave LendingPoolAddressesProvider address
   /// @return A reference to LendingPoolAddressesProvider interface
   function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
-    uint256 addressesProviderId = _getAddressesProviderId();
-    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[addressesProviderId]);
+    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[ADDRESSES_PROVIDER_ID]);
   }
 
   /// @notice Retrieves Aave LendingPool address
