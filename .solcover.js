@@ -1,8 +1,8 @@
 module.exports = {
   skipFiles: [
-    'test/SafeERC20WrapperUpgradeable.sol',
-    'test/ATokenYieldSourceHarness.sol',
     'external/aave/ATokenInterface.sol',
-    'test/interfaces/ERC20Mintable.sol'
+    'test/ATokenYieldSourceHarness.sol',
+    'test/ERC20Mintable.sol',
+    'test/SafeERC20WrapperUpgradeable.sol'
   ],
 };
