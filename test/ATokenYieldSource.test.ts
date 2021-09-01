@@ -1,15 +1,14 @@
 import debug from 'debug';
 
 import { Signer } from '@ethersproject/abstract-signer';
-import { BigNumber } from '@ethersproject/bignumber';
-import { JsonRpcProvider } from '@ethersproject/providers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import { expect } from 'chai';
+import { BigNumber } from 'ethers';
+import { MockContract } from 'ethereum-waffle';
 import { ethers, waffle } from 'hardhat';
 
 import {
-  ATokenInterface as AToken,
   ATokenYieldSourceHarness,
   IERC20Upgradeable as ERC20,
   IERC20Upgradeable,
@@ -27,20 +26,19 @@ import SafeERC20WrapperUpgradeable from '../abis/SafeERC20WrapperUpgradeable.jso
 const toWei = ethers.utils.parseEther;
 
 describe('ATokenYieldSource', () => {
-  let contractsOwner: SignerWithAddress;
+  let contractsOwner: Signer;
   let yieldSourceOwner: SignerWithAddress;
   let wallet2: SignerWithAddress;
-  let provider: JsonRpcProvider;
 
-  let aToken: AToken;
-  let lendingPool: LendingPool;
-  let lendingPoolAddressesProvider: LendingPoolAddressesProvider;
-  let lendingPoolAddressesProviderRegistry: LendingPoolAddressesProviderRegistry;
+  let aToken: MockContract;
+  let lendingPool: MockContract;
+  let lendingPoolAddressesProvider: MockContract;
+  let lendingPoolAddressesProviderRegistry: MockContract;
 
   let aTokenYieldSource: ATokenYieldSourceHarness;
 
-  let erc20Token: ERC20;
-  let underlyingToken: IERC20Upgradeable;
+  let erc20Token: MockContract;
+  let underlyingToken: MockContract;
 
   let isInitializeTest = false;
 
@@ -64,37 +62,36 @@ describe('ATokenYieldSource', () => {
     const { deployMockContract } = waffle;
 
     [contractsOwner, yieldSourceOwner, wallet2] = await ethers.getSigners();
-    provider = waffle.provider;
 
     debug('mocking tokens...');
-    erc20Token = ((await deployMockContract(
+    erc20Token = await deployMockContract(
       contractsOwner,
       SafeERC20WrapperUpgradeable,
-    )) as unknown) as ERC20;
+    );
 
-    underlyingToken = ((await deployMockContract(
+    underlyingToken = await deployMockContract(
       contractsOwner,
       SafeERC20WrapperUpgradeable,
-    )) as unknown) as IERC20Upgradeable;
+    );
 
-    aToken = ((await deployMockContract(contractsOwner, ATokenInterface)) as unknown) as AToken;
+    aToken = await deployMockContract(contractsOwner, ATokenInterface);
     await aToken.mock.UNDERLYING_ASSET_ADDRESS.returns(underlyingToken.address);
 
     debug('mocking contracts...');
-    lendingPool = ((await deployMockContract(
+    lendingPool = await deployMockContract(
       contractsOwner,
       ILendingPool,
-    )) as unknown) as LendingPool;
+    );
 
-    lendingPoolAddressesProvider = ((await deployMockContract(
+    lendingPoolAddressesProvider = await deployMockContract(
       contractsOwner,
       ILendingPoolAddressesProvider,
-    )) as unknown) as LendingPoolAddressesProvider;
+    );
 
-    lendingPoolAddressesProviderRegistry = ((await deployMockContract(
+    lendingPoolAddressesProviderRegistry = await deployMockContract(
       contractsOwner,
       ILendingPoolAddressesProviderRegistry,
-    )) as unknown) as LendingPoolAddressesProviderRegistry;
+    );
 
     await lendingPoolAddressesProvider.mock.getLendingPool.returns(lendingPool.address);
     await lendingPoolAddressesProviderRegistry.mock.getAddressesProvidersList.returns([

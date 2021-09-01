@@ -1,4 +1,5 @@
 import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-abi-exporter';
@@ -52,7 +53,7 @@ const config: HardhatUserConfig = {
     },
     multisig: {
       1: "0x42cd8312D2BCe04277dD5161832460e95b24262E",
-      137: "0xfD54F172c162072BAAb2d20DcC8E530736a269a7" 
+      137: "0xfD54F172c162072BAAb2d20DcC8E530736a269a7"
     }
   },
   networks,
