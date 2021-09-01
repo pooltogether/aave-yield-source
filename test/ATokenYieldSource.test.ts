@@ -509,7 +509,7 @@ describe('ATokenYieldSource', () => {
     it('should return Aave LendingPoolAddressesProvider address', async () => {
       const lendingPoolAddressesProviderList = await lendingPoolAddressesProviderRegistry.getAddressesProvidersList();
 
-      expect(await aTokenYieldSource.connect(yieldSourceOwner).lendingPoolProvider()).to.equal(
+      expect(await aTokenYieldSource.lendingPoolProvider()).to.equal(
         lendingPoolAddressesProviderList[0],
       );
     });
@@ -517,7 +517,7 @@ describe('ATokenYieldSource', () => {
 
   describe('_lendingPool()', () => {
     it('should return Aave LendingPool address', async () => {
-      expect(await aTokenYieldSource.callStatic.lendingPool()).to.equal(
+      expect(await aTokenYieldSource.lendingPool()).to.equal(
         lendingPool.address,
       );
     });
