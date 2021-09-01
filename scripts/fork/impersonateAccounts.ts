@@ -1,6 +1,13 @@
 import { task } from 'hardhat/config';
 
-import { BINANCE_ADDRESS, BINANCE7_ADDRESS, DAI_RICH_ADDRESS, LARGE_GUSD_ADDRESS, LARGE_BUSD_ADDRESS, LARGE_SUSD_ADDRESS } from '../../Constant';
+import {
+  BINANCE_ADDRESS,
+  BINANCE7_ADDRESS,
+  DAI_RICH_ADDRESS,
+  LARGE_GUSD_ADDRESS,
+  LARGE_BUSD_ADDRESS,
+  LARGE_SUSD_ADDRESS,
+} from '../../Constant';
 import { info, success } from '../helpers';
 
 export default task('fork:impersonate-accounts', 'Impersonate accounts').setAction(

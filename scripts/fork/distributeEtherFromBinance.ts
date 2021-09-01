@@ -2,7 +2,17 @@ import { dai, usdc } from '@studydefi/money-legos/erc20';
 
 import { task } from 'hardhat/config';
 
-import { BINANCE_ADDRESS, BINANCE7_ADDRESS, DAI_RICH_ADDRESS, LARGE_GUSD_ADDRESS, GUSD_ADDRESS, LARGE_BUSD_ADDRESS, BUSD_ADDRESS, SUSD_ADDRESS, LARGE_SUSD_ADDRESS } from '../../Constant';
+import {
+  BINANCE_ADDRESS,
+  BINANCE7_ADDRESS,
+  DAI_RICH_ADDRESS,
+  LARGE_GUSD_ADDRESS,
+  GUSD_ADDRESS,
+  LARGE_BUSD_ADDRESS,
+  BUSD_ADDRESS,
+  SUSD_ADDRESS,
+  LARGE_SUSD_ADDRESS,
+} from '../../Constant';
 import { info, success } from '../helpers';
 
 export default task(
@@ -25,9 +35,9 @@ export default task(
 
   const daiContract = await getContractAt(dai.abi, dai.address, binance);
   const usdcContract = await getContractAt(usdc.abi, usdc.address, binance7);
-  const gusdContract = await getContractAt(dai.abi, GUSD_ADDRESS, gusdHolder)
-  const busdContract = await getContractAt(dai.abi, BUSD_ADDRESS, busdHolder)
-  const susdContract = await getContractAt(dai.abi, SUSD_ADDRESS, susdHolder)
+  const gusdContract = await getContractAt(dai.abi, GUSD_ADDRESS, gusdHolder);
+  const busdContract = await getContractAt(dai.abi, BUSD_ADDRESS, busdHolder);
+  const susdContract = await getContractAt(dai.abi, SUSD_ADDRESS, susdHolder);
 
   const recipients: { [key: string]: string } = {
     ['Deployer']: deployer,
@@ -58,7 +68,6 @@ export default task(
 
     info(`Sending 1000 SUSD to ${name}...`);
     await susdContract.transfer(address, ethers.utils.parseUnits('1000', 18));
-
   }
 
   success('Done!');
