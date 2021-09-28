@@ -2,6 +2,7 @@
 
 pragma solidity 0.6.12;
 
+import "@aave/protocol-v2/contracts/interfaces/IAaveIncentivesController.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegistry.sol";
@@ -66,6 +67,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for the yield-bearing Aave aToken
   ATokenInterface public aToken;
 
+  /// @notice Interface for Aave incentivesController
+  IAaveIncentivesController public incentivesController;
+
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
@@ -83,12 +87,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
 
   /// @notice Initializes the yield source with Aave aToken
   /// @param _aToken Aave aToken address
+  /// @param _incentivesController Aave incentivesController address
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry address
   /// @param _decimals Number of decimals the shares (inhereted ERC20) will have. Set as same as underlying asset to ensure sane ExchangeRates
   /// @param _symbol Token symbol for the underlying shares ERC20
   /// @param _name Token name for the underlying shares ERC20
   function initialize(
     ATokenInterface _aToken,
+    IAaveIncentivesController _incentivesController,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
     uint8 _decimals,
     string calldata _symbol,
@@ -101,6 +107,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   {
     require(address(_aToken) != address(0), "ATokenYieldSource/aToken-not-zero-address");
     aToken = _aToken;
+
+    require(address(_incentivesController) != address(0), "ATokenYieldSource/incentivesController-not-zero-address");
+    incentivesController = _incentivesController;
 
     require(address(_lendingPoolAddressesProviderRegistry) != address(0), "ATokenYieldSource/lendingPoolRegistry-not-zero-address");
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
@@ -246,7 +255,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     return balanceDiff;
   }
 
-  /// @notice Transfer ERC20 tokens other than the aAtokens held by this contract to the recipient address
+  /// @notice Transfer ERC20 tokens other than the aTokens held by this contract to the recipient address
   /// @dev This function is only callable by the owner or asset manager
   /// @param erc20Token The ERC20 token to transfer
   /// @param to The recipient of the tokens
@@ -263,6 +272,18 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function sponsor(uint256 amount) external override nonReentrant {
     _depositToAave(amount);
     emit Sponsored(msg.sender, amount);
+  }
+
+  /// @notice Claims the accrued rewards for the aToken, accumulating any pending rewards.
+  /// @param to Address where the claimed rewards will be sent
+  function claimRewards(address to) external onlyOwnerOrAssetManager {
+    require(to != address(0), "ATokenYieldSource/recipient-not-zero-address");
+
+    address _aTokenAddress = address(aToken);
+    IAaveIncentivesController _incentivesController = incentivesController;
+
+    uint256 _amount = _incentivesController.getRewardsBalance([_aTokenAddress], address(this));
+    _incentivesController.claimRewards([_aTokenAddress], _amount, to);
   }
 
   /// @notice Retrieves Aave LendingPoolAddressesProvider address
