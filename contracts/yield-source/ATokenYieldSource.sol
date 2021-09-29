@@ -2,7 +2,6 @@
 
 pragma solidity 0.6.12;
 
-import "@aave/protocol-v2/contracts/interfaces/IAaveIncentivesController.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegistry.sol";
@@ -15,7 +14,8 @@ import "@pooltogether/fixed-point/contracts/FixedPoint.sol";
 
 import "../access/AssetManager.sol";
 import "../external/aave/ATokenInterface.sol";
-import "../interfaces/IProtocolYieldSource.sol";
+import "../external/aave/IAaveIncentivesController.sol";
+import "../external/aave/IProtocolYieldSource.sol";
 
 /// @title Aave Yield Source integration contract, implementing PoolTogether's generic yield source interface
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
@@ -39,6 +39,13 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   event RedeemedToken(
     address indexed from,
     uint256 shares,
+    uint256 amount
+  );
+
+  /// @notice Emitted when Aave rewards have been claimed
+  event Claimed(
+    address indexed user,
+    address indexed to,
     uint256 amount
   );
 
@@ -145,9 +152,9 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   function approveMaxAmount() external onlyOwner returns (bool) {
     address _lendingPoolAddress = address(_lendingPool());
     IERC20Upgradeable _underlyingAsset = IERC20Upgradeable(_tokenAddress());
-    uint256 allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
+    uint256 _allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
 
-    _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(allowance));
+    _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(_allowance));
     return true;
   }
 
@@ -275,15 +282,21 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   }
 
   /// @notice Claims the accrued rewards for the aToken, accumulating any pending rewards.
-  /// @param to Address where the claimed rewards will be sent
-  function claimRewards(address to) external onlyOwnerOrAssetManager {
+  /// @param to Address where the claimed rewards will be sent.
+  /// @return True if operation was successful.
+  function claimRewards(address to) external onlyOwnerOrAssetManager returns (bool) {
     require(to != address(0), "ATokenYieldSource/recipient-not-zero-address");
 
-    address _aTokenAddress = address(aToken);
     IAaveIncentivesController _incentivesController = incentivesController;
 
-    uint256 _amount = _incentivesController.getRewardsBalance([_aTokenAddress], address(this));
-    _incentivesController.claimRewards([_aTokenAddress], _amount, to);
+    address[] memory _assets = new address[](1);
+    _assets[0] = address(aToken);
+
+    uint256 _amount = _incentivesController.getRewardsBalance(_assets, address(this));
+    uint256 _amountClaimed = _incentivesController.claimRewards(_assets, _amount, to);
+
+    emit Claimed(msg.sender, to, _amountClaimed);
+    return true;
   }
 
   /// @notice Retrieves Aave LendingPoolAddressesProvider address
