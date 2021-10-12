@@ -11,6 +11,7 @@ import { ethers, waffle } from 'hardhat';
 import { ATokenYieldSourceHarness, ERC20Mintable } from '../types';
 
 import ATokenInterface from '../abis/ATokenInterface.json';
+import IAaveIncentivesController from '../abis/IAaveIncentivesController.json';
 import ILendingPool from '../abis/ILendingPool.json';
 import ILendingPoolAddressesProvider from '../abis/ILendingPoolAddressesProvider.json';
 import ILendingPoolAddressesProviderRegistry from '../abis/ILendingPoolAddressesProviderRegistry.json';
@@ -26,6 +27,7 @@ describe('ATokenYieldSource', () => {
   let wallet2: SignerWithAddress;
 
   let aToken: MockContract;
+  let incentivesController: MockContract;
   let lendingPool: MockContract;
   let lendingPoolAddressesProvider: MockContract;
   let lendingPoolAddressesProviderRegistry: MockContract;
@@ -39,12 +41,14 @@ describe('ATokenYieldSource', () => {
 
   const initializeATokenYieldSource = async (
     aTokenAddress: string,
+    incentivesControllerAddress: string,
     lendingPoolAddressesProviderRegistryAddress: string,
     decimals: number,
     owner: string,
   ) => {
     await aTokenYieldSource.initialize(
       aTokenAddress,
+      incentivesControllerAddress,
       lendingPoolAddressesProviderRegistryAddress,
       decimals,
       'Test',
@@ -99,6 +103,8 @@ describe('ATokenYieldSource', () => {
     debug('mocking contracts...');
     lendingPool = await deployMockContract(contractsOwner, ILendingPool);
 
+    incentivesController = await deployMockContract(contractsOwner, IAaveIncentivesController);
+
     lendingPoolAddressesProvider = await deployMockContract(
       contractsOwner,
       ILendingPoolAddressesProvider,
@@ -129,6 +135,7 @@ describe('ATokenYieldSource', () => {
     if (!isInitializeTest) {
       await initializeATokenYieldSource(
         aToken.address,
+        incentivesController.address,
         lendingPoolAddressesProviderRegistry.address,
         18,
         yieldSourceOwner.address,
@@ -149,6 +156,7 @@ describe('ATokenYieldSource', () => {
       await expect(
         initializeATokenYieldSource(
           AddressZero,
+          incentivesController.address,
           lendingPoolAddressesProviderRegistry.address,
           18,
           yieldSourceOwner.address,
@@ -156,9 +164,27 @@ describe('ATokenYieldSource', () => {
       ).to.be.revertedWith('ATokenYieldSource/aToken-not-zero-address');
     });
 
+    it('should fail if incentivesController is address zero', async () => {
+      await expect(
+        initializeATokenYieldSource(
+          aToken.address,
+          AddressZero,
+          lendingPoolAddressesProviderRegistry.address,
+          18,
+          yieldSourceOwner.address,
+        ),
+      ).to.be.revertedWith('ATokenYieldSource/incentivesController-not-zero-address');
+    });
+
     it('should fail if lendingPoolAddressesProviderRegistry is address zero', async () => {
       await expect(
-        initializeATokenYieldSource(aToken.address, AddressZero, 18, yieldSourceOwner.address),
+        initializeATokenYieldSource(
+          aToken.address,
+          incentivesController.address,
+          AddressZero,
+          18,
+          yieldSourceOwner.address,
+        ),
       ).to.be.revertedWith('ATokenYieldSource/lendingPoolRegistry-not-zero-address');
     });
 
@@ -166,6 +192,7 @@ describe('ATokenYieldSource', () => {
       await expect(
         initializeATokenYieldSource(
           aToken.address,
+          incentivesController.address,
           lendingPoolAddressesProviderRegistry.address,
           18,
           AddressZero,
@@ -177,6 +204,7 @@ describe('ATokenYieldSource', () => {
       await expect(
         initializeATokenYieldSource(
           aToken.address,
+          incentivesController.address,
           lendingPoolAddressesProviderRegistry.address,
           0,
           yieldSourceOwner.address,
@@ -200,6 +228,7 @@ describe('ATokenYieldSource', () => {
       expect(
         await aTokenYieldSource.connect(yieldSourceOwner).callStatic.approveMaxAmount(),
       ).to.equal(true);
+
       expect(await daiToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(
         MaxUint256,
       );
@@ -456,12 +485,10 @@ describe('ATokenYieldSource', () => {
 
   describe('sponsor()', () => {
     let amount: BigNumber;
-    let lendingPoolAddress: any;
     let tokenAddress: any;
 
     beforeEach(async () => {
       amount = toWei('500');
-      lendingPoolAddress = await lendingPoolAddressesProvider.getLendingPool();
       tokenAddress = await aTokenYieldSource.tokenAddress();
     });
 
@@ -496,6 +523,46 @@ describe('ATokenYieldSource', () => {
       await expect(aTokenYieldSource.connect(yieldSourceOwner).sponsor(amount)).to.be.revertedWith(
         '',
       );
+    });
+  });
+
+  describe('claimRewards()', () => {
+    const claimAmount = toWei('100');
+
+    beforeEach(async () => {
+      await incentivesController.mock.getRewardsBalance
+        .withArgs([aToken.address], aTokenYieldSource.address)
+        .returns(claimAmount);
+
+      await incentivesController.mock.claimRewards
+        .withArgs([aToken.address], claimAmount, wallet2.address)
+        .returns(claimAmount);
+    });
+
+    it('should claimRewards if yieldSourceOwner', async () => {
+      await expect(aTokenYieldSource.connect(yieldSourceOwner).claimRewards(wallet2.address))
+        .to.emit(aTokenYieldSource, 'Claimed')
+        .withArgs(yieldSourceOwner.address, wallet2.address, claimAmount);
+    });
+
+    it('should claimRewards if assetManager', async () => {
+      await aTokenYieldSource.connect(yieldSourceOwner).setAssetManager(wallet2.address);
+
+      await expect(aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address))
+        .to.emit(aTokenYieldSource, 'Claimed')
+        .withArgs(wallet2.address, wallet2.address, claimAmount);
+    });
+
+    it('should fail to claimRewards if recipient is address zero', async () => {
+      await expect(
+        aTokenYieldSource.connect(yieldSourceOwner).claimRewards(AddressZero),
+      ).to.be.revertedWith('ATokenYieldSource/recipient-not-zero-address');
+    });
+
+    it('should fail to claimRewards if not yieldSourceOwner or assetManager', async () => {
+      await expect(
+        aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address),
+      ).to.be.revertedWith('OwnerOrAssetManager: caller is not owner or asset manager');
     });
   });
 
