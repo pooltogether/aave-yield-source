@@ -1,6 +1,6 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types"
-import {ethers, deployments, getNamedAccounts, getChainId} from "hardhat"
-import Erc20UpgradeableAbi from "../abis/ERC20Upgradeable.json"
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { ethers, deployments, getNamedAccounts, getChainId } from 'hardhat';
+import Erc20UpgradeableAbi from '../abis/ERC20Upgradeable.json';
 
 import PoolWithMultipleWinnersBuilder from '@pooltogether/pooltogether-contracts/deployments/matic/PoolWithMultipleWinnersBuilder.json';
 import RNGBlockhash from '@pooltogether/pooltogether-rng-contracts/deployments/matic_137/RNGBlockhash.json';
@@ -13,58 +13,59 @@ import { dai } from '@studydefi/money-legos/erc20';
 import { info, success } from './helpers';
 
 interface DepositAsset {
-  depositAssetName: string,
-  depositAssetAddress: string,
-  depositAmount: BigNumber,
-  depositAssetAbi: any
+  depositAssetName: string;
+  depositAssetAddress: string;
+  depositAmount: BigNumber;
+  depositAssetAbi: any;
 }
 
+async function createPrizePools() {
+  console.log('running create prize pool script with chainId ', await getChainId());
 
-async function createPrizePools(){
-    console.log("running create prize pool script with chainId ", await getChainId())
-    
-    const { deployer } = await getNamedAccounts()
-    
-    console.log("deployer is ", deployer)
-    const signer = await ethers.provider.getSigner(deployer)
+  const { deployer } = await getNamedAccounts();
 
-    const allDeployments = await deployments.all()
+  console.log('deployer is ', deployer);
+  const signer = await ethers.provider.getSigner(deployer);
 
-    const aaveTokenAddress = "0x341d1f30e77D3FBfbD43D17183E2acb9dF25574E"
+  const allDeployments = await deployments.all();
 
-    console.log("balance of deployer ", await ethers.provider.getBalance(deployer))
+  const aaveTokenAddress = '0x341d1f30e77D3FBfbD43D17183E2acb9dF25574E';
 
-    // minting mumbai AAVE
-    const aaveTokenContract = await ethers.getContractAt(Erc20UpgradeableAbi, aaveTokenAddress, signer)
-    // const mintResult = await aaveTokenContract.transfer(deployer, "100")
+  console.log('balance of deployer ', await ethers.provider.getBalance(deployer));
 
-    // console.log(mintResult)
+  // minting mumbai AAVE
+  const aaveTokenContract = await ethers.getContractAt(
+    Erc20UpgradeableAbi,
+    aaveTokenAddress,
+    signer,
+  );
+  // const mintResult = await aaveTokenContract.transfer(deployer, "100")
 
+  // console.log(mintResult)
 
-    // call for each deployed yield source
-    console.log("running lifecycle for aAAVE")
-    
-    await poolLifecycle(signer, allDeployments.aAAVE.address,
-      {depositAssetName: "AAVE",
-      depositAssetAddress: aaveTokenAddress,
-      depositAssetAbi: dai.abi,
-      depositAmount: BigNumber.from(50)
-    })
+  // call for each deployed yield source
+  console.log('running lifecycle for aAAVE');
 
+  await poolLifecycle(signer, allDeployments.aAAVE.address, {
+    depositAssetName: 'AAVE',
+    depositAssetAddress: aaveTokenAddress,
+    depositAssetAbi: dai.abi,
+    depositAmount: BigNumber.from(50),
+  });
 }
-createPrizePools()
+createPrizePools();
 
-
-
-async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: string, depositArgs: DepositAsset){
-
-  
-  const {depositAssetAddress, depositAssetName, depositAmount, depositAssetAbi } = depositArgs
+async function poolLifecycle(
+  contractsOwner: any,
+  aTokenYieldSourceAddress: string,
+  depositArgs: DepositAsset,
+) {
+  const { depositAssetAddress, depositAssetName, depositAmount, depositAssetAbi } = depositArgs;
 
   const { constants, provider, getContractAt, utils } = ethers;
   const { getBlock, getBlockNumber, getTransactionReceipt, send } = provider;
 
-  const { AddressZero } = constants
+  const { AddressZero } = constants;
   const { parseEther: toWei } = utils;
 
   async function increaseTime(time: number) {
@@ -72,12 +73,11 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     await send('evm_mine', []);
   }
 
-
-  const aTokenYieldSource = (await getContractAt(
+  const aTokenYieldSource = await getContractAt(
     'ATokenYieldSource',
     aTokenYieldSourceAddress,
     contractsOwner,
-  ));
+  );
 
   info('Deploying ATokenYieldSourcePrizePool...');
 
@@ -115,18 +115,18 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     multipleWinnersConfig,
     18,
   );
-    
-  console.info(yieldSourceMultipleWinnersTx)
 
-  await new Promise(r => setTimeout(r, 120000)); // sleep so that rpc provider has it
+  console.info(yieldSourceMultipleWinnersTx);
 
-  console.log("calling getTranasctionReceipt with ", yieldSourceMultipleWinnersTx.hash)
+  await new Promise((r) => setTimeout(r, 120000)); // sleep so that rpc provider has it
+
+  console.log('calling getTranasctionReceipt with ', yieldSourceMultipleWinnersTx.hash);
 
   const yieldSourceMultipleWinnersReceipt = await getTransactionReceipt(
     yieldSourceMultipleWinnersTx.hash,
   );
 
-  console.log("yieldSourceMultipleWinnersReceipt ", yieldSourceMultipleWinnersReceipt)
+  console.log('yieldSourceMultipleWinnersReceipt ', yieldSourceMultipleWinnersReceipt);
 
   const yieldSourcePrizePoolInitializedEvents = yieldSourceMultipleWinnersReceipt.logs.map(
     (log: any) => {
@@ -137,16 +137,19 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
       }
     },
   );
-  
-  console.log("yieldSourcePrizePoolInitializedEvent ", yieldSourcePrizePoolInitializedEvents)
 
-  const yieldSourcePrizePoolInitializedEvent = yieldSourcePrizePoolInitializedEvents.find((event:any) => 
-  event && event.name === 'YieldSourcePrizePoolWithMultipleWinnersCreated');
+  console.log('yieldSourcePrizePoolInitializedEvent ', yieldSourcePrizePoolInitializedEvents);
 
-  console.log("yieldSourcePrizePoolInitializedEvent ", yieldSourcePrizePoolInitializedEvent)
+  const yieldSourcePrizePoolInitializedEvent = yieldSourcePrizePoolInitializedEvents.find(
+    (event: any) => event && event.name === 'YieldSourcePrizePoolWithMultipleWinnersCreated',
+  );
 
+  console.log('yieldSourcePrizePoolInitializedEvent ', yieldSourcePrizePoolInitializedEvent);
 
-  console.log("yieldSourcePrizePoolInitializedEvent.args.prizePool ", yieldSourcePrizePoolInitializedEvent?.args.prizePool)
+  console.log(
+    'yieldSourcePrizePoolInitializedEvent.args.prizePool ',
+    yieldSourcePrizePoolInitializedEvent?.args.prizePool,
+  );
   const prizePool = await getContractAt(
     YieldSourcePrizePool,
     yieldSourcePrizePoolInitializedEvent?.args.prizePool,
@@ -160,13 +163,19 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     await prizePool.prizeStrategy(),
     contractsOwner,
   );
- 
 
-  const depositAssetContract = await getContractAt(depositAssetAbi, depositAssetAddress, contractsOwner);
+  const depositAssetContract = await getContractAt(
+    depositAssetAbi,
+    depositAssetAddress,
+    contractsOwner,
+  );
   await depositAssetContract.approve(prizePool.address, depositAmount);
 
-  info(`Depositing ${depositAmount} ${depositAssetName} for ${contractsOwner._address}, ticket ${await prizeStrategy.ticket()}`);
-
+  info(
+    `Depositing ${depositAmount} ${depositAssetName} for ${
+      contractsOwner._address
+    }, ticket ${await prizeStrategy.ticket()}`,
+  );
 
   await prizePool.depositTo(
     contractsOwner._address,
@@ -179,22 +188,20 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
 
   info(`Prize strategy owner: ${await prizeStrategy.owner()}`);
 
-  
-
   info('Starting award...');
   await prizeStrategy.startAward();
-  
-  await new Promise(r => setTimeout(r, 60000)); // sleep so can completeAward
-  
+
+  await new Promise((r) => setTimeout(r, 60000)); // sleep so can completeAward
+
   info('Completing award...');
   const awardTx = await prizeStrategy.completeAward();
 
-  await new Promise(r => setTimeout(r, 220000));
+  await new Promise((r) => setTimeout(r, 220000));
   const awardReceipt = await getTransactionReceipt(awardTx.hash);
 
-  console.log("awardReceipt  ", awardReceipt)
+  console.log('awardReceipt  ', awardReceipt);
 
-  const awardLogs = awardReceipt.logs.map((log:any) => {
+  const awardLogs = awardReceipt.logs.map((log: any) => {
     try {
       return prizePool.interface.parseLog(log);
     } catch (e) {
@@ -202,7 +209,7 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     }
   });
 
-  const completeAwardLogs = awardReceipt.logs.map((log:any) => {
+  const completeAwardLogs = awardReceipt.logs.map((log: any) => {
     try {
       return prizeStrategy.interface.parseLog(log);
     } catch (e) {
@@ -210,22 +217,26 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     }
   });
 
-  console.log("completeAwardLogs ", completeAwardLogs)
+  console.log('completeAwardLogs ', completeAwardLogs);
 
-  const awarded = awardLogs.find((event:any) => event && event.name === 'Awarded');
+  const awarded = awardLogs.find((event: any) => event && event.name === 'Awarded');
   // console.log("awarded event", awarded)
-  
-  if(awarded){
+
+  if (awarded) {
     success(`Awarded ${awarded?.args?.amount} ${depositAssetName}!`);
   }
 
   info('Withdrawing...');
   const ticketAddress = await prizeStrategy.ticket();
   const ticket = await getContractAt(ControlledToken, ticketAddress, contractsOwner);
-  
+
   const withdrawalAmount = depositAmount.div(2); // withdraw half the amount deposited
-  
-  const earlyExitFee = await prizePool.callStatic.calculateEarlyExitFee(contractsOwner.address, ticket.address, withdrawalAmount);
+
+  const earlyExitFee = await prizePool.callStatic.calculateEarlyExitFee(
+    contractsOwner.address,
+    ticket.address,
+    withdrawalAmount,
+  );
 
   const withdrawTx = await prizePool.withdrawInstantlyFrom(
     contractsOwner._address,
@@ -234,10 +245,9 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     earlyExitFee.exitFee,
   );
 
-
-  await new Promise(r => setTimeout(r, 220000));
+  await new Promise((r) => setTimeout(r, 220000));
   const withdrawReceipt = await getTransactionReceipt(withdrawTx.hash);
-  const withdrawLogs = withdrawReceipt.logs.map((log:any) => {
+  const withdrawLogs = withdrawReceipt.logs.map((log: any) => {
     try {
       return prizePool.interface.parseLog(log);
     } catch (e) {
@@ -245,7 +255,7 @@ async function poolLifecycle(contractsOwner: any, aTokenYieldSourceAddress: stri
     }
   });
 
-  const withdrawn = withdrawLogs.find((event:any) => event && event.name === 'InstantWithdrawal');
+  const withdrawn = withdrawLogs.find((event: any) => event && event.name === 'InstantWithdrawal');
   success(`Withdrawn ${withdrawn?.args?.redeemed} ${depositAssetName}!`);
   success(`Exit fee was ${withdrawn?.args?.exitFee} ${depositAssetName}`);
 

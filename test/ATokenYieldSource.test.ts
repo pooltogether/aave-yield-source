@@ -1,57 +1,54 @@
 import debug from 'debug';
 
 import { Signer } from '@ethersproject/abstract-signer';
-import { BigNumber } from '@ethersproject/bignumber';
-import { JsonRpcProvider } from '@ethersproject/providers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import { expect } from 'chai';
+import { BigNumber } from 'ethers';
+import { MockContract } from 'ethereum-waffle';
 import { ethers, waffle } from 'hardhat';
 
-import {
-  ATokenInterface as AToken,
-  ATokenYieldSourceHarness,
-  IERC20Upgradeable as ERC20,
-  IERC20Upgradeable,
-  ILendingPool as LendingPool,
-  ILendingPoolAddressesProvider as LendingPoolAddressesProvider,
-  ILendingPoolAddressesProviderRegistry as LendingPoolAddressesProviderRegistry,
-} from '../types';
+import { ATokenYieldSourceHarness, ERC20Mintable } from '../types';
 
 import ATokenInterface from '../abis/ATokenInterface.json';
+import IAaveIncentivesController from '../abis/IAaveIncentivesController.json';
 import ILendingPool from '../abis/ILendingPool.json';
 import ILendingPoolAddressesProvider from '../abis/ILendingPoolAddressesProvider.json';
 import ILendingPoolAddressesProviderRegistry from '../abis/ILendingPoolAddressesProviderRegistry.json';
 import SafeERC20WrapperUpgradeable from '../abis/SafeERC20WrapperUpgradeable.json';
 
-const toWei = ethers.utils.parseEther;
+const { constants, getContractFactory, getSigners, utils } = ethers;
+const { AddressZero, MaxUint256 } = constants;
+const { parseEther: toWei } = utils;
 
 describe('ATokenYieldSource', () => {
-  let contractsOwner: SignerWithAddress;
+  let contractsOwner: Signer;
   let yieldSourceOwner: SignerWithAddress;
   let wallet2: SignerWithAddress;
-  let provider: JsonRpcProvider;
 
-  let aToken: AToken;
-  let lendingPool: LendingPool;
-  let lendingPoolAddressesProvider: LendingPoolAddressesProvider;
-  let lendingPoolAddressesProviderRegistry: LendingPoolAddressesProviderRegistry;
+  let aToken: MockContract;
+  let incentivesController: MockContract;
+  let lendingPool: MockContract;
+  let lendingPoolAddressesProvider: MockContract;
+  let lendingPoolAddressesProviderRegistry: MockContract;
 
   let aTokenYieldSource: ATokenYieldSourceHarness;
 
-  let erc20Token: ERC20;
-  let underlyingToken: IERC20Upgradeable;
+  let erc20Token: MockContract;
+  let daiToken: ERC20Mintable;
 
   let isInitializeTest = false;
 
   const initializeATokenYieldSource = async (
     aTokenAddress: string,
+    incentivesControllerAddress: string,
     lendingPoolAddressesProviderRegistryAddress: string,
     decimals: number,
     owner: string,
   ) => {
     await aTokenYieldSource.initialize(
       aTokenAddress,
+      incentivesControllerAddress,
       lendingPoolAddressesProviderRegistryAddress,
       decimals,
       'Test',
@@ -60,41 +57,63 @@ describe('ATokenYieldSource', () => {
     );
   };
 
+  const supplyTokenTo = async (
+    user: SignerWithAddress,
+    userAmount: BigNumber,
+    aTokenTotalSupply: BigNumber,
+  ) => {
+    const tokenAddress = await aTokenYieldSource.tokenAddress();
+    const userAddress = user.address;
+
+    await daiToken.mint(userAddress, userAmount);
+    await daiToken.connect(user).approve(aTokenYieldSource.address, MaxUint256);
+
+    await lendingPool.mock.deposit
+      .withArgs(tokenAddress, userAmount, aTokenYieldSource.address, 188)
+      .returns();
+
+    // aTokenTotalSupply should never be 0 since we mint shares to the user after depositin in Aave
+    await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(aTokenTotalSupply);
+
+    await aTokenYieldSource.connect(user).supplyTokenTo(userAmount, userAddress);
+  };
+
+  const sharesToToken = async (shares: BigNumber, yieldSourceTotalSupply: BigNumber) => {
+    const totalShares = await aTokenYieldSource.callStatic.totalSupply();
+
+    // tokens = (shares * yieldSourceTotalSupply) / totalShares
+    return shares.mul(yieldSourceTotalSupply).div(totalShares);
+  };
+
   beforeEach(async () => {
     const { deployMockContract } = waffle;
 
-    [contractsOwner, yieldSourceOwner, wallet2] = await ethers.getSigners();
-    provider = waffle.provider;
+    [contractsOwner, yieldSourceOwner, wallet2] = await getSigners();
+
+    const ERC20MintableContract = await getContractFactory('ERC20Mintable', contractsOwner);
 
     debug('mocking tokens...');
-    erc20Token = ((await deployMockContract(
-      contractsOwner,
-      SafeERC20WrapperUpgradeable,
-    )) as unknown) as ERC20;
+    erc20Token = await deployMockContract(contractsOwner, SafeERC20WrapperUpgradeable);
 
-    underlyingToken = ((await deployMockContract(
-      contractsOwner,
-      SafeERC20WrapperUpgradeable,
-    )) as unknown) as IERC20Upgradeable;
+    daiToken = await ERC20MintableContract.deploy('Dai Stablecoin', 'DAI', 18);
 
-    aToken = ((await deployMockContract(contractsOwner, ATokenInterface)) as unknown) as AToken;
-    await aToken.mock.UNDERLYING_ASSET_ADDRESS.returns(underlyingToken.address);
+    aToken = await deployMockContract(contractsOwner, ATokenInterface);
+    await aToken.mock.UNDERLYING_ASSET_ADDRESS.returns(daiToken.address);
 
     debug('mocking contracts...');
-    lendingPool = ((await deployMockContract(
-      contractsOwner,
-      ILendingPool,
-    )) as unknown) as LendingPool;
+    lendingPool = await deployMockContract(contractsOwner, ILendingPool);
 
-    lendingPoolAddressesProvider = ((await deployMockContract(
+    incentivesController = await deployMockContract(contractsOwner, IAaveIncentivesController);
+
+    lendingPoolAddressesProvider = await deployMockContract(
       contractsOwner,
       ILendingPoolAddressesProvider,
-    )) as unknown) as LendingPoolAddressesProvider;
+    );
 
-    lendingPoolAddressesProviderRegistry = ((await deployMockContract(
+    lendingPoolAddressesProviderRegistry = await deployMockContract(
       contractsOwner,
       ILendingPoolAddressesProviderRegistry,
-    )) as unknown) as LendingPoolAddressesProviderRegistry;
+    );
 
     await lendingPoolAddressesProvider.mock.getLendingPool.returns(lendingPool.address);
     await lendingPoolAddressesProviderRegistry.mock.getAddressesProvidersList.returns([
@@ -113,16 +132,10 @@ describe('ATokenYieldSource', () => {
       contractsOwner,
     )) as unknown) as ATokenYieldSourceHarness;
 
-    await underlyingToken.mock.allowance
-      .withArgs(aTokenYieldSource.address, lendingPool.address)
-      .returns(ethers.constants.Zero);
-    await underlyingToken.mock.approve
-      .withArgs(lendingPool.address, ethers.constants.MaxUint256)
-      .returns(true);
-
     if (!isInitializeTest) {
       await initializeATokenYieldSource(
         aToken.address,
+        incentivesController.address,
         lendingPoolAddressesProviderRegistry.address,
         18,
         yieldSourceOwner.address,
@@ -142,7 +155,8 @@ describe('ATokenYieldSource', () => {
     it('should fail if aToken is address zero', async () => {
       await expect(
         initializeATokenYieldSource(
-          ethers.constants.AddressZero,
+          AddressZero,
+          incentivesController.address,
           lendingPoolAddressesProviderRegistry.address,
           18,
           yieldSourceOwner.address,
@@ -150,11 +164,24 @@ describe('ATokenYieldSource', () => {
       ).to.be.revertedWith('ATokenYieldSource/aToken-not-zero-address');
     });
 
+    it('should fail if incentivesController is address zero', async () => {
+      await expect(
+        initializeATokenYieldSource(
+          aToken.address,
+          AddressZero,
+          lendingPoolAddressesProviderRegistry.address,
+          18,
+          yieldSourceOwner.address,
+        ),
+      ).to.be.revertedWith('ATokenYieldSource/incentivesController-not-zero-address');
+    });
+
     it('should fail if lendingPoolAddressesProviderRegistry is address zero', async () => {
       await expect(
         initializeATokenYieldSource(
           aToken.address,
-          ethers.constants.AddressZero,
+          incentivesController.address,
+          AddressZero,
           18,
           yieldSourceOwner.address,
         ),
@@ -165,9 +192,10 @@ describe('ATokenYieldSource', () => {
       await expect(
         initializeATokenYieldSource(
           aToken.address,
+          incentivesController.address,
           lendingPoolAddressesProviderRegistry.address,
           18,
-          ethers.constants.AddressZero,
+          AddressZero,
         ),
       ).to.be.revertedWith('ATokenYieldSource/owner-not-zero-address');
     });
@@ -176,6 +204,7 @@ describe('ATokenYieldSource', () => {
       await expect(
         initializeATokenYieldSource(
           aToken.address,
+          incentivesController.address,
           lendingPoolAddressesProviderRegistry.address,
           0,
           yieldSourceOwner.address,
@@ -196,31 +225,45 @@ describe('ATokenYieldSource', () => {
 
   describe('approveMaxAmount()', () => {
     it('should approve lending pool to spend max uint256 amount', async () => {
-      await underlyingToken.mock.allowance.withArgs(aTokenYieldSource.address, lendingPool.address).returns(ethers.constants.MaxUint256);
+      expect(
+        await aTokenYieldSource.connect(yieldSourceOwner).callStatic.approveMaxAmount(),
+      ).to.equal(true);
 
-			expect(await aTokenYieldSource.connect(yieldSourceOwner).callStatic.approveMaxAmount()).to.equal(true);
-      expect(await underlyingToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(ethers.constants.MaxUint256);
+      expect(await daiToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(
+        MaxUint256,
+      );
     });
 
     it('should fail if not owner', async () => {
-			await expect(aTokenYieldSource.connect(wallet2).callStatic.approveMaxAmount()).to.be.revertedWith('Ownable: caller is not the owner');
+      await expect(
+        aTokenYieldSource.connect(wallet2).callStatic.approveMaxAmount(),
+      ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
 
   describe('depositToken()', () => {
     it('should return the underlying token', async () => {
-      expect(await aTokenYieldSource.depositToken()).to.equal(underlyingToken.address);
+      expect(await aTokenYieldSource.depositToken()).to.equal(daiToken.address);
     });
   });
 
   describe('balanceOfToken()', () => {
     it('should return user balance', async () => {
-      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
-      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
-      await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('1000'));
+      const firstAmount = toWei('100');
+      const yieldSourceTotalSupply = firstAmount.mul(2);
 
-      expect(await aTokenYieldSource.callStatic.balanceOfToken(wallet2.address)).to.equal(
-        toWei('500'),
+      await supplyTokenTo(yieldSourceOwner, firstAmount, firstAmount);
+      await supplyTokenTo(yieldSourceOwner, firstAmount, yieldSourceTotalSupply);
+
+      await aToken.mock.balanceOf
+        .withArgs(aTokenYieldSource.address)
+        .returns(yieldSourceTotalSupply);
+
+      const shares = await aTokenYieldSource.callStatic.balanceOf(yieldSourceOwner.address);
+      const tokens = await sharesToToken(shares, yieldSourceTotalSupply);
+
+      expect(await aTokenYieldSource.callStatic.balanceOfToken(yieldSourceOwner.address)).to.equal(
+        tokens,
       );
     });
   });
@@ -318,50 +361,26 @@ describe('ATokenYieldSource', () => {
     });
   });
 
-  const supplyTokenTo = async (user: SignerWithAddress, userAmount: BigNumber) => {
-    const lendingPoolAddress = await lendingPoolAddressesProvider.getLendingPool();
-    const tokenAddress = await aTokenYieldSource.tokenAddress();
-    const userAddress = user.address;
-
-    await underlyingToken.mock.balanceOf.withArgs(yieldSourceOwner.address).returns(toWei('200'));
-    await aToken.mock.balanceOf.withArgs(aTokenYieldSource.address).returns(toWei('300'));
-    await underlyingToken.mock.transferFrom
-      .withArgs(userAddress, aTokenYieldSource.address, userAmount)
-      .returns(true);
-    await underlyingToken.mock.allowance
-      .withArgs(aTokenYieldSource.address, lendingPoolAddress)
-      .returns(toWei('0'));
-    await underlyingToken.mock.approve.withArgs(lendingPoolAddress, userAmount).returns(true);
-    await lendingPool.mock.deposit
-      .withArgs(tokenAddress, userAmount, aTokenYieldSource.address, 188)
-      .returns();
-    await aTokenYieldSource.connect(user).supplyTokenTo(userAmount, userAddress);
-  };
-
   describe('supplyTokenTo()', () => {
     let amount: BigNumber;
-    let lendingPoolAddress: any;
     let tokenAddress: any;
 
     beforeEach(async () => {
       amount = toWei('100');
-      lendingPoolAddress = await lendingPoolAddressesProvider.getLendingPool();
       tokenAddress = await aTokenYieldSource.tokenAddress();
     });
 
     it('should supply assets if totalSupply is 0', async () => {
-      await supplyTokenTo(yieldSourceOwner, amount);
+      await supplyTokenTo(yieldSourceOwner, amount, amount);
       expect(await aTokenYieldSource.totalSupply()).to.equal(amount);
     });
 
     it('should supply assets if totalSupply is not 0', async () => {
-      await aTokenYieldSource.mint(yieldSourceOwner.address, toWei('100'));
-      await aTokenYieldSource.mint(wallet2.address, toWei('100'));
-      await supplyTokenTo(yieldSourceOwner, amount);
+      await supplyTokenTo(yieldSourceOwner, amount, amount);
+      await supplyTokenTo(wallet2, amount, amount.mul(2));
     });
 
     it('should revert on error', async () => {
-      await underlyingToken.mock.approve.withArgs(lendingPoolAddress, amount).returns(true);
       await lendingPool.mock.deposit
         .withArgs(tokenAddress, amount, aTokenYieldSource.address, 188)
         .reverts();
@@ -382,21 +401,15 @@ describe('ATokenYieldSource', () => {
     });
 
     it('should redeem assets', async () => {
-      await aTokenYieldSource.mint(yieldSourceOwner.address, yieldSourceOwnerBalance);
+      await supplyTokenTo(yieldSourceOwner, yieldSourceOwnerBalance, yieldSourceOwnerBalance);
+
       await aToken.mock.balanceOf
         .withArgs(aTokenYieldSource.address)
         .returns(yieldSourceOwnerBalance);
-      await underlyingToken.mock.balanceOf
-        .withArgs(aTokenYieldSource.address)
-        .returns(redeemAmount);
-      await lendingPool.mock.withdraw
-        .withArgs(underlyingToken.address, redeemAmount, aTokenYieldSource.address)
-        .returns(redeemAmount);
 
-      // mocked underlyingToken will always return 100 so afterBalance.sub(beforeBalance) returns 0
-      await underlyingToken.mock.transfer
-        .withArgs(yieldSourceOwner.address, toWei('0'))
-        .returns(true);
+      await lendingPool.mock.withdraw
+        .withArgs(daiToken.address, redeemAmount, aTokenYieldSource.address)
+        .returns(redeemAmount);
 
       await aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount);
 
@@ -419,7 +432,7 @@ describe('ATokenYieldSource', () => {
         .withArgs(aTokenYieldSource.address)
         .returns(yieldSourceOwnerLowBalance);
       await lendingPool.mock.withdraw
-        .withArgs(underlyingToken.address, redeemAmount, aTokenYieldSource.address)
+        .withArgs(daiToken.address, redeemAmount, aTokenYieldSource.address)
         .returns(redeemAmount);
 
       await expect(
@@ -472,47 +485,37 @@ describe('ATokenYieldSource', () => {
 
   describe('sponsor()', () => {
     let amount: BigNumber;
-    let lendingPoolAddress: any;
     let tokenAddress: any;
 
     beforeEach(async () => {
       amount = toWei('500');
-      lendingPoolAddress = await lendingPoolAddressesProvider.getLendingPool();
       tokenAddress = await aTokenYieldSource.tokenAddress();
     });
 
     it('should sponsor Yield Source', async () => {
       const wallet2Amount = toWei('100');
-      await aTokenYieldSource.mint(wallet2.address, wallet2Amount);
 
-      await underlyingToken.mock.transferFrom
-        .withArgs(yieldSourceOwner.address, aTokenYieldSource.address, amount)
-        .returns(true);
-      await underlyingToken.mock.allowance
-        .withArgs(aTokenYieldSource.address, lendingPoolAddress)
-        .returns(toWei('0'));
-      await underlyingToken.mock.approve.withArgs(lendingPoolAddress, amount).returns(true);
+      await supplyTokenTo(wallet2, wallet2Amount, wallet2Amount);
+
       await lendingPool.mock.deposit
         .withArgs(tokenAddress, amount, aTokenYieldSource.address, 188)
         .returns();
 
+      await daiToken.mint(yieldSourceOwner.address, amount);
+      await daiToken.connect(yieldSourceOwner).approve(aTokenYieldSource.address, MaxUint256);
+
       await aTokenYieldSource.connect(yieldSourceOwner).sponsor(amount);
+
       await aToken.mock.balanceOf
         .withArgs(aTokenYieldSource.address)
         .returns(amount.add(wallet2Amount));
+
       expect(await aTokenYieldSource.callStatic.balanceOfToken(wallet2.address)).to.equal(
         amount.add(wallet2Amount),
       );
     });
 
     it('should revert on error', async () => {
-      await underlyingToken.mock.transferFrom
-        .withArgs(yieldSourceOwner.address, aTokenYieldSource.address, amount)
-        .returns(true);
-      await underlyingToken.mock.allowance
-        .withArgs(aTokenYieldSource.address, lendingPoolAddress)
-        .returns(toWei('0'));
-      await underlyingToken.mock.approve.withArgs(lendingPoolAddress, amount).returns(true);
       await lendingPool.mock.deposit
         .withArgs(tokenAddress, amount, aTokenYieldSource.address, 188)
         .reverts();
@@ -523,11 +526,51 @@ describe('ATokenYieldSource', () => {
     });
   });
 
+  describe('claimRewards()', () => {
+    const claimAmount = toWei('100');
+
+    beforeEach(async () => {
+      await incentivesController.mock.getRewardsBalance
+        .withArgs([aToken.address], aTokenYieldSource.address)
+        .returns(claimAmount);
+
+      await incentivesController.mock.claimRewards
+        .withArgs([aToken.address], claimAmount, wallet2.address)
+        .returns(claimAmount);
+    });
+
+    it('should claimRewards if yieldSourceOwner', async () => {
+      await expect(aTokenYieldSource.connect(yieldSourceOwner).claimRewards(wallet2.address))
+        .to.emit(aTokenYieldSource, 'Claimed')
+        .withArgs(yieldSourceOwner.address, wallet2.address, claimAmount);
+    });
+
+    it('should claimRewards if assetManager', async () => {
+      await aTokenYieldSource.connect(yieldSourceOwner).setAssetManager(wallet2.address);
+
+      await expect(aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address))
+        .to.emit(aTokenYieldSource, 'Claimed')
+        .withArgs(wallet2.address, wallet2.address, claimAmount);
+    });
+
+    it('should fail to claimRewards if recipient is address zero', async () => {
+      await expect(
+        aTokenYieldSource.connect(yieldSourceOwner).claimRewards(AddressZero),
+      ).to.be.revertedWith('ATokenYieldSource/recipient-not-zero-address');
+    });
+
+    it('should fail to claimRewards if not yieldSourceOwner or assetManager', async () => {
+      await expect(
+        aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address),
+      ).to.be.revertedWith('OwnerOrAssetManager: caller is not owner or asset manager');
+    });
+  });
+
   describe('_lendingPoolProvider()', () => {
     it('should return Aave LendingPoolAddressesProvider address', async () => {
       const lendingPoolAddressesProviderList = await lendingPoolAddressesProviderRegistry.getAddressesProvidersList();
 
-      expect(await aTokenYieldSource.connect(yieldSourceOwner).lendingPoolProvider()).to.equal(
+      expect(await aTokenYieldSource.lendingPoolProvider()).to.equal(
         lendingPoolAddressesProviderList[0],
       );
     });
@@ -535,9 +578,7 @@ describe('ATokenYieldSource', () => {
 
   describe('_lendingPool()', () => {
     it('should return Aave LendingPool address', async () => {
-      expect(await aTokenYieldSource.connect(yieldSourceOwner).lendingPool()).to.equal(
-        lendingPool.address,
-      );
+      expect(await aTokenYieldSource.lendingPool()).to.equal(lendingPool.address);
     });
   });
 });
