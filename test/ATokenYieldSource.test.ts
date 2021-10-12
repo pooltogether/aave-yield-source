@@ -199,6 +199,7 @@ describe('ATokenYieldSource', () => {
 
   describe('create()', () => {
     it('should create ATokenYieldSource', async () => {
+      expect(await aTokenYieldSource.decimals()).to.equal(18)
       expect(await aTokenYieldSource.aToken()).to.equal(aToken.address);
       expect(await aTokenYieldSource.lendingPoolAddressesProviderRegistry()).to.equal(
         lendingPoolAddressesProviderRegistry.address,
