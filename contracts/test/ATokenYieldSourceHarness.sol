@@ -1,13 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.6.12;
+pragma solidity 0.8.6;
 
 import "../yield-source/ATokenYieldSource.sol";
 import "../external/aave/ATokenInterface.sol";
-import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegistry.sol";
+import "../external/aave/ILendingPoolAddressesProviderRegistry.sol";
 
 /* solium-disable security/no-block-members */
 contract ATokenYieldSourceHarness is ATokenYieldSource {
+
+  constructor (
+    ATokenInterface _aToken,
+    IAaveIncentivesController _incentivesController,
+    ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
+    uint8 _decimals,
+    string memory _symbol,
+    string memory _name,
+    address _owner
+  ) ATokenYieldSource(_aToken, _incentivesController, _lendingPoolAddressesProviderRegistry, _decimals, _symbol, _name, _owner) {
+
+  }
+
   function mint(address account, uint256 amount) public returns (bool) {
     _mint(account, amount);
     return true;

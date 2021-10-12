@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.6.12;
+pragma solidity 0.8.6;
 
-import "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
-import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProvider.sol";
-import "@aave/protocol-v2/contracts/interfaces/ILendingPoolAddressesProviderRegistry.sol";
-import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@pooltogether/fixed-point/contracts/FixedPoint.sol";
+import "@pooltogether/owner-manager-contracts/contracts/Manageable.sol";
 
-import "../access/AssetManager.sol";
+import "../external/aave/ILendingPool.sol";
+import "../external/aave/ILendingPoolAddressesProvider.sol";
+import "../external/aave/ILendingPoolAddressesProviderRegistry.sol";
 import "../external/aave/ATokenInterface.sol";
 import "../external/aave/IAaveIncentivesController.sol";
 import "../external/aave/IProtocolYieldSource.sol";
@@ -21,9 +21,9 @@ import "../external/aave/IProtocolYieldSource.sol";
 /// @dev This contract inherits from the ERC20 implementation to keep track of users deposits
 /// @dev This contract inherits AssetManager which extends OwnableUpgradable
 /// @notice Yield source for a PoolTogether prize pool that generates yield by depositing into Aave V2
-contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManager, ReentrancyGuardUpgradeable {
-  using SafeMathUpgradeable for uint256;
-  using SafeERC20Upgradeable for IERC20Upgradeable;
+contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, ReentrancyGuard {
+  using SafeMath for uint256;
+  using SafeERC20 for IERC20;
 
   /// @notice Emitted when the yield source is initialized
   event ATokenYieldSourceInitialized(
@@ -68,7 +68,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     address indexed from,
     address indexed to,
     uint256 amount,
-    IERC20Upgradeable indexed token
+    IERC20 indexed token
   );
 
   /// @notice Interface for the yield-bearing Aave aToken
@@ -80,17 +80,14 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
+  uint8 internal __decimals;
+
   /// @dev Aave genesis market LendingPoolAddressesProvider's ID
   /// @dev This variable could evolve in the future if we decide to support other markets
   uint256 private constant ADDRESSES_PROVIDER_ID = uint256(0);
 
   /// @dev PoolTogether's Aave Referral Code
   uint16 private constant REFERRAL_CODE = uint16(188);
-
-  /// @notice Mock Initializer to initialize implementations used by minimal proxies.
-  function freeze() external initializer {
-    //no-op
-  }
 
   /// @notice Initializes the yield source with Aave aToken
   /// @param _aToken Aave aToken address
@@ -99,18 +96,15 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param _decimals Number of decimals the shares (inhereted ERC20) will have. Set as same as underlying asset to ensure sane ExchangeRates
   /// @param _symbol Token symbol for the underlying shares ERC20
   /// @param _name Token name for the underlying shares ERC20
-  function initialize(
+  constructor (
     ATokenInterface _aToken,
     IAaveIncentivesController _incentivesController,
     ILendingPoolAddressesProviderRegistry _lendingPoolAddressesProviderRegistry,
     uint8 _decimals,
-    string calldata _symbol,
-    string calldata _name,
+    string memory _symbol,
+    string memory _name,
     address _owner
-  )
-    external
-    initializer
-    returns (bool)
+  ) Ownable(_owner) ERC20(_name, _symbol) ReentrancyGuard()
   {
     require(address(_aToken) != address(0), "ATokenYieldSource/aToken-not-zero-address");
     aToken = _aToken;
@@ -122,17 +116,12 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
     lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
 
     require(_owner != address(0), "ATokenYieldSource/owner-not-zero-address");
-    __Ownable_init();
-    transferOwnership(_owner);
-
-    __ERC20_init(_name,_symbol);
-    __ReentrancyGuard_init();
 
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
-    _setupDecimals(_decimals);
+    __decimals = _decimals;
 
     // approve once for max amount
-    IERC20Upgradeable(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
+    IERC20(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
 
     emit ATokenYieldSourceInitialized (
       _aToken,
@@ -142,8 +131,10 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
       _symbol,
       _owner
     );
+  }
 
-    return true;
+  function decimals() public override view returns (uint8) {
+    return __decimals;
   }
 
   /// @notice Approve lending pool contract to spend max uint256 amount
@@ -151,7 +142,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @return true if operation is successful
   function approveMaxAmount() external onlyOwner returns (bool) {
     address _lendingPoolAddress = address(_lendingPool());
-    IERC20Upgradeable _underlyingAsset = IERC20Upgradeable(_tokenAddress());
+    IERC20 _underlyingAsset = IERC20(_tokenAddress());
     uint256 _allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
 
     _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(_allowance));
@@ -173,7 +164,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Returns user total balance (in asset tokens). This includes the deposits and interest.
   /// @param addr User address
   /// @return The underlying balance of asset tokens
-  function balanceOfToken(address addr) external override returns (uint256) {
+  function balanceOfToken(address addr) external override view returns (uint256) {
     return _sharesToToken(balanceOf(addr));
   }
 
@@ -217,11 +208,11 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param mintAmount The amount of asset tokens to be deposited
   function _depositToAave(uint256 mintAmount) internal {
     address _underlyingAssetAddress = _tokenAddress();
-    ILendingPool _lendingPool = _lendingPool();
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
+    ILendingPool __lendingPool = _lendingPool();
+    IERC20 _depositToken = IERC20(_underlyingAssetAddress);
 
     _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    _lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), REFERRAL_CODE);
+    __lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), REFERRAL_CODE);
   }
 
   /// @notice Supplies asset tokens to the yield source
@@ -246,7 +237,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @return The actual amount of asset tokens that were redeemed
   function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
     address _underlyingAssetAddress = _tokenAddress();
-    IERC20Upgradeable _depositToken = IERC20Upgradeable(_underlyingAssetAddress);
+    IERC20 _depositToken = IERC20(_underlyingAssetAddress);
 
     uint256 shares = _tokenToShares(redeemAmount);
     _burn(msg.sender, shares);
@@ -267,7 +258,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @param erc20Token The ERC20 token to transfer
   /// @param to The recipient of the tokens
   /// @param amount The amount of tokens to transfer
-  function transferERC20(IERC20Upgradeable erc20Token, address to, uint256 amount) external override onlyOwnerOrAssetManager {
+  function transferERC20(IERC20 erc20Token, address to, uint256 amount) external override onlyManagerOrOwner {
     require(address(erc20Token) != address(aToken), "ATokenYieldSource/aToken-transfer-not-allowed");
     erc20Token.safeTransfer(to, amount);
     emit TransferredERC20(msg.sender, to, amount, erc20Token);
@@ -284,7 +275,7 @@ contract ATokenYieldSource is ERC20Upgradeable, IProtocolYieldSource, AssetManag
   /// @notice Claims the accrued rewards for the aToken, accumulating any pending rewards.
   /// @param to Address where the claimed rewards will be sent.
   /// @return True if operation was successful.
-  function claimRewards(address to) external onlyOwnerOrAssetManager returns (bool) {
+  function claimRewards(address to) external onlyManagerOrOwner returns (bool) {
     require(to != address(0), "ATokenYieldSource/recipient-not-zero-address");
 
     IAaveIncentivesController _incentivesController = incentivesController;

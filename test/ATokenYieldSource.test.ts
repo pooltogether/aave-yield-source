@@ -8,14 +8,14 @@ import { BigNumber } from 'ethers';
 import { MockContract } from 'ethereum-waffle';
 import { ethers, waffle } from 'hardhat';
 
-import { ATokenYieldSourceHarness, ERC20Mintable } from '../types';
+import { ATokenYieldSourceHarness, ATokenYieldSourceHarness__factory, ERC20Mintable } from '../types';
 
 import ATokenInterface from '../abis/ATokenInterface.json';
 import IAaveIncentivesController from '../abis/IAaveIncentivesController.json';
 import ILendingPool from '../abis/ILendingPool.json';
 import ILendingPoolAddressesProvider from '../abis/ILendingPoolAddressesProvider.json';
 import ILendingPoolAddressesProviderRegistry from '../abis/ILendingPoolAddressesProviderRegistry.json';
-import SafeERC20WrapperUpgradeable from '../abis/SafeERC20WrapperUpgradeable.json';
+import SafeERC20Wrapper from '../abis/SafeERC20Wrapper.json';
 
 const { constants, getContractFactory, getSigners, utils } = ethers;
 const { AddressZero, MaxUint256 } = constants;
@@ -32,12 +32,11 @@ describe('ATokenYieldSource', () => {
   let lendingPoolAddressesProvider: MockContract;
   let lendingPoolAddressesProviderRegistry: MockContract;
 
+  let ATokenYieldSource: ATokenYieldSourceHarness__factory
   let aTokenYieldSource: ATokenYieldSourceHarness;
 
   let erc20Token: MockContract;
   let daiToken: ERC20Mintable;
-
-  let isInitializeTest = false;
 
   const initializeATokenYieldSource = async (
     aTokenAddress: string,
@@ -46,7 +45,7 @@ describe('ATokenYieldSource', () => {
     decimals: number,
     owner: string,
   ) => {
-    await aTokenYieldSource.initialize(
+    aTokenYieldSource = await ATokenYieldSource.deploy(
       aTokenAddress,
       incentivesControllerAddress,
       lendingPoolAddressesProviderRegistryAddress,
@@ -93,7 +92,7 @@ describe('ATokenYieldSource', () => {
     const ERC20MintableContract = await getContractFactory('ERC20Mintable', contractsOwner);
 
     debug('mocking tokens...');
-    erc20Token = await deployMockContract(contractsOwner, SafeERC20WrapperUpgradeable);
+    erc20Token = await deployMockContract(contractsOwner, SafeERC20Wrapper);
 
     daiToken = await ERC20MintableContract.deploy('Dai Stablecoin', 'DAI', 18);
 
@@ -123,35 +122,20 @@ describe('ATokenYieldSource', () => {
 
     debug('deploying ATokenYieldSource instance...');
 
-    const ATokenYieldSource = await ethers.getContractFactory('ATokenYieldSourceHarness');
-    const hardhatATokenYieldSourceHarness = await ATokenYieldSource.deploy();
-
-    aTokenYieldSource = ((await ethers.getContractAt(
-      'ATokenYieldSourceHarness',
-      hardhatATokenYieldSourceHarness.address,
-      contractsOwner,
-    )) as unknown) as ATokenYieldSourceHarness;
-
-    if (!isInitializeTest) {
-      await initializeATokenYieldSource(
-        aToken.address,
-        incentivesController.address,
-        lendingPoolAddressesProviderRegistry.address,
-        18,
-        yieldSourceOwner.address,
-      );
-    }
+    ATokenYieldSource = await ethers.getContractFactory('ATokenYieldSourceHarness');
+    aTokenYieldSource = await ATokenYieldSource.deploy(
+      aToken.address,
+      incentivesController.address,
+      lendingPoolAddressesProviderRegistry.address,
+      18,
+      'Test',
+      'TEST',
+      yieldSourceOwner.address
+    );
   });
 
-  describe('initialize()', () => {
-    before(() => {
-      isInitializeTest = true;
-    });
-
-    after(() => {
-      isInitializeTest = false;
-    });
-
+  describe('constructor()', () => {
+    
     it('should fail if aToken is address zero', async () => {
       await expect(
         initializeATokenYieldSource(
@@ -237,7 +221,7 @@ describe('ATokenYieldSource', () => {
     it('should fail if not owner', async () => {
       await expect(
         aTokenYieldSource.connect(wallet2).callStatic.approveMaxAmount(),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWith('Ownable/caller-not-owner');
     });
   });
 
@@ -459,7 +443,7 @@ describe('ATokenYieldSource', () => {
         .withArgs(yieldSourceOwner.address, transferAmount)
         .returns(true);
 
-      await aTokenYieldSource.connect(yieldSourceOwner).setAssetManager(wallet2.address);
+      await aTokenYieldSource.connect(yieldSourceOwner).setManager(wallet2.address);
 
       await aTokenYieldSource
         .connect(wallet2)
@@ -479,7 +463,7 @@ describe('ATokenYieldSource', () => {
         aTokenYieldSource
           .connect(wallet2)
           .transferERC20(erc20Token.address, yieldSourceOwner.address, toWei('10')),
-      ).to.be.revertedWith('OwnerOrAssetManager: caller is not owner or asset manager');
+      ).to.be.revertedWith('Manageable/caller-not-manager-or-owner');
     });
   });
 
@@ -546,7 +530,7 @@ describe('ATokenYieldSource', () => {
     });
 
     it('should claimRewards if assetManager', async () => {
-      await aTokenYieldSource.connect(yieldSourceOwner).setAssetManager(wallet2.address);
+      await aTokenYieldSource.connect(yieldSourceOwner).setManager(wallet2.address);
 
       await expect(aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address))
         .to.emit(aTokenYieldSource, 'Claimed')
@@ -562,7 +546,7 @@ describe('ATokenYieldSource', () => {
     it('should fail to claimRewards if not yieldSourceOwner or assetManager', async () => {
       await expect(
         aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address),
-      ).to.be.revertedWith('OwnerOrAssetManager: caller is not owner or asset manager');
+      ).to.be.revertedWith('Manageable/caller-not-manager-or-owner');
     });
   });
 

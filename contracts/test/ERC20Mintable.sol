@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.6.12;
+pragma solidity 0.8.6;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @dev Extension of {ERC20} that adds a set of accounts with the {MinterRole},
@@ -10,10 +10,15 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
  *
  * At construction, the deployer of the contract is the only minter.
  */
-contract ERC20Mintable is ERC20Upgradeable {
-  constructor(string memory _name, string memory _symbol, uint8 _decimals) public {
-    __ERC20_init(_name, _symbol);
-    _setupDecimals(_decimals);
+contract ERC20Mintable is ERC20 {
+  uint8 internal __decimals;
+
+  constructor(string memory _name, string memory _symbol, uint8 _decimals) ERC20(_name, _symbol) {
+    __decimals = _decimals;
+  }
+
+  function decimals() public override view returns (uint8) {
+    return __decimals;
   }
 
   /**
