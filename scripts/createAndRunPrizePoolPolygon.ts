@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ethers, deployments, getNamedAccounts, getChainId } from 'hardhat';
-import Erc20UpgradeableAbi from '../abis/ERC20Upgradeable.json';
+import Erc20Abi from '../abis/ERC20.json';
 
 import PoolWithMultipleWinnersBuilder from '@pooltogether/pooltogether-contracts/deployments/matic/PoolWithMultipleWinnersBuilder.json';
 import RNGBlockhash from '@pooltogether/pooltogether-rng-contracts/deployments/matic_137/RNGBlockhash.json';
@@ -35,7 +35,7 @@ async function createPrizePools() {
 
   // minting mumbai AAVE
   const aaveTokenContract = await ethers.getContractAt(
-    Erc20UpgradeableAbi,
+    Erc20Abi,
     aaveTokenAddress,
     signer,
   );
