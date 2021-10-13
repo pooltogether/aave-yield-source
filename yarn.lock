@@ -1026,17 +1026,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts@npm:4.3.2":
+  version: 4.3.2
+  resolution: "@openzeppelin/contracts@npm:4.3.2"
+  checksum: d44efbf42e4fb374b3d3069d1a8f4ab145907d72d0c9e8e7c493ae96d966a6d1091a33bd5faed446d655952aa084e0b10471c5e800bb8c385b9a885ef963a2a6
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts@npm:^2.5.0":
   version: 2.5.1
   resolution: "@openzeppelin/contracts@npm:2.5.1"
   checksum: 380ca5ee6cd0561bb2a4c4553dc2b8cd5dfd95dfcefa08e82966e80f8d7b83a484d9580c83b6becc04397cfc7fc2b052464c7945eb105020a28936242bea6d9a
-  languageName: node
-  linkType: hard
-
-"@openzeppelin/contracts@npm:^4.3.2":
-  version: 4.3.2
-  resolution: "@openzeppelin/contracts@npm:4.3.2"
-  checksum: d44efbf42e4fb374b3d3069d1a8f4ab145907d72d0c9e8e7c493ae96d966a6d1091a33bd5faed446d655952aa084e0b10471c5e800bb8c385b9a885ef963a2a6
   languageName: node
   linkType: hard
 
@@ -1079,10 +1079,10 @@ __metadata:
     "@nomiclabs/hardhat-ethers": 2.0.2
     "@nomiclabs/hardhat-etherscan": 2.1.1
     "@nomiclabs/hardhat-waffle": 2.0.1
-    "@openzeppelin/contracts": ^4.3.2
+    "@openzeppelin/contracts": 4.3.2
     "@openzeppelin/hardhat-upgrades": 1.6.0
     "@pooltogether/fixed-point": 1.0.0
-    "@pooltogether/owner-manager-contracts": ^1.1.0
+    "@pooltogether/owner-manager-contracts": 1.1.0
     "@pooltogether/yield-source-interface": 1.3.0
     "@studydefi/money-legos": 2.4.1
     "@typechain/ethers-v5": 7.0.1
@@ -1120,7 +1120,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pooltogether/owner-manager-contracts@npm:^1.1.0":
+"@pooltogether/owner-manager-contracts@npm:1.1.0":
   version: 1.1.0
   resolution: "@pooltogether/owner-manager-contracts@npm:1.1.0"
   checksum: 400cf97f534946f14fdd2408583df4ab746ce55e52a96cb0c2a54109cb117c63d5106f1593e2450534079eb53d719183de0d8720c15f510a5be003a79430f908
