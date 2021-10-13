@@ -1,30 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.6.12;
+pragma solidity 0.8.6;
 
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // Mock implementation from OpenZeppelin modified for our usage in tests
-// https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/mocks/SafeERC20HelperUpgradeable.sol
-contract ERC20ReturnTrueMockUpgradeable is Initializable, ContextUpgradeable, ERC20Upgradeable {
-    // solhint-disable func-name-mixedcase
-    function __ERC20ReturnTrueMock_init() internal initializer {
-        __Context_init_unchained();
-        __ERC20ReturnTrueMock_init_unchained();
-    }
+// https://github.com/OpenZeppelin/openzeppelin-contracts-/blob/master/contracts/mocks/SafeERC20Helper.sol
+contract ERC20ReturnTrueMock is ERC20 {
 
-    // solhint-disable func-name-mixedcase
-    function __ERC20ReturnTrueMock_init_unchained() internal initializer {
-    }
     mapping (address => uint256) private _allowances;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
     // we write to a dummy state variable.
     uint256 private _dummy;
+
+    constructor (string memory _name, string memory _symbol) ERC20(_name, _symbol) {}
 
     function transfer(address, uint256) public override returns (bool) {
         _dummy = 0;
@@ -51,19 +43,13 @@ contract ERC20ReturnTrueMockUpgradeable is Initializable, ContextUpgradeable, ER
     uint256[48] private __gap;
 }
 
-contract SafeERC20WrapperUpgradeable is Initializable, ContextUpgradeable {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
+contract SafeERC20Wrapper {
+    using SafeERC20 for IERC20;
 
-    IERC20Upgradeable private _token;
-
-    // solhint-disable func-name-mixedcase
-    function __SafeERC20Wrapper_init(IERC20Upgradeable token) internal initializer {
-        __Context_init_unchained();
-        __SafeERC20Wrapper_init_unchained(token);
-    }
+    IERC20 private _token;
 
     // solhint-disable func-name-mixedcase
-    function __SafeERC20Wrapper_init_unchained(IERC20Upgradeable token) internal initializer {
+    constructor (IERC20 token) public {
         _token = token;
     }
 
@@ -92,7 +78,7 @@ contract SafeERC20WrapperUpgradeable is Initializable, ContextUpgradeable {
     }
 
     function setAllowance(uint256 allowance_) public {
-        ERC20ReturnTrueMockUpgradeable(address(_token)).setAllowance(allowance_);
+        ERC20ReturnTrueMock(address(_token)).setAllowance(allowance_);
     }
 
     function allowance(address owner, address spender) public view returns (uint256) {
