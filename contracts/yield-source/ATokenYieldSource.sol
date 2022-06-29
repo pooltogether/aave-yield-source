@@ -288,15 +288,13 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     return true;
   }
 
-  /// @notice Retrieves Aave LendingPoolAddressesProvider address
-  /// @return A reference to LendingPoolAddressesProvider interface
-  function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
-    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[ADDRESSES_PROVIDER_ID]);
-  }
-
   /// @notice Retrieves Aave LendingPool address
   /// @return A reference to LendingPool interface
   function _lendingPool() internal view returns (ILendingPool) {
-    return ILendingPool(_lendingPoolProvider().getLendingPool());
+    return ILendingPool(
+      ILendingPoolAddressesProvider(
+        lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[ADDRESSES_PROVIDER_ID]
+      ).getLendingPool()
+    );
   }
 }

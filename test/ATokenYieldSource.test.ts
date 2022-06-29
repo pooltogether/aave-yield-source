@@ -135,7 +135,6 @@ describe('ATokenYieldSource', () => {
   });
 
   describe('constructor()', () => {
-    
     it('should fail if aToken is address zero', async () => {
       await expect(
         initializeATokenYieldSource(
@@ -548,16 +547,6 @@ describe('ATokenYieldSource', () => {
       await expect(
         aTokenYieldSource.connect(wallet2).claimRewards(wallet2.address),
       ).to.be.revertedWith('Manageable/caller-not-manager-or-owner');
-    });
-  });
-
-  describe('_lendingPoolProvider()', () => {
-    it('should return Aave LendingPoolAddressesProvider address', async () => {
-      const lendingPoolAddressesProviderList = await lendingPoolAddressesProviderRegistry.getAddressesProvidersList();
-
-      expect(await aTokenYieldSource.lendingPoolProvider()).to.equal(
-        lendingPoolAddressesProviderList[0],
-      );
     });
   });
 
