@@ -167,7 +167,7 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @notice Returns user total balance (in asset tokens). This includes the deposits and interest.
   /// @param addr User address
   /// @return The underlying balance of asset tokens
-  function balanceOfToken(address addr) external override returns (uint256) {
+  function balanceOfToken(address addr) external override view returns (uint256) {
     return _sharesToToken(balanceOf(addr));
   }
 
