@@ -23,9 +23,11 @@ import SafeERC20Wrapper from '../abis/SafeERC20Wrapper.json';
 
 const { constants, getContractFactory, getSigners, utils } = ethers;
 const { AddressZero, MaxUint256, Zero } = constants;
-const { parseEther: toWei, parseUnits } = utils;
+const { parseUnits, formatEther } = utils;
 
-const DECIMALS = 18;
+const DECIMALS = 6;
+
+const toWei = (amount: string) => parseUnits(amount, DECIMALS);
 
 describe('ATokenYieldSource', () => {
   let contractsOwner: Signer;
@@ -42,7 +44,7 @@ describe('ATokenYieldSource', () => {
   let aTokenYieldSource: ATokenYieldSourceHarness;
 
   let erc20Token: MockContract;
-  let daiToken: ERC20Mintable;
+  let usdcToken: ERC20Mintable;
 
   let constructorTest = false;
 
@@ -62,8 +64,8 @@ describe('ATokenYieldSource', () => {
       incentivesControllerAddress,
       lendingPoolAddressesProviderRegistryAddress,
       decimals,
-      'PoolTogether aDAI Yield',
-      'PTaDAI',
+      'PoolTogether aUSDC Yield',
+      'PTaUSDC',
       owner,
     );
   };
@@ -71,8 +73,8 @@ describe('ATokenYieldSource', () => {
   const supplyTokenTo = async (user: SignerWithAddress, userAmount: BigNumber) => {
     const userAddress = user.address;
 
-    await daiToken.mint(userAddress, userAmount);
-    await daiToken.connect(user).approve(aTokenYieldSource.address, MaxUint256);
+    await usdcToken.mint(userAddress, userAmount);
+    await usdcToken.connect(user).approve(aTokenYieldSource.address, MaxUint256);
 
     await aTokenYieldSource.connect(user).supplyTokenTo(userAmount, userAddress);
   };
@@ -100,14 +102,14 @@ describe('ATokenYieldSource', () => {
 
     debug('Mocking tokens...');
     erc20Token = await deployMockContract(contractsOwner, SafeERC20Wrapper);
-    daiToken = await ERC20MintableContract.deploy('Dai Stablecoin', 'DAI', DECIMALS);
+    usdcToken = await ERC20MintableContract.deploy('USDC Stablecoin', 'USDC', DECIMALS);
 
     const ATokenMintableContract = await getContractFactory('ATokenMintable', contractsOwner);
 
     aToken = (await ATokenMintableContract.deploy(
-      daiToken.address,
-      'Aave interest bearing DAI',
-      'aDAI',
+      usdcToken.address,
+      'Aave interest bearing USDC',
+      'aUSDC',
       DECIMALS,
     )) as ATokenMintable;
 
@@ -116,7 +118,7 @@ describe('ATokenYieldSource', () => {
     const AavePoolContract = await getContractFactory('AaveLendingPool', contractsOwner);
 
     lendingPool = (await AavePoolContract.deploy(
-      daiToken.address,
+      usdcToken.address,
       aToken.address,
     )) as AaveLendingPool;
 
@@ -238,7 +240,7 @@ describe('ATokenYieldSource', () => {
       await aTokenYieldSource.approveLendingPool(Zero);
       await aTokenYieldSource.connect(yieldSourceOwner).approveMaxAmount();
 
-      expect(await daiToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(
+      expect(await usdcToken.allowance(aTokenYieldSource.address, lendingPool.address)).to.equal(
         MaxUint256,
       );
     });
@@ -252,7 +254,7 @@ describe('ATokenYieldSource', () => {
 
   describe('depositToken()', () => {
     it('should return the underlying token', async () => {
-      expect(await aTokenYieldSource.depositToken()).to.equal(daiToken.address);
+      expect(await aTokenYieldSource.depositToken()).to.equal(usdcToken.address);
     });
   });
 
@@ -293,7 +295,7 @@ describe('ATokenYieldSource', () => {
     });
 
     it('should return shares even if aToken total supply has a lot of decimals', async () => {
-      const tokens = toWei('0.000000000000000005');
+      const tokens = toWei('0.000005');
       const shares = toWei('1');
 
       await aTokenYieldSource.mint(yieldSourceOwner.address, shares);
@@ -312,7 +314,7 @@ describe('ATokenYieldSource', () => {
 
       expect(await aTokenYieldSource.tokenToShares(tokens)).to.equal(toWei('2'));
 
-      await aToken.mint(aTokenYieldSource.address, parseUnits('100', 36).sub(amount));
+      await aToken.mint(aTokenYieldSource.address, parseUnits('100', 12).sub(amount));
 
       expect(await aTokenYieldSource.tokenToShares(tokens)).to.equal(2);
     });
@@ -327,7 +329,7 @@ describe('ATokenYieldSource', () => {
 
       expect(await aTokenYieldSource.tokenToShares(tokens)).to.equal(toWei('2'));
 
-      await aToken.mint(aTokenYieldSource.address, parseUnits('100', 37).sub(amount));
+      await aToken.mint(aTokenYieldSource.address, parseUnits('100', 13).sub(amount));
 
       await expect(aTokenYieldSource.supplyTokenTo(tokens, wallet2.address)).to.be.revertedWith(
         'ATokenYieldSource/shares-gt-zero',
@@ -351,8 +353,8 @@ describe('ATokenYieldSource', () => {
       expect(await aTokenYieldSource.sharesToToken(shares)).to.equal(shares);
     });
 
-    it('should return tokens even if if shares are very small', async () => {
-      const shares = toWei('0.000000000000000005');
+    it('should return tokens even if shares are very small', async () => {
+      const shares = toWei('0.000005');
       const tokens = toWei('100');
 
       await aTokenYieldSource.mint(yieldSourceOwner.address, shares);
@@ -371,7 +373,7 @@ describe('ATokenYieldSource', () => {
 
       expect(await aTokenYieldSource.sharesToToken(toWei('2'))).to.equal(tokens);
 
-      await aToken.mint(aTokenYieldSource.address, parseUnits('100', 36).sub(amount));
+      await aToken.mint(aTokenYieldSource.address, parseUnits('100', 12).sub(amount));
 
       expect(await aTokenYieldSource.sharesToToken(2)).to.equal(tokens);
     });
@@ -410,9 +412,7 @@ describe('ATokenYieldSource', () => {
 
       await supplyTokenTo(wallet2, amount);
 
-      expect(await aTokenYieldSource.balanceOfToken(attacker.address)).to.equal(
-        attackerBalance,
-      );
+      expect(await aTokenYieldSource.balanceOfToken(attacker.address)).to.equal(attackerBalance);
 
       // We account for a small loss in precision due to the attack
       expect(await aTokenYieldSource.balanceOfToken(wallet2.address)).to.be.gte(
@@ -431,7 +431,9 @@ describe('ATokenYieldSource', () => {
       await aToken.connect(attacker).approve(aTokenYieldSource.address, aTokenAmount);
       await aToken.connect(attacker).transfer(aTokenYieldSource.address, aTokenAmount);
 
-      await expect(supplyTokenTo(wallet2, amount)).to.be.revertedWith('ATokenYieldSource/shares-gt-zero');
+      await expect(supplyTokenTo(wallet2, amount)).to.be.revertedWith(
+        'ATokenYieldSource/shares-gt-zero',
+      );
     });
   });
 
@@ -468,6 +470,60 @@ describe('ATokenYieldSource', () => {
       await expect(
         aTokenYieldSource.connect(yieldSourceOwner).redeemToken(redeemAmount),
       ).to.be.revertedWith('ERC20: burn amount exceeds balance');
+    });
+
+    it('should succeed to manipulate share price but fail to redeem without burning any shares', async () => {
+      const amount = toWei('100000');
+      const attackAmount = BigNumber.from(1);
+      const aTokenAmount = toWei('10000');
+
+      await supplyTokenTo(attacker, attackAmount);
+
+      // Attacker sends 10000 aTokens directly to the contract to manipulate share price
+      await aToken.mint(attacker.address, aTokenAmount);
+      await aToken.connect(attacker).approve(aTokenYieldSource.address, aTokenAmount);
+      await aToken.connect(attacker).transfer(aTokenYieldSource.address, aTokenAmount);
+
+      await supplyTokenTo(wallet2, amount);
+
+      const sharePrice = await aTokenYieldSource.sharesToToken(BigNumber.from(1));
+
+      // Redeem 1 wei less than the full amount of a share to burn 0 share instead of 1 because of rounding error
+      // The actual amount of shares to be burnt should be 0.99 but since Solidity truncates down, it will be 0
+      const attackerRedeemAmount = sharePrice.sub(1);
+
+      await expect(
+        aTokenYieldSource.connect(attacker).redeemToken(attackerRedeemAmount),
+      ).to.be.revertedWith('ATokenYieldSource/shares-gt-zero');
+    });
+
+    it('should succeed to manipulate share price but fail to redeem more than deposited', async () => {
+      const amount = toWei('100000');
+      const attackAmount = BigNumber.from(1);
+      const aTokenAmount = toWei('10000');
+
+      await supplyTokenTo(attacker, attackAmount);
+
+      // Attacker sends 10000 aTokens directly to the contract to manipulate share price
+      await aToken.mint(attacker.address, aTokenAmount);
+      await aToken.connect(attacker).approve(aTokenYieldSource.address, aTokenAmount);
+      await aToken.connect(attacker).transfer(aTokenYieldSource.address, aTokenAmount);
+
+      await supplyTokenTo(wallet2, amount);
+
+      const sharePrice = await aTokenYieldSource.sharesToToken(BigNumber.from(1));
+
+      // Redeem 1 wei less than the full amount to burn 1 share instead of 2 because of rounding error
+      // The actual amount of shares to be burnt should be 1.99 but since Solidity truncates down, it will be 1
+      const attackerRedeemAmount = sharePrice.mul(2).sub(1);
+
+      const attackerRedeemShare = await aTokenYieldSource.tokenToShares(attackerRedeemAmount);
+      const redeemAmount = await aTokenYieldSource.sharesToToken(attackerRedeemShare);
+
+      await aTokenYieldSource.connect(attacker).redeemToken(attackerRedeemAmount);
+
+      expect(await usdcToken.balanceOf(attacker.address)).to.equal(redeemAmount);
+      expect(await aTokenYieldSource.balanceOfToken(attacker.address)).to.equal(Zero);
     });
   });
 
@@ -527,8 +583,8 @@ describe('ATokenYieldSource', () => {
 
       await supplyTokenTo(wallet2, wallet2Amount);
 
-      await daiToken.mint(yieldSourceOwner.address, amount);
-      await daiToken.connect(yieldSourceOwner).approve(aTokenYieldSource.address, MaxUint256);
+      await usdcToken.mint(yieldSourceOwner.address, amount);
+      await usdcToken.connect(yieldSourceOwner).approve(aTokenYieldSource.address, MaxUint256);
 
       await aTokenYieldSource.connect(yieldSourceOwner).sponsor(amount);
 

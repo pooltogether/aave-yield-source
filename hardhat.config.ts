@@ -46,14 +46,14 @@ const config: HardhatUserConfig = {
             runs: 200,
           },
           evmVersion: 'istanbul',
-        } 
-      }
-    ]
+        },
+      },
+    ],
   },
   typechain: {
     outDir: 'types',
     target: 'ethers-v5',
-  }
+  },
 };
 
 forkTasks;

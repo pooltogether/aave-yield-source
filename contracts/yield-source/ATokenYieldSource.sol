@@ -242,19 +242,22 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @param redeemAmount The amount of asset tokens to be redeemed
   /// @return The actual amount of asset tokens that were redeemed
   function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
-    IERC20 _depositToken = IERC20(_tokenAddress);
-
     uint256 shares = _tokenToShares(redeemAmount);
+    _requireSharesGTZero(shares);
+
+    uint256 tokenAmount = _sharesToToken(shares);
+
     _burn(msg.sender, shares);
 
+    IERC20 _depositToken = IERC20(_tokenAddress);
     uint256 beforeBalance = _depositToken.balanceOf(address(this));
-    _lendingPool().withdraw(_tokenAddress, redeemAmount, address(this));
+    _lendingPool().withdraw(_tokenAddress, tokenAmount, address(this));
     uint256 afterBalance = _depositToken.balanceOf(address(this));
 
     uint256 balanceDiff = afterBalance.sub(beforeBalance);
     _depositToken.safeTransfer(msg.sender, balanceDiff);
 
-    emit RedeemedToken(msg.sender, shares, redeemAmount);
+    emit RedeemedToken(msg.sender, shares, tokenAmount);
     return balanceDiff;
   }
 
