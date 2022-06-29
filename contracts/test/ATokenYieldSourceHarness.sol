@@ -21,6 +21,10 @@ contract ATokenYieldSourceHarness is ATokenYieldSource {
 
   }
 
+  function approveLendingPool(uint256 amount) external {
+    IERC20(aToken.UNDERLYING_ASSET_ADDRESS()).approve(address(_lendingPool()), amount);
+  }
+
   function mint(address account, uint256 amount) public returns (bool) {
     _mint(account, amount);
     return true;
