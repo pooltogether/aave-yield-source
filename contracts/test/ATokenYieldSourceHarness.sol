@@ -35,7 +35,7 @@ contract ATokenYieldSourceHarness is ATokenYieldSource {
   }
 
   function tokenAddress() external view returns (address) {
-    return _tokenAddress();
+    return aToken.UNDERLYING_ASSET_ADDRESS();
   }
 
   function lendingPoolProvider() external view returns (ILendingPoolAddressesProvider) {
