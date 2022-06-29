@@ -31,6 +31,7 @@ describe('ATokenYieldSource', () => {
   let contractsOwner: Signer;
   let yieldSourceOwner: SignerWithAddress;
   let wallet2: SignerWithAddress;
+  let attacker: SignerWithAddress;
 
   let aToken: ATokenMintable;
   let incentivesController: MockContract;
@@ -93,7 +94,7 @@ describe('ATokenYieldSource', () => {
   beforeEach(async () => {
     const { deployMockContract } = waffle;
 
-    [contractsOwner, yieldSourceOwner, wallet2] = await getSigners();
+    [contractsOwner, yieldSourceOwner, wallet2, attacker] = await getSigners();
 
     const ERC20MintableContract = await getContractFactory('ERC20Mintable', contractsOwner);
 
@@ -393,6 +394,44 @@ describe('ATokenYieldSource', () => {
     it('should supply assets if totalSupply is not 0', async () => {
       await supplyTokenTo(yieldSourceOwner, amount);
       await supplyTokenTo(wallet2, amount);
+    });
+
+    it('should fail to manipulate share price significantly', async () => {
+      const attackAmount = toWei('10');
+      const aTokenAmount = toWei('1000');
+      const attackerBalance = attackAmount.add(aTokenAmount);
+
+      await supplyTokenTo(attacker, attackAmount);
+
+      // Attacker sends 1000 aTokens directly to the contract to manipulate share price
+      await aToken.mint(attacker.address, aTokenAmount);
+      await aToken.connect(attacker).approve(aTokenYieldSource.address, aTokenAmount);
+      await aToken.connect(attacker).transfer(aTokenYieldSource.address, aTokenAmount);
+
+      await supplyTokenTo(wallet2, amount);
+
+      expect(await aTokenYieldSource.balanceOfToken(attacker.address)).to.equal(
+        attackerBalance,
+      );
+
+      // We account for a small loss in precision due to the attack
+      expect(await aTokenYieldSource.balanceOfToken(wallet2.address)).to.be.gte(
+        amount.sub(toWei('0.0001')),
+      );
+    });
+
+    it('should succeed to manipulate share price significantly but users should not be able to deposit smaller amounts', async () => {
+      const attackAmount = BigNumber.from(1);
+      const aTokenAmount = toWei('1000');
+
+      await supplyTokenTo(attacker, attackAmount);
+
+      // Attacker sends 1000 aTokens directly to the contract to manipulate share price
+      await aToken.mint(attacker.address, aTokenAmount);
+      await aToken.connect(attacker).approve(aTokenYieldSource.address, aTokenAmount);
+      await aToken.connect(attacker).transfer(aTokenYieldSource.address, aTokenAmount);
+
+      await expect(supplyTokenTo(wallet2, amount)).to.be.revertedWith('ATokenYieldSource/shares-gt-zero');
     });
   });
 

@@ -207,6 +207,12 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     return _tokens;
   }
 
+  /// @notice Checks that the amount of shares is greater than zero.
+  /// @param _shares Amount of shares to check
+  function _requireSharesGTZero(uint256 _shares) internal pure {
+    require(_shares > 0, "ATokenYieldSource/shares-gt-zero");
+  }
+
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
   function _depositToAave(uint256 mintAmount) internal {
@@ -221,12 +227,13 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @param to The user whose balance will receive the tokens
   function supplyTokenTo(uint256 mintAmount, address to) external override nonReentrant {
     uint256 shares = _tokenToShares(mintAmount);
+    _requireSharesGTZero(shares);
 
-    require(shares > 0, "ATokenYieldSource/shares-gt-zero");
-    _depositToAave(mintAmount);
+    uint256 tokenAmount = _sharesToToken(shares);
+    _depositToAave(tokenAmount);
     _mint(to, shares);
 
-    emit SuppliedTokenTo(msg.sender, shares, mintAmount, to);
+    emit SuppliedTokenTo(msg.sender, shares, tokenAmount, to);
   }
 
   /// @notice Redeems asset tokens from the yield source
