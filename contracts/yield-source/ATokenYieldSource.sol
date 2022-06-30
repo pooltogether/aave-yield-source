@@ -72,15 +72,19 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   );
 
   /// @notice Interface for the yield-bearing Aave aToken
-  ATokenInterface public aToken;
+  ATokenInterface public immutable aToken;
 
   /// @notice Interface for Aave incentivesController
-  IAaveIncentivesController public incentivesController;
+  IAaveIncentivesController public immutable incentivesController;
 
   /// @notice Interface for Aave lendingPoolAddressesProviderRegistry
   ILendingPoolAddressesProviderRegistry public lendingPoolAddressesProviderRegistry;
 
-  uint8 internal __decimals;
+  /// @notice Underlying asset token address.
+  address private immutable _tokenAddress;
+
+  /// @notice ERC20 token decimals.
+  uint8 private immutable __decimals;
 
   /// @dev Aave genesis market LendingPoolAddressesProvider's ID
   /// @dev This variable could evolve in the future if we decide to support other markets
@@ -107,21 +111,21 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   ) Ownable(_owner) ERC20(_name, _symbol) ReentrancyGuard()
   {
     require(address(_aToken) != address(0), "ATokenYieldSource/aToken-not-zero-address");
-    aToken = _aToken;
-
     require(address(_incentivesController) != address(0), "ATokenYieldSource/incentivesController-not-zero-address");
-    incentivesController = _incentivesController;
-
     require(address(_lendingPoolAddressesProviderRegistry) != address(0), "ATokenYieldSource/lendingPoolRegistry-not-zero-address");
-    lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
-
     require(_owner != address(0), "ATokenYieldSource/owner-not-zero-address");
-
     require(_decimals > 0, "ATokenYieldSource/decimals-gt-zero");
+
+    aToken = _aToken;
+    incentivesController = _incentivesController;
+    lendingPoolAddressesProviderRegistry = _lendingPoolAddressesProviderRegistry;
     __decimals = _decimals;
 
-    // approve once for max amount
-    IERC20(_tokenAddress()).safeApprove(address(_lendingPool()), type(uint256).max);
+    address tokenAddress = address(_aToken.UNDERLYING_ASSET_ADDRESS());
+    _tokenAddress = tokenAddress;
+
+    // Approve once for max amount
+    IERC20(tokenAddress).safeApprove(address(_lendingPool()), type(uint256).max);
 
     emit ATokenYieldSourceInitialized (
       _aToken,
@@ -144,29 +148,26 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @return true if operation is successful
   function approveMaxAmount() external onlyOwner returns (bool) {
     address _lendingPoolAddress = address(_lendingPool());
-    IERC20 _underlyingAsset = IERC20(_tokenAddress());
-    uint256 _allowance = _underlyingAsset.allowance(address(this), _lendingPoolAddress);
+    IERC20 _underlyingAsset = IERC20(_tokenAddress);
 
-    _underlyingAsset.safeIncreaseAllowance(_lendingPoolAddress, type(uint256).max.sub(_allowance));
+    _underlyingAsset.safeIncreaseAllowance(
+      _lendingPoolAddress,
+      type(uint256).max.sub(_underlyingAsset.allowance(address(this), _lendingPoolAddress))
+    );
+
     return true;
   }
 
   /// @notice Returns the ERC20 asset token used for deposits
   /// @return The ERC20 asset token address
   function depositToken() public view override returns (address) {
-    return _tokenAddress();
-  }
-
-  /// @notice Returns the underlying asset token address
-  /// @return Underlying asset token address
-  function _tokenAddress() internal view returns (address) {
-    return aToken.UNDERLYING_ASSET_ADDRESS();
+    return _tokenAddress;
   }
 
   /// @notice Returns user total balance (in asset tokens). This includes the deposits and interest.
   /// @param addr User address
   /// @return The underlying balance of asset tokens
-  function balanceOfToken(address addr) external override returns (uint256) {
+  function balanceOfToken(address addr) external override view returns (uint256) {
     return _sharesToToken(balanceOf(addr));
   }
 
@@ -206,15 +207,17 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     return _tokens;
   }
 
+  /// @notice Checks that the amount of shares is greater than zero.
+  /// @param _shares Amount of shares to check
+  function _requireSharesGTZero(uint256 _shares) internal pure {
+    require(_shares > 0, "ATokenYieldSource/shares-gt-zero");
+  }
+
   /// @notice Deposit asset tokens to Aave
   /// @param mintAmount The amount of asset tokens to be deposited
   function _depositToAave(uint256 mintAmount) internal {
-    address _underlyingAssetAddress = _tokenAddress();
-    ILendingPool __lendingPool = _lendingPool();
-    IERC20 _depositToken = IERC20(_underlyingAssetAddress);
-
-    _depositToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-    __lendingPool.deposit(_underlyingAssetAddress, mintAmount, address(this), REFERRAL_CODE);
+    IERC20(_tokenAddress).safeTransferFrom(msg.sender, address(this), mintAmount);
+    _lendingPool().deposit(_tokenAddress, mintAmount, address(this), REFERRAL_CODE);
   }
 
   /// @notice Supplies asset tokens to the yield source
@@ -224,12 +227,13 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @param to The user whose balance will receive the tokens
   function supplyTokenTo(uint256 mintAmount, address to) external override nonReentrant {
     uint256 shares = _tokenToShares(mintAmount);
+    _requireSharesGTZero(shares);
 
-    require(shares > 0, "ATokenYieldSource/shares-gt-zero");
-    _depositToAave(mintAmount);
+    uint256 tokenAmount = _sharesToToken(shares);
+    _depositToAave(tokenAmount);
     _mint(to, shares);
 
-    emit SuppliedTokenTo(msg.sender, shares, mintAmount, to);
+    emit SuppliedTokenTo(msg.sender, shares, tokenAmount, to);
   }
 
   /// @notice Redeems asset tokens from the yield source
@@ -238,20 +242,22 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @param redeemAmount The amount of asset tokens to be redeemed
   /// @return The actual amount of asset tokens that were redeemed
   function redeemToken(uint256 redeemAmount) external override nonReentrant returns (uint256) {
-    address _underlyingAssetAddress = _tokenAddress();
-    IERC20 _depositToken = IERC20(_underlyingAssetAddress);
-
     uint256 shares = _tokenToShares(redeemAmount);
+    _requireSharesGTZero(shares);
+
+    uint256 tokenAmount = _sharesToToken(shares);
+
     _burn(msg.sender, shares);
 
+    IERC20 _depositToken = IERC20(_tokenAddress);
     uint256 beforeBalance = _depositToken.balanceOf(address(this));
-    _lendingPool().withdraw(_underlyingAssetAddress, redeemAmount, address(this));
+    _lendingPool().withdraw(_tokenAddress, tokenAmount, address(this));
     uint256 afterBalance = _depositToken.balanceOf(address(this));
 
     uint256 balanceDiff = afterBalance.sub(beforeBalance);
     _depositToken.safeTransfer(msg.sender, balanceDiff);
 
-    emit RedeemedToken(msg.sender, shares, redeemAmount);
+    emit RedeemedToken(msg.sender, shares, tokenAmount);
     return balanceDiff;
   }
 
@@ -292,15 +298,13 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     return true;
   }
 
-  /// @notice Retrieves Aave LendingPoolAddressesProvider address
-  /// @return A reference to LendingPoolAddressesProvider interface
-  function _lendingPoolProvider() internal view returns (ILendingPoolAddressesProvider) {
-    return ILendingPoolAddressesProvider(lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[ADDRESSES_PROVIDER_ID]);
-  }
-
   /// @notice Retrieves Aave LendingPool address
   /// @return A reference to LendingPool interface
   function _lendingPool() internal view returns (ILendingPool) {
-    return ILendingPool(_lendingPoolProvider().getLendingPool());
+    return ILendingPool(
+      ILendingPoolAddressesProvider(
+        lendingPoolAddressesProviderRegistry.getAddressesProvidersList()[ADDRESSES_PROVIDER_ID]
+      ).getLendingPool()
+    );
   }
 }
