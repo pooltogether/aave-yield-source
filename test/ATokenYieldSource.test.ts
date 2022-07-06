@@ -496,35 +496,6 @@ describe('ATokenYieldSource', () => {
         aTokenYieldSource.connect(attacker).redeemToken(attackerRedeemAmount),
       ).to.be.revertedWith('ATokenYieldSource/shares-gt-zero');
     });
-
-    it('should succeed to manipulate share price but fail to redeem more than deposited', async () => {
-      const amount = toWei('100000');
-      const attackAmount = BigNumber.from(1);
-      const aTokenAmount = toWei('10000');
-
-      await supplyTokenTo(attacker, attackAmount);
-
-      // Attacker sends 10000 aTokens directly to the contract to manipulate share price
-      await aToken.mint(attacker.address, aTokenAmount);
-      await aToken.connect(attacker).approve(aTokenYieldSource.address, aTokenAmount);
-      await aToken.connect(attacker).transfer(aTokenYieldSource.address, aTokenAmount);
-
-      await supplyTokenTo(wallet2, amount);
-
-      const sharePrice = await aTokenYieldSource.sharesToToken(BigNumber.from(1));
-
-      // Redeem 1 wei less than the full amount to burn 1 share instead of 2 because of rounding error
-      // The actual amount of shares to be burnt should be 1.99 but since Solidity truncates down, it will be 1
-      const attackerRedeemAmount = sharePrice.mul(2).sub(1);
-
-      const attackerRedeemShare = await aTokenYieldSource.tokenToShares(attackerRedeemAmount);
-      const redeemAmount = await aTokenYieldSource.sharesToToken(attackerRedeemShare);
-
-      await aTokenYieldSource.connect(attacker).redeemToken(attackerRedeemAmount);
-
-      expect(await usdcToken.balanceOf(attacker.address)).to.equal(redeemAmount);
-      expect(await aTokenYieldSource.balanceOfToken(attacker.address)).to.equal(Zero);
-    });
   });
 
   describe('transferERC20()', () => {

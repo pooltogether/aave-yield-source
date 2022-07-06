@@ -229,11 +229,10 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     uint256 shares = _tokenToShares(mintAmount);
     _requireSharesGTZero(shares);
 
-    uint256 tokenAmount = _sharesToToken(shares);
-    _depositToAave(tokenAmount);
+    _depositToAave(mintAmount);
     _mint(to, shares);
 
-    emit SuppliedTokenTo(msg.sender, shares, tokenAmount, to);
+    emit SuppliedTokenTo(msg.sender, shares, mintAmount, to);
   }
 
   /// @notice Redeems asset tokens from the yield source
@@ -245,19 +244,17 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     uint256 shares = _tokenToShares(redeemAmount);
     _requireSharesGTZero(shares);
 
-    uint256 tokenAmount = _sharesToToken(shares);
-
     _burn(msg.sender, shares);
 
     IERC20 _depositToken = IERC20(_tokenAddress);
     uint256 beforeBalance = _depositToken.balanceOf(address(this));
-    _lendingPool().withdraw(_tokenAddress, tokenAmount, address(this));
+    _lendingPool().withdraw(_tokenAddress, redeemAmount, address(this));
     uint256 afterBalance = _depositToken.balanceOf(address(this));
 
     uint256 balanceDiff = afterBalance.sub(beforeBalance);
     _depositToken.safeTransfer(msg.sender, balanceDiff);
 
-    emit RedeemedToken(msg.sender, shares, tokenAmount);
+    emit RedeemedToken(msg.sender, shares, redeemAmount);
     return balanceDiff;
   }
 
