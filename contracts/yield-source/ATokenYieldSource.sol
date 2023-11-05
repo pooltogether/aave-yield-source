@@ -97,7 +97,7 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
   /// @param _aToken Aave aToken address
   /// @param _incentivesController Aave incentivesController address
   /// @param _lendingPoolAddressesProviderRegistry Aave lendingPoolAddressesProviderRegistry address
-  /// @param _decimals Number of decimals the shares (inhereted ERC20) will have. Set as same as underlying asset to ensure sane ExchangeRates
+  /// @param _decimals Number of decimals the shares (inherited ERC20) will have. Set as same as underlying asset to ensure sane ExchangeRates
   /// @param _symbol Token symbol for the underlying shares ERC20
   /// @param _name Token name for the underlying shares ERC20
   constructor (
@@ -137,7 +137,7 @@ contract ATokenYieldSource is ERC20, IProtocolYieldSource, Manageable, Reentranc
     );
   }
 
-  /// @notice Returns the number of decimals that the token repesenting yield source shares has
+  /// @notice Returns the number of decimals that the token representing yield source shares has
   /// @return The number of decimals
   function decimals() public override view returns (uint8) {
     return __decimals;
